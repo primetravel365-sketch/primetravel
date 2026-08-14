@@ -252,7 +252,10 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .wego-price-note.interest{color:var(--green);}
 .results-layout{display:grid; grid-template-columns:250px 1fr; gap:22px;}
 @media(max-width:860px){.results-layout{grid-template-columns:1fr;}}
+.filters-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; align-self:start; position:sticky; top:80px;}
+@media(max-width:860px){.filters-card{position:static; top:auto; margin-bottom:16px;}}
 .filters{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; align-self:start; position:sticky; top:110px;}
+@media(max-width:860px){.filters{position:static; top:auto; margin-bottom:16px;}}
 .filters h4{font-size:13px; margin-bottom:10px; color:var(--dim);}
 .filter-group{margin-bottom:16px;}
 .filter-group summary{font-size:13.5px; font-weight:700; cursor:pointer; margin-bottom:8px; list-style:none;}
@@ -268,6 +271,16 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .fc-air div span{display:block; font-size:11px; color:var(--dim);}
 .fc-time{flex:1; display:flex; align-items:center; gap:12px; min-width:220px;}
 .fc-time .t{text-align:center;}
+@media(max-width:640px){
+  .wego-card{padding:12px;}
+  .wego-rows{min-width:0; width:100%;}
+  .wego-row{gap:8px;}
+  .wego-air{flex:1 1 100%; min-width:0;}
+  .fc-time{min-width:0; flex:1 1 100%; gap:6px;}
+  .fc-time .t b{font-size:16px;}
+  .wego-price{flex:1 1 100%; border-inline-start:none; border-top:1px dashed var(--border); padding-inline-start:0; padding-top:10px; margin-top:6px;}
+  .wego-num{display:none;}
+}
 .fc-time .t b{font-size:16px;}
 .fc-time .t span{display:block; font-size:10.5px; color:var(--dim);}
 .fc-time .mid{flex:1; text-align:center; position:relative;}
@@ -401,6 +414,12 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .hotel-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap;}
 .hotel-img{flex:0 0 140px; height:100px; border-radius:10px; object-fit:cover; background:var(--card2);}
 .hotel-info{flex:1; min-width:220px;}
+@media(max-width:640px){
+  .hotel-card{padding:12px; gap:10px;}
+  .hotel-img{flex:1 1 100%; width:100%; height:140px;}
+  .hotel-info{min-width:0; flex:1 1 100%;}
+  .hotel-price-box{flex:1 1 100%; border-inline-start:none; border-top:1px dashed var(--border); padding-inline-start:0; padding-top:10px; margin-top:4px;}
+}
 .hotel-info h4{font-size:15px; margin-bottom:4px;}
 .hotel-stars{color:var(--gold-l); font-size:12px; margin-bottom:6px;}
 .hotel-loc{font-size:11.5px; color:var(--dim); margin-bottom:8px;}
@@ -694,8 +713,8 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       <button class="sort-tab" data-sort="cheapest"><span data-i18n="sort_cheapest">الأرخص</span></button>
       <button class="sort-tab" data-sort="rating"><span data-i18n="hotel_sort_rating">الأعلى تقييمًا</span></button>
     </div>
-    <div class="results-layout" style="display:grid; grid-template-columns:230px 1fr; gap:20px; align-items:start;">
-      <aside class="filters-card" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; position:sticky; top:80px;">
+    <div class="results-layout">
+      <aside class="filters-card">
         <h3 style="font-size:14.5px; margin-bottom:10px;" data-i18n="filters">الفلاتر</h3>
         <div class="filter-group">
           <div style="font-size:12px; font-weight:700; color:var(--dim); margin-bottom:8px;" data-i18n="hotel_stars">تصنيف النجوم</div>
@@ -2005,6 +2024,9 @@ const CORP_DATA = {
       {name:'قاعة اللؤلؤة الذهبية — فندق ريتز أبوظبي', img:'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=200&q=60', meta:'تتسع حتى 500 ضيف · تشمل التنسيق والإضاءة', contact:'📞 800-7000 · اليوم من 6ص-12م', price:'AED 45,000', unit:'لليوم الواحد'},
       {name:'قاعة الماس — فندق العنوان دبي', img:'https://images.unsplash.com/photo-1519741497674-611481863552?w=200&q=60', meta:'تتسع حتى 350 ضيف · بوفيه مفتوح متاح', contact:'📞 800-1234 · واتساب متاح', price:'AED 32,000', unit:'لليوم الواحد'},
       {name:'قاعة الياسمين — منتجع جميرا الشاطئي', img:'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=200&q=60', meta:'تتسع حتى 220 ضيف · إطلالة بحرية', contact:'📞 800-9090 · support@primetravel.com', price:'AED 21,000', unit:'لليوم الواحد'},
+      {name:'قاعة الأميرة — فندق فور سيزونز الرياض', img:'https://images.unsplash.com/photo-1478146059778-26028b07395a?w=200&q=60', meta:'تتسع حتى 400 ضيف · قاعة داخلية وحديقة خارجية', contact:'📞 800-5522', price:'SAR 38,000', unit:'لليوم الواحد'},
+      {name:'قاعة النخيل — منتجع مدينة جدة البحري', img:'https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=200&q=60', meta:'تتسع حتى 280 ضيف · إطلالة على البحر الأحمر', contact:'📞 800-6611', price:'SAR 24,500', unit:'لليوم الواحد'},
+      {name:'قاعة الأوركيد — فندق سيراتون إسطنبول', img:'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&q=60', meta:'تتسع حتى 320 ضيف · قاعة بانورامية على البوسفور', contact:'📞 800-7788', price:'USD 9,500', unit:'لليوم الواحد'},
     ]
   },
   leisure: {
@@ -2013,6 +2035,9 @@ const CORP_DATA = {
       {name:'رحلة رأس الخيمة الجبلية — يوم كامل', img:'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=200&q=60', meta:'أنشطة مغامرات + غداء جماعي · 20 موظف فأكثر', contact:'📞 800-4455', price:'AED 380', unit:'للموظف الواحد'},
       {name:'رحلة بحرية دبي مارينا — نصف يوم', img:'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=60', meta:'يخت خاص + مرطبات · 15-40 موظف', contact:'📞 800-4455', price:'AED 250', unit:'للموظف الواحد'},
       {name:'منتجع العين الصحي — يوم استجمام', img:'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=200&q=60', meta:'سبا + برك سباحة + أنشطة جماعية', contact:'📞 800-4455', price:'AED 310', unit:'للموظف الواحد'},
+      {name:'رحلة العلا الصحراوية — يومان', img:'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=200&q=60', meta:'تخييم صحراوي + جولات أثرية · 25 موظف فأكثر', contact:'📞 800-5522', price:'SAR 620', unit:'للموظف الواحد'},
+      {name:'يوم ترفيهي في جزيرة سعديات', img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=60', meta:'أنشطة شاطئية + غداء بحري · 10-50 موظف', contact:'📞 800-4455', price:'AED 290', unit:'للموظف الواحد'},
+      {name:'رحلة كابادوكيا بالمنطاد — يوم كامل', img:'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=200&q=60', meta:'رحلة منطاد + جولة سياحية جماعية', contact:'📞 800-7788', price:'USD 190', unit:'للموظف الواحد'},
     ]
   },
   group: {
@@ -2021,6 +2046,9 @@ const CORP_DATA = {
       {name:'فندق نوفوتيل أبوظبي — غرف مجمّعة', img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60', meta:'خصم 20% لأكثر من 10 غرف · فوترة شهرية متاحة', contact:'📞 800-6600', price:'AED 260', unit:'لليلة/الغرفة'},
       {name:'فندق روتانا دبي — إقامة طويلة الأجل', img:'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=200&q=60', meta:'دفع آجل حتى 30 يوم · إفطار مجاني', contact:'📞 800-6600', price:'AED 210', unit:'لليلة/الغرفة'},
       {name:'فندق موفنبيك الشارقة — باقة الشركات', img:'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=200&q=60', meta:'نقل مجاني للمطار للمجموعات', contact:'📞 800-6600', price:'AED 185', unit:'لليلة/الغرفة'},
+      {name:'فندق هيلتون الرياض — أجنحة الشركات', img:'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=200&q=60', meta:'خصم 15% لأكثر من 8 غرف · قاعة اجتماعات مجانية', contact:'📞 800-5522', price:'SAR 340', unit:'لليلة/الغرفة'},
+      {name:'فندق كراون بلازا جدة — إقامة الفرق', img:'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=200&q=60', meta:'فوترة موحدة شهرية · إفطار وغداء عمل', contact:'📞 800-6611', price:'SAR 295', unit:'لليلة/الغرفة'},
+      {name:'فندق راديسون بلو إسطنبول — الشركات', img:'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=200&q=60', meta:'نقل مجاني من المطار للمجموعات', contact:'📞 800-7788', price:'USD 95', unit:'لليلة/الغرفة'},
     ]
   },
   conference: {
@@ -2029,6 +2057,9 @@ const CORP_DATA = {
       {name:'مركز مؤتمرات أبوظبي الوطني', img:'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=200&q=60', meta:'تتسع حتى 1200 شخص · تجهيزات صوتية كاملة', contact:'📞 800-3300 · events@primetravel.com', price:'AED 60,000', unit:'لليوم الواحد'},
       {name:'قاعة الاجتماعات — فندق كونراد دبي', img:'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=200&q=60', meta:'تتسع حتى 300 شخص · شاشات عرض تفاعلية', contact:'📞 800-3300', price:'AED 18,000', unit:'لليوم الواحد'},
       {name:'قاعة الأعمال — فندق فيرمونت الرياض', img:'https://images.unsplash.com/photo-1505409628601-edc9af17fda6?w=200&q=60', meta:'تتسع حتى 150 شخص · استراحات قهوة مجانية', contact:'📞 800-3300', price:'SAR 12,500', unit:'لليوم الواحد'},
+      {name:'مركز جدة الدولي للمؤتمرات', img:'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=200&q=60', meta:'تتسع حتى 800 شخص · ترجمة فورية متاحة', contact:'📞 800-6611', price:'SAR 42,000', unit:'لليوم الواحد'},
+      {name:'قاعة إسطنبول للمؤتمرات — فندق سويس أوتيل', img:'https://images.unsplash.com/photo-1540304453527-62f979142a17?w=200&q=60', meta:'تتسع حتى 500 شخص · إطلالة على البوسفور', contact:'📞 800-7788', price:'USD 7,200', unit:'لليوم الواحد'},
+      {name:'قاعة الشارقة للمعارض والمؤتمرات', img:'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=200&q=60', meta:'تتسع حتى 600 شخص · مواقف سيارات واسعة', contact:'📞 800-6600', price:'AED 22,000', unit:'لليوم الواحد'},
     ]
   },
 };
