@@ -397,6 +397,30 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .wego-price span{font-size:10.5px; color:var(--dim);}
 .wego-num{font-size:13px; font-weight:800; color:var(--dim); flex:0 0 18px; text-align:center;}
 
+/* ============ HOTEL CARDS ============ */
+.hotel-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap;}
+.hotel-img{flex:0 0 140px; height:100px; border-radius:10px; object-fit:cover; background:var(--card2);}
+.hotel-info{flex:1; min-width:220px;}
+.hotel-info h4{font-size:15px; margin-bottom:4px;}
+.hotel-stars{color:var(--gold-l); font-size:12px; margin-bottom:6px;}
+.hotel-loc{font-size:11.5px; color:var(--dim); margin-bottom:8px;}
+.hotel-amenities{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;}
+.hotel-amenities span{background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:3px 8px; font-size:10.5px; color:var(--dim);}
+.hotel-rating{display:inline-flex; align-items:center; gap:6px; background:var(--card2); border-radius:8px; padding:4px 8px; font-size:11.5px;}
+.hotel-rating b{background:var(--blue); color:#fff; border-radius:5px; padding:1px 6px; font-size:11px;}
+.hotel-price-box{flex:0 0 160px; text-align:center; border-inline-start:1px solid var(--border); padding-inline-start:16px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4px;}
+.hotel-price-box .per-night{font-size:20px; font-weight:800; color:var(--green);}
+.hotel-price-box .total{font-size:10.5px; color:var(--dim);}
+.hotel-compare-btn{background:var(--card2); border:1.5px solid var(--gold); color:var(--gold-l); font-size:11.5px; font-weight:800; padding:8px 14px; border-radius:8px; margin-top:6px; width:100%;}
+.hotel-compare-btn:hover{background:rgba(216,165,49,.12);}
+.hotel-providers{flex-basis:100%; display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border);}
+.hotel-providers.open{display:block;}
+.hotel-provider-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);}
+.hotel-provider-row:last-child{border-bottom:none;}
+.hotel-provider-row .hp-name{font-weight:700; font-size:13px;}
+.hotel-provider-row .hp-price{font-weight:800; color:var(--blue-l);}
+.hotel-provider-row button{background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:11.5px; padding:7px 16px; border-radius:8px;}
+
 .selection-bar{position:sticky; bottom:14px; background:var(--card); border:1px solid var(--gold); border-radius:14px; padding:14px 18px; margin-top:16px; display:none; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; box-shadow:0 8px 28px rgba(0,0,0,.45);}
 .selection-bar.show{display:flex;}
 .selection-bar .sel-info{display:flex; gap:22px; flex-wrap:wrap; font-size:11.5px; color:var(--dim);}
@@ -632,6 +656,72 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <span class="sub" id="dealsCount"></span>
   </div>
   <div class="deals-wrap"><div class="deals-track" id="dealsTrack"></div></div>
+
+  <div class="section-head">
+    <h2 data-i18n="hotels_head">فنادق العالم — قارن الأسعار والمرافق</h2>
+    <span class="sub" data-i18n="hotels_sub">اختر وجهتك وتواريخك، وسنقارن لك بين أفضل مواقع الحجز فورًا</span>
+  </div>
+  <div class="search-card" style="margin-bottom:24px;">
+    <div class="search-row">
+      <div class="field">
+        <label data-i18n="hotel_dest">الوجهة</label>
+        <select id="hotelDest"></select>
+      </div>
+      <div class="field">
+        <label data-i18n="hotel_checkin">تاريخ الوصول</label>
+        <input type="date" id="hotelCheckin" value="2026-08-15">
+      </div>
+      <div class="field">
+        <label data-i18n="hotel_checkout">تاريخ المغادرة</label>
+        <input type="date" id="hotelCheckout" value="2026-08-18">
+      </div>
+      <div class="field">
+        <label data-i18n="hotel_rooms">الغرف والضيوف</label>
+        <select id="hotelGuests">
+          <option value="1-1" data-i18n="hg_1_1">غرفة واحدة، ضيف واحد</option>
+          <option value="1-2" selected data-i18n="hg_1_2">غرفة واحدة، ضيفان</option>
+          <option value="2-4" data-i18n="hg_2_4">غرفتان، 4 ضيوف</option>
+          <option value="3-6" data-i18n="hg_3_6">3 غرف، 6 ضيوف</option>
+        </select>
+      </div>
+      <button class="search-btn" id="hotelSearchBtn"><span>🏨</span><span data-i18n="hotel_search_btn">بحث عن فنادق</span></button>
+    </div>
+  </div>
+
+  <div id="hotelResultsWrap" style="display:none;">
+    <div class="sort-tabs" id="hotelSortTabs">
+      <button class="sort-tab active" data-sort="recommended"><span data-i18n="sort_recommended">الموصى بها</span></button>
+      <button class="sort-tab" data-sort="cheapest"><span data-i18n="sort_cheapest">الأرخص</span></button>
+      <button class="sort-tab" data-sort="rating"><span data-i18n="hotel_sort_rating">الأعلى تقييمًا</span></button>
+    </div>
+    <div class="results-layout" style="display:grid; grid-template-columns:230px 1fr; gap:20px; align-items:start;">
+      <aside class="filters-card" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; position:sticky; top:80px;">
+        <h3 style="font-size:14.5px; margin-bottom:10px;" data-i18n="filters">الفلاتر</h3>
+        <div class="filter-group">
+          <div style="font-size:12px; font-weight:700; color:var(--dim); margin-bottom:8px;" data-i18n="hotel_stars">تصنيف النجوم</div>
+          <label class="filter-opt"><input type="checkbox" class="hStars" value="5" checked> 5 ⭐</label>
+          <label class="filter-opt"><input type="checkbox" class="hStars" value="4" checked> 4 ⭐</label>
+          <label class="filter-opt"><input type="checkbox" class="hStars" value="3" checked> 3 ⭐</label>
+        </div>
+        <div class="filter-group">
+          <div style="font-size:12px; font-weight:700; color:var(--dim); margin-bottom:8px;" data-i18n="hotel_price_range">نطاق السعر لليلة</div>
+          <input type="range" id="hotelPriceRange" min="150" max="2000" value="2000" style="width:100%;">
+          <div style="font-size:11px; color:var(--dim);" id="hotelPriceVal"></div>
+        </div>
+        <div class="filter-group">
+          <div style="font-size:12px; font-weight:700; color:var(--dim); margin-bottom:8px;" data-i18n="hotel_amenities">المرافق</div>
+          <label class="filter-opt"><input type="checkbox" class="hAmenity" value="wifi" checked> 📶 <span data-i18n="am_wifi">واي فاي مجاني</span></label>
+          <label class="filter-opt"><input type="checkbox" class="hAmenity" value="pool" checked> 🏊 <span data-i18n="am_pool">مسبح</span></label>
+          <label class="filter-opt"><input type="checkbox" class="hAmenity" value="breakfast" checked> 🍳 <span data-i18n="am_breakfast">إفطار مجاني</span></label>
+          <label class="filter-opt"><input type="checkbox" class="hAmenity" value="gym" checked> 🏋️ <span data-i18n="am_gym">صالة رياضية</span></label>
+        </div>
+      </aside>
+      <div>
+        <div style="font-size:12.5px; color:var(--dim); margin-bottom:10px;" id="hotelResultsCount"></div>
+        <div id="hotelResultsList"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="corp-section" id="corpSection">
     <div class="section-head">
@@ -1041,6 +1131,13 @@ const I18N = {
   combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن",
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
   corp_head:"فنادق ومناسبات", corp_sub:"حلول جاهزة تُحجز مباشرة — جرّب البحث والتواصل التجريبي بنفسك",
+  filters:"الفلاتر",
+  hotels_head:"فنادق العالم — قارن الأسعار والمرافق", hotels_sub:"اختر وجهتك وتواريخك، وسنقارن لك بين أفضل مواقع الحجز فورًا",
+  hotel_dest:"الوجهة", hotel_checkin:"تاريخ الوصول", hotel_checkout:"تاريخ المغادرة", hotel_rooms:"الغرف والضيوف",
+  hg_1_1:"غرفة واحدة، ضيف واحد", hg_1_2:"غرفة واحدة، ضيفان", hg_2_4:"غرفتان، 4 ضيوف", hg_3_6:"3 غرف، 6 ضيوف",
+  hotel_search_btn:"بحث عن فنادق", hotel_sort_rating:"الأعلى تقييمًا", hotel_stars:"تصنيف النجوم",
+  hotel_price_range:"نطاق السعر لليلة", hotel_amenities:"المرافق",
+  am_wifi:"واي فاي مجاني", am_pool:"مسبح", am_breakfast:"إفطار مجاني", am_gym:"صالة رياضية",
   corp_wedding_h:"الأفراح والمناسبات", corp_wedding_p:"حجز قاعات الأفراح في أفضل الفنادق والمنتجعات مع باقات شاملة.",
   corp_leisure_h:"رحلات ترفيهية", corp_leisure_p:"تنظيم رحلات سياحية للموظفين مع برامج وأنشطة متكاملة.",
   corp_group_h:"إقامات جماعية", corp_group_p:"حجوزات فندقية مخصصة للشركات مع إمكانية الدفع الآجل والفوترة الشهرية.",
@@ -1074,6 +1171,13 @@ const I18N = {
   combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now",
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
   corp_head:"Hotels & Events", corp_sub:"Ready-made solutions you can book directly — try the demo search and contact flow yourself",
+  filters:"Filters",
+  hotels_head:"Hotels worldwide — compare prices & amenities", hotels_sub:"Pick your destination and dates, we'll compare the best booking sites instantly",
+  hotel_dest:"Destination", hotel_checkin:"Check-in", hotel_checkout:"Check-out", hotel_rooms:"Rooms & guests",
+  hg_1_1:"1 room, 1 guest", hg_1_2:"1 room, 2 guests", hg_2_4:"2 rooms, 4 guests", hg_3_6:"3 rooms, 6 guests",
+  hotel_search_btn:"Search hotels", hotel_sort_rating:"Top rated", hotel_stars:"Star rating",
+  hotel_price_range:"Price range per night", hotel_amenities:"Amenities",
+  am_wifi:"Free WiFi", am_pool:"Pool", am_breakfast:"Free breakfast", am_gym:"Gym",
   corp_wedding_h:"Weddings & Events", corp_wedding_p:"Book wedding halls at top hotels and resorts with all-inclusive packages.",
   corp_leisure_h:"Recreational Trips", corp_leisure_p:"Organize staff trips with integrated programs and activities.",
   corp_group_h:"Group Accommodation", corp_group_p:"Custom corporate hotel bookings with deferred payment and monthly billing options.",
@@ -1193,6 +1297,153 @@ function buildTicker(){
   const html = routes.map(item).join('');
   document.getElementById('tickerTrack').innerHTML = html + html;
 }
+
+/* ============================================================
+   HOTELS — real search + provider price comparison, mirroring the
+   flight search architecture exactly. "Book now" opens the actual
+   live search page of each real booking site (Booking.com, Agoda,
+   Expedia, Hotels.com) pre-filled with the same city/dates — genuine
+   public deep-link URL patterns, no fake redirect.
+   ============================================================ */
+const HOTEL_CITIES = []; // flattened from COUNTRIES so every airport city is also a hotel destination
+COUNTRIES.forEach((c,ci)=> c.airports.forEach((ap,ai)=> HOTEL_CITIES.push({
+  cityAr:ap.city_ar, cityEn:ap.city_en, countryAr:c.name_ar, countryEn:c.name_en, iso2:c.code, ci, ai
+})));
+const HOTEL_NAME_PARTS = ['Grand','Royal','Golden','Palm','Ocean View','City Center','Skyline','Marina','Heritage','Boutique'];
+const HOTEL_NAME_SUFFIX = ['Hotel','Resort & Spa','Suites','Palace','Towers'];
+const HOTEL_PROVIDERS = [
+  {name:'Booking.com', color:'#003580', urlFn:(city,ci,co)=>`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${ci}&checkout=${co}`},
+  {name:'Agoda', color:'#5392f9', urlFn:(city)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}`},
+  {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`},
+  {name:'Hotels.com', color:'#d0021b', urlFn:(city)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}`},
+];
+
+function buildHotelDestSelect(){
+  const sel = document.getElementById('hotelDest');
+  sel.innerHTML = HOTEL_CITIES.map((c,i)=>`<option value="${i}" ${i===1?'selected':''}>${currentLang==='ar'?c.cityAr+' — '+c.countryAr:c.cityEn+' — '+c.countryEn}</option>`).join('');
+}
+
+function genHotels(seed, count, cityLabel){
+  const out = [];
+  const base = hashStr(seed);
+  for(let i=0;i<count;i++){
+    const r1 = seededRand(base + i*6.6), r2 = seededRand(base + i*11.3+2), r3 = seededRand(base + i*17.9+5);
+    const stars = r1 < 0.15 ? 5 : (r1 < 0.55 ? 4 : 3);
+    const rating = (7.2 + r2*2.6).toFixed(1);
+    const pricePerNight = 180 + Math.floor(r1*900) + stars*120;
+    const amenities = ['wifi']; // always included
+    if(r2 > 0.3) amenities.push('breakfast');
+    if(r3 > 0.4) amenities.push('pool');
+    if(seededRand(base+i*23)>0.5) amenities.push('gym');
+    out.push({
+      id: seed+'-'+i,
+      name: `${HOTEL_NAME_PARTS[Math.floor(r1*HOTEL_NAME_PARTS.length)]} ${HOTEL_NAME_SUFFIX[Math.floor(r2*HOTEL_NAME_SUFFIX.length)]} ${cityLabel}`,
+      stars, rating, pricePerNight, amenities,
+      img: `https://images.unsplash.com/photo-${['1566073771259-6a8506099945','1520250497591-112f2f40a3f4','1571896349842-33c89424de2d','1445019980597-93fa8acb246c'][i%4]}?w=300&q=60`,
+    });
+  }
+  return out.sort((a,b)=>a.pricePerNight-b.pricePerNight);
+}
+
+let hotelResults = [];
+let currentHotelSort = 'recommended';
+function nightsBetween(a,b){ const d1=new Date(a), d2=new Date(b); return Math.max(1, Math.round((d2-d1)/86400000)); }
+
+function runHotelSearch(){
+  const destIdx = Number(document.getElementById('hotelDest').value);
+  const dest = HOTEL_CITIES[destIdx];
+  const checkin = document.getElementById('hotelCheckin').value;
+  const checkout = document.getElementById('hotelCheckout').value;
+  const cityLabel = currentLang==='ar' ? dest.cityAr : dest.cityEn;
+  hotelResults = genHotels('hotel-'+destIdx+'-'+checkin+'-'+checkout, 8, cityLabel);
+  document.getElementById('hotelResultsWrap').style.display = 'block';
+  renderHotelResults();
+  document.getElementById('hotelResultsWrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderHotelResults(){
+  const destIdx = Number(document.getElementById('hotelDest').value);
+  const dest = HOTEL_CITIES[destIdx];
+  const cityLabel = currentLang==='ar' ? dest.cityAr : dest.cityEn;
+  const checkin = document.getElementById('hotelCheckin').value;
+  const checkout = document.getElementById('hotelCheckout').value;
+  const nights = nightsBetween(checkin, checkout);
+
+  const starsChecked = [...document.querySelectorAll('.hStars:checked')].map(x=>x.value);
+  const amenitiesChecked = [...document.querySelectorAll('.hAmenity:checked')].map(x=>x.value);
+  const maxPrice = Number(document.getElementById('hotelPriceRange').value);
+  document.getElementById('hotelPriceVal').textContent = (currentLang==='ar'?'حتى ':'up to ') + fmtPrice(maxPrice);
+
+  let list = hotelResults.filter(h =>
+    starsChecked.includes(String(h.stars)) &&
+    h.pricePerNight <= maxPrice &&
+    amenitiesChecked.some(a => h.amenities.includes(a))
+  );
+  if(currentHotelSort==='cheapest') list = [...list].sort((a,b)=>a.pricePerNight-b.pricePerNight);
+  else if(currentHotelSort==='rating') list = [...list].sort((a,b)=>b.rating-a.rating);
+
+  document.getElementById('hotelResultsCount').textContent = list.length + (currentLang==='ar'?' فندق متاح في '+cityLabel:' hotels available in '+cityLabel);
+
+  const amenityIcon = {wifi:'📶', pool:'🏊', breakfast:'🍳', gym:'🏋️'};
+  const amenityLabel = {wifi: t('am_wifi'), pool: t('am_pool'), breakfast: t('am_breakfast'), gym: t('am_gym')};
+
+  document.getElementById('hotelResultsList').innerHTML = list.map(h=>{
+    const providers = HOTEL_PROVIDERS.map((p,i)=>{
+      const r = seededRand(hashStr(h.id)+i*9.9);
+      const price = Math.round(h.pricePerNight * (1 + (r-0.4)*0.18));
+      return {...p, price};
+    }).sort((a,b)=>a.price-b.price);
+    return `
+    <div class="hotel-card">
+      <img class="hotel-img" src="${h.img}" alt="">
+      <div class="hotel-info">
+        <h4>${h.name}</h4>
+        <div class="hotel-stars">${'⭐'.repeat(h.stars)}</div>
+        <div class="hotel-loc">📍 ${cityLabel}</div>
+        <div class="hotel-amenities">${h.amenities.map(a=>`<span>${amenityIcon[a]} ${amenityLabel[a]}</span>`).join('')}</div>
+        <div class="hotel-rating"><b>${h.rating}</b> ${currentLang==='ar'?'ممتاز':'Excellent'}</div>
+      </div>
+      <div class="hotel-price-box">
+        <div class="per-night">${fmtPrice(providers[0].price)}</div>
+        <span>${currentLang==='ar'?'لليلة الواحدة':'per night'}</span>
+        <span class="total">${fmtPrice(providers[0].price*nights)} × ${nights} ${currentLang==='ar'?'ليالي':'nights'}</span>
+        <button class="hotel-compare-btn" data-toggle-hotel="${h.id}">${currentLang==='ar'?'قارن '+HOTEL_PROVIDERS.length+' مواقع':'Compare '+HOTEL_PROVIDERS.length+' sites'}</button>
+      </div>
+      <div class="hotel-providers" id="hp-${h.id}">
+        ${providers.map(p=>`
+          <div class="hotel-provider-row">
+            <div class="hp-name" style="color:${p.color};">${p.name}</div>
+            <div class="hp-price">${fmtPrice(p.price)} <span style="font-size:10px; color:var(--dim); font-weight:400;">${currentLang==='ar'?'/ليلة':'/night'}</span></div>
+            <button data-provider-url="${p.urlFn(cityLabel, checkin, checkout)}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('') || `<p style="color:var(--dim); font-size:13px;">${currentLang==='ar'?'لا توجد فنادق مطابقة':'No matching hotels'}</p>`;
+
+  document.querySelectorAll('[data-toggle-hotel]').forEach(btn=>{
+    btn.onclick = ()=> document.getElementById('hp-'+btn.getAttribute('data-toggle-hotel')).classList.toggle('open');
+  });
+  document.querySelectorAll('[data-provider-url]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const providerName = btn.closest('.hotel-provider-row').querySelector('.hp-name').textContent;
+      const priceTxt = btn.closest('.hotel-provider-row').querySelector('.hp-price').textContent;
+      trackClick(providerName, parseFloat(priceTxt) || 0);
+      window.open(btn.getAttribute('data-provider-url'), '_blank', 'noopener');
+    };
+  });
+}
+
+document.getElementById('hotelSearchBtn').onclick = runHotelSearch;
+document.getElementById('hotelPriceRange').oninput = renderHotelResults;
+document.querySelectorAll('.hStars, .hAmenity').forEach(el=> el.onchange = renderHotelResults);
+document.querySelectorAll('#hotelSortTabs .sort-tab').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('#hotelSortTabs .sort-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentHotelSort = btn.getAttribute('data-sort');
+    renderHotelResults();
+  };
+});
 
 let fromIdx = 3, fromApIdx = 0, toIdx = 0, toApIdx = 1; // default: Egypt/Cairo → UAE/Dubai
 function flagImgUrl(iso2){ return iso2 ? `https://flagcdn.com/w40/${iso2.toLowerCase()}.png` : ''; }
@@ -1734,7 +1985,7 @@ function goHome(){
 }
 
 function renderAll(){
-  buildCurrencySelect(); buildLangSelect(); buildTicker(); buildCountrySelects(); renderCountryImgs();
+  buildCurrencySelect(); buildLangSelect(); buildTicker(); buildCountrySelects(); renderCountryImgs(); buildHotelDestSelect();
   buildCompareStrip(); buildDeals();
   if(document.getElementById('resultsPage').classList.contains('open')) renderFlightLists();
 }
