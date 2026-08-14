@@ -16,15 +16,22 @@
   --radius:14px;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth; background:#0a2540;}
 body{
   background:
     linear-gradient(180deg, rgba(38,120,168,.38) 0%, rgba(28,95,145,.5) 45%, rgba(16,60,95,.68) 100%),
     url('https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=2400&auto=format&fit=crop')
     center/cover fixed;
+  background-color:#0a2540;
   color:var(--text);
   font-family:'Tajawal','Cairo',sans-serif;
   line-height:1.6;
+}
+/* background-attachment:fixed is well known to flicker/show blank white on mobile browsers during scroll
+   (a documented iOS Safari / Android Chrome rendering bug) — this is the real cause of the white flashes
+   reported. Switch to normal scrolling attachment on small screens only; desktop is unaffected. */
+@media(max-width:760px){
+  body{background-attachment:scroll, scroll;}
 }
 /* real looping video of ocean waves, fixed behind everything. If it can't load (offline, blocked, etc.)
    the photo+gradient set on body above stays visible underneath as a safe fallback — never a blank screen. */
@@ -439,6 +446,26 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .hotel-provider-row .hp-name{font-weight:700; font-size:13px;}
 .hotel-provider-row .hp-price{font-weight:800; color:var(--blue-l);}
 .hotel-provider-row button{background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:11.5px; padding:7px 16px; border-radius:8px;}
+
+/* ============ HOTEL DETAIL MODAL (rooms, map, availability) ============ */
+.hd-hero-img{width:100%; height:180px; object-fit:cover; border-radius:12px; margin-bottom:14px;}
+.hd-meta-row{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:16px; font-size:12.5px; color:var(--dim);}
+.hd-meta-row b{color:var(--text);}
+.hd-map-wrap{border-radius:12px; overflow:hidden; margin-bottom:18px; border:1px solid var(--border); height:220px;}
+.hd-map-wrap iframe{width:100%; height:100%; border:0; filter:saturate(.9);}
+.hd-map-note{font-size:10.5px; color:var(--dim); margin-top:6px; text-align:center;}
+.hd-section-title{font-size:14.5px; font-weight:800; margin:18px 0 10px;}
+.room-type-card{background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:12px; display:flex; gap:14px; flex-wrap:wrap; align-items:center;}
+.room-type-card .rt-info{flex:1; min-width:200px;}
+.room-type-card .rt-info h5{font-size:14px; margin-bottom:4px;}
+.room-type-card .rt-info p{font-size:11.5px; color:var(--dim); line-height:1.7;}
+.room-type-card .rt-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;}
+.room-type-card .rt-tags span{background:var(--card); border:1px solid var(--border); border-radius:7px; padding:2px 8px; font-size:10px; color:var(--dim);}
+.room-type-card .rt-price{flex:0 0 130px; text-align:center;}
+.room-type-card .rt-price b{display:block; font-size:18px; color:var(--green);}
+.room-type-card .rt-price span{font-size:10px; color:var(--dim);}
+.room-type-card .rt-price button{width:100%; margin-top:8px; background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:11.5px; padding:8px; border-radius:8px;}
+@media(max-width:640px){.room-type-card .rt-price{flex:1 1 100%;}}
 
 .selection-bar{position:sticky; bottom:14px; background:var(--card); border:1px solid var(--gold); border-radius:14px; padding:14px 18px; margin-top:16px; display:none; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; box-shadow:0 8px 28px rgba(0,0,0,.45);}
 .selection-bar.show{display:flex;}
@@ -918,6 +945,14 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
   </div>
 </div>
 
+<!-- ============ HOTEL DETAILS MODAL — rooms, map, availability, before booking ============ -->
+<div class="overlay" id="hotelDetailModal">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-head"><h3 id="hdModalName"></h3><button class="close-x" id="closeHotelDetail">✕</button></div>
+    <div id="hdModalBody"></div>
+  </div>
+</div>
+
 <div id="adminApp">
 <div class="admin-topbar"><a class="back-to-site" id="backToSite1">→ عودة لموقع الحجز</a></div>
 <!-- ============ LOGIN SCREEN ============ -->
@@ -1366,6 +1401,97 @@ function genHotels(seed, count, cityLabel){
 
 let hotelResults = [];
 let currentHotelSort = 'recommended';
+
+/* Real approximate city-center coordinates, used to embed a genuine OpenStreetMap view
+   (no API key needed — OSM's embed endpoint is free/public). This is the city center,
+   not the exact hotel address (we don't have real hotel inventory data yet), and is
+   labeled honestly as such in the UI. */
+const CITY_COORDS = {
+  'Abu Dhabi':[24.4539,54.3773], 'Dubai':[25.2048,55.2708], 'Al Ain':[24.2075,55.7447],
+  'Sharjah':[25.3463,55.4209], 'Ras Al Khaimah':[25.7895,55.9432],
+  'Riyadh':[24.7136,46.6753], 'Jeddah':[21.4858,39.1925], 'Dammam':[26.4207,50.0888], 'Madinah':[24.5247,39.5692],
+  'Istanbul':[41.0082,28.9784], 'Antalya':[36.8969,30.7133], 'Ankara':[39.9334,32.8597],
+  'Cairo':[30.0444,31.2357], 'Alexandria':[31.2001,29.9187], 'Hurghada':[27.2579,33.8116], 'Sharm El Sheikh':[27.9158,34.3300], 'Luxor':[25.6872,32.6396],
+  'Paris':[48.8566,2.3522], 'Nice':[43.7102,7.2620], 'Lyon':[45.7640,4.8357],
+  'London':[51.5072,-0.1276], 'Manchester':[53.4808,-2.2426], 'Edinburgh':[55.9533,-3.1883],
+};
+function osmEmbedUrl(lat, lon){
+  const d = 0.02;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${lon-d}%2C${lat-d}%2C${lon+d}%2C${lat+d}&layer=mapnik&marker=${lat}%2C${lon}`;
+}
+
+const ROOM_TYPE_DEFS = [
+  {key:'single', mult:0.75, beds_ar:'سرير مفرد واحد', beds_en:'1 single bed', size:'22 م²'},
+  {key:'double', mult:1.0, beds_ar:'سرير مزدوج كبير', beds_en:'1 king bed', size:'30 م²'},
+  {key:'suite', mult:1.9, beds_ar:'سرير مزدوج + صالة جلوس منفصلة', beds_en:'1 king bed + separate living area', size:'55 م²'},
+  {key:'royal', mult:3.2, beds_ar:'غرفتا نوم + صالة استقبال', beds_en:'2 bedrooms + reception lounge', size:'95 م²'},
+];
+const ROOM_TYPE_LABELS = {
+  single:{ar:'غرفة فردية', en:'Single Room'}, double:{ar:'غرفة مزدوجة', en:'Double Room'},
+  suite:{ar:'جناح (سويت)', en:'Suite'}, royal:{ar:'الجناح الملكي', en:'Royal Suite'},
+};
+
+function openHotelDetail(hotelId){
+  const h = hotelResults.find(x=>x.id===hotelId);
+  if(!h) return;
+  const destIdx = Number(document.getElementById('hotelDest').value);
+  const dest = HOTEL_CITIES[destIdx];
+  const cityEn = dest.cityEn, cityAr = dest.cityAr;
+  const checkin = document.getElementById('hotelCheckin').value;
+  const checkout = document.getElementById('hotelCheckout').value;
+  const nights = nightsBetween(checkin, checkout);
+  const coords = CITY_COORDS[cityEn];
+
+  document.getElementById('hdModalName').textContent = h.name;
+  const amenityIcon = {wifi:'📶', pool:'🏊', breakfast:'🍳', gym:'🏋️'};
+
+  let html = `
+    <img class="hd-hero-img" src="${h.img}" alt="">
+    <div class="hd-meta-row">
+      <div>⭐ <b>${h.stars}</b> ${currentLang==='ar'?'نجوم':'stars'}</div>
+      <div>📊 <b>${h.rating}</b>/10</div>
+      <div>📍 <b>${currentLang==='ar'?cityAr:cityEn}</b></div>
+      <div>📅 <b>${checkin} → ${checkout}</b> (${nights} ${currentLang==='ar'?'ليالي':'nights'})</div>
+    </div>
+    <div class="hd-meta-row">${h.amenities.map(a=>`<div>${amenityIcon[a]} ${t('am_'+a)}</div>`).join('')}</div>
+  `;
+
+  if(coords){
+    html += `<div class="hd-map-wrap"><iframe src="${osmEmbedUrl(coords[0],coords[1])}" loading="lazy"></iframe></div>
+      <div class="hd-map-note">${currentLang==='ar'?'موقع تقريبي لوسط المدينة — العنوان الدقيق للفندق يظهر عند الربط ببيانات فندقية حقيقية':'Approximate city-center location — exact hotel address appears once connected to real hotel inventory data'}</div>`;
+  }
+
+  html += `<div class="hd-section-title">${currentLang==='ar'?'أنواع الغرف المتاحة':'Available room types'}</div>`;
+  html += ROOM_TYPE_DEFS.map(rt=>{
+    const price = Math.round(h.pricePerNight * rt.mult);
+    const label = currentLang==='ar' ? ROOM_TYPE_LABELS[rt.key].ar : ROOM_TYPE_LABELS[rt.key].en;
+    const beds = currentLang==='ar' ? rt.beds_ar : rt.beds_en;
+    return `
+    <div class="room-type-card">
+      <div class="rt-info">
+        <h5>${label}</h5>
+        <p>🛏️ ${beds} · 📐 ${rt.size}</p>
+        <div class="rt-tags"><span>${currentLang==='ar'?'إلغاء مجاني حتى 24 ساعة':'Free cancellation up to 24h'}</span><span>${currentLang==='ar'?'إفطار اختياري':'Breakfast optional'}</span></div>
+      </div>
+      <div class="rt-price">
+        <b>${fmtPrice(price)}</b><span>${currentLang==='ar'?'لليلة':'per night'}</span>
+        <button data-book-room="${h.id}" data-room-price="${price}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('hdModalBody').innerHTML = html;
+  document.querySelectorAll('[data-book-room]').forEach(btn=>{
+    btn.onclick = ()=>{
+      document.getElementById('hotelDetailModal').classList.remove('open');
+      const price = Number(btn.getAttribute('data-room-price'));
+      openHotelProviders(hotelId, price); // reuse the existing multi-site price comparison, now per selected room type
+    };
+  });
+  document.getElementById('hotelDetailModal').classList.add('open');
+}
+document.getElementById('closeHotelDetail').onclick = ()=> document.getElementById('hotelDetailModal').classList.remove('open');
+document.getElementById('hotelDetailModal').addEventListener('click', e=>{ if(e.target.id==='hotelDetailModal') document.getElementById('hotelDetailModal').classList.remove('open'); });
 function nightsBetween(a,b){ const d1=new Date(a), d2=new Date(b); return Math.max(1, Math.round((d2-d1)/86400000)); }
 
 function runHotelSearch(){
@@ -1414,13 +1540,14 @@ function renderHotelResults(){
     }).sort((a,b)=>a.price-b.price);
     return `
     <div class="hotel-card">
-      <img class="hotel-img" src="${h.img}" alt="">
+      <img class="hotel-img" src="${h.img}" alt="" style="cursor:pointer;" data-open-hotel="${h.id}">
       <div class="hotel-info">
-        <h4>${h.name}</h4>
+        <h4 style="cursor:pointer;" data-open-hotel="${h.id}">${h.name}</h4>
         <div class="hotel-stars">${'⭐'.repeat(h.stars)}</div>
         <div class="hotel-loc">📍 ${cityLabel}</div>
         <div class="hotel-amenities">${h.amenities.map(a=>`<span>${amenityIcon[a]} ${amenityLabel[a]}</span>`).join('')}</div>
         <div class="hotel-rating"><b>${h.rating}</b> ${currentLang==='ar'?'ممتاز':'Excellent'}</div>
+        <button class="hotel-compare-btn" style="margin-top:8px; width:auto; padding:7px 14px;" data-open-hotel="${h.id}">${currentLang==='ar'?'التفاصيل وأنواع الغرف':'Details & room types'}</button>
       </div>
       <div class="hotel-price-box">
         <div class="per-night">${fmtPrice(providers[0].price)}</div>
@@ -1439,6 +1566,9 @@ function renderHotelResults(){
     </div>`;
   }).join('') || `<p style="color:var(--dim); font-size:13px;">${currentLang==='ar'?'لا توجد فنادق مطابقة':'No matching hotels'}</p>`;
 
+  document.querySelectorAll('[data-open-hotel]').forEach(el=>{
+    el.onclick = ()=> openHotelDetail(el.getAttribute('data-open-hotel'));
+  });
   document.querySelectorAll('[data-toggle-hotel]').forEach(btn=>{
     btn.onclick = ()=> document.getElementById('hp-'+btn.getAttribute('data-toggle-hotel')).classList.toggle('open');
   });
@@ -1450,6 +1580,39 @@ function renderHotelResults(){
       window.open(btn.getAttribute('data-provider-url'), '_blank', 'noopener');
     };
   });
+}
+
+// Reopen a hotel's provider comparison panel using a specific ROOM TYPE's price (called from the
+// hotel-details modal after the traveler picks Single/Double/Suite/Royal, instead of the base rate).
+function openHotelProviders(hotelId, roomPrice){
+  const panel = document.getElementById('hp-'+hotelId);
+  if(!panel){ showToast(currentLang==='ar'?'هذا الفندق مخفي حاليًا بسبب الفلاتر — عدّل الفلاتر وحاول مجددًا':'This hotel is hidden by current filters — adjust filters and try again'); return; }
+  const destIdx = Number(document.getElementById('hotelDest').value);
+  const dest = HOTEL_CITIES[destIdx];
+  const cityLabel = currentLang==='ar' ? dest.cityAr : dest.cityEn;
+  const checkin = document.getElementById('hotelCheckin').value;
+  const checkout = document.getElementById('hotelCheckout').value;
+  const providers = HOTEL_PROVIDERS.map((p,i)=>{
+    const r = seededRand(hashStr(hotelId)+i*9.9);
+    const price = Math.round(roomPrice * (1 + (r-0.4)*0.18));
+    return {...p, price};
+  }).sort((a,b)=>a.price-b.price);
+  panel.innerHTML = providers.map(p=>`
+    <div class="hotel-provider-row">
+      <div class="hp-name" style="color:${p.color};">${p.name}</div>
+      <div class="hp-price">${fmtPrice(p.price)} <span style="font-size:10px; color:var(--dim); font-weight:400;">${currentLang==='ar'?'/ليلة':'/night'}</span></div>
+      <button data-provider-url="${p.urlFn(cityLabel, checkin, checkout)}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
+    </div>`).join('');
+  panel.querySelectorAll('[data-provider-url]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const providerName = btn.closest('.hotel-provider-row').querySelector('.hp-name').textContent;
+      const priceTxt = btn.closest('.hotel-provider-row').querySelector('.hp-price').textContent;
+      trackClick(providerName, parseFloat(priceTxt) || 0);
+      window.open(btn.getAttribute('data-provider-url'), '_blank', 'noopener');
+    };
+  });
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 document.getElementById('hotelSearchBtn').onclick = runHotelSearch;
@@ -2021,45 +2184,45 @@ const CORP_DATA = {
   wedding: {
     title: currentLang==='ar' ? 'قاعات الأفراح والمناسبات المتاحة' : 'Available wedding & event halls',
     items: [
-      {name:'قاعة اللؤلؤة الذهبية — فندق ريتز أبوظبي', img:'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=200&q=60', meta:'تتسع حتى 500 ضيف · تشمل التنسيق والإضاءة', contact:'📞 800-7000 · اليوم من 6ص-12م', price:'AED 45,000', unit:'لليوم الواحد'},
-      {name:'قاعة الماس — فندق العنوان دبي', img:'https://images.unsplash.com/photo-1519741497674-611481863552?w=200&q=60', meta:'تتسع حتى 350 ضيف · بوفيه مفتوح متاح', contact:'📞 800-1234 · واتساب متاح', price:'AED 32,000', unit:'لليوم الواحد'},
-      {name:'قاعة الياسمين — منتجع جميرا الشاطئي', img:'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=200&q=60', meta:'تتسع حتى 220 ضيف · إطلالة بحرية', contact:'📞 800-9090 · support@primetravel.com', price:'AED 21,000', unit:'لليوم الواحد'},
-      {name:'قاعة الأميرة — فندق فور سيزونز الرياض', img:'https://images.unsplash.com/photo-1478146059778-26028b07395a?w=200&q=60', meta:'تتسع حتى 400 ضيف · قاعة داخلية وحديقة خارجية', contact:'📞 800-5522', price:'SAR 38,000', unit:'لليوم الواحد'},
-      {name:'قاعة النخيل — منتجع مدينة جدة البحري', img:'https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=200&q=60', meta:'تتسع حتى 280 ضيف · إطلالة على البحر الأحمر', contact:'📞 800-6611', price:'SAR 24,500', unit:'لليوم الواحد'},
-      {name:'قاعة الأوركيد — فندق سيراتون إسطنبول', img:'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&q=60', meta:'تتسع حتى 320 ضيف · قاعة بانورامية على البوسفور', contact:'📞 800-7788', price:'USD 9,500', unit:'لليوم الواحد'},
+      {name:'قاعة اللؤلؤة الذهبية — فندق ريتز أبوظبي', img:'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=200&q=60', meta:'تتسع حتى 500 ضيف · تشمل التنسيق والإضاءة', contact:'📞 800-7000 · اليوم من 6ص-12م', price:45000, unit:'لليوم الواحد'},
+      {name:'قاعة الماس — فندق العنوان دبي', img:'https://images.unsplash.com/photo-1519741497674-611481863552?w=200&q=60', meta:'تتسع حتى 350 ضيف · بوفيه مفتوح متاح', contact:'📞 800-1234 · واتساب متاح', price:32000, unit:'لليوم الواحد'},
+      {name:'قاعة الياسمين — منتجع جميرا الشاطئي', img:'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=200&q=60', meta:'تتسع حتى 220 ضيف · إطلالة بحرية', contact:'📞 800-9090 · support@primetravel.com', price:21000, unit:'لليوم الواحد'},
+      {name:'قاعة الأميرة — فندق فور سيزونز الرياض', img:'https://images.unsplash.com/photo-1478146059778-26028b07395a?w=200&q=60', meta:'تتسع حتى 400 ضيف · قاعة داخلية وحديقة خارجية', contact:'📞 800-5522', price:37250, unit:'لليوم الواحد'},
+      {name:'قاعة النخيل — منتجع مدينة جدة البحري', img:'https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=200&q=60', meta:'تتسع حتى 280 ضيف · إطلالة على البحر الأحمر', contact:'📞 800-6611', price:24020, unit:'لليوم الواحد'},
+      {name:'قاعة الأوركيد — فندق سيراتون إسطنبول', img:'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&q=60', meta:'تتسع حتى 320 ضيف · قاعة بانورامية على البوسفور', contact:'📞 800-7788', price:34925, unit:'لليوم الواحد'},
     ]
   },
   leisure: {
     title: currentLang==='ar' ? 'برامج الرحلات الترفيهية للموظفين' : 'Recreational trip packages for employees',
     items: [
-      {name:'رحلة رأس الخيمة الجبلية — يوم كامل', img:'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=200&q=60', meta:'أنشطة مغامرات + غداء جماعي · 20 موظف فأكثر', contact:'📞 800-4455', price:'AED 380', unit:'للموظف الواحد'},
-      {name:'رحلة بحرية دبي مارينا — نصف يوم', img:'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=60', meta:'يخت خاص + مرطبات · 15-40 موظف', contact:'📞 800-4455', price:'AED 250', unit:'للموظف الواحد'},
-      {name:'منتجع العين الصحي — يوم استجمام', img:'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=200&q=60', meta:'سبا + برك سباحة + أنشطة جماعية', contact:'📞 800-4455', price:'AED 310', unit:'للموظف الواحد'},
-      {name:'رحلة العلا الصحراوية — يومان', img:'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=200&q=60', meta:'تخييم صحراوي + جولات أثرية · 25 موظف فأكثر', contact:'📞 800-5522', price:'SAR 620', unit:'للموظف الواحد'},
-      {name:'يوم ترفيهي في جزيرة سعديات', img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=60', meta:'أنشطة شاطئية + غداء بحري · 10-50 موظف', contact:'📞 800-4455', price:'AED 290', unit:'للموظف الواحد'},
-      {name:'رحلة كابادوكيا بالمنطاد — يوم كامل', img:'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=200&q=60', meta:'رحلة منطاد + جولة سياحية جماعية', contact:'📞 800-7788', price:'USD 190', unit:'للموظف الواحد'},
+      {name:'رحلة رأس الخيمة الجبلية — يوم كامل', img:'https://images.unsplash.com/photo-1500534623283-312aade485b7?w=200&q=60', meta:'أنشطة مغامرات + غداء جماعي · 20 موظف فأكثر', contact:'📞 800-4455', price:380, unit:'للموظف الواحد'},
+      {name:'رحلة بحرية دبي مارينا — نصف يوم', img:'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=60', meta:'يخت خاص + مرطبات · 15-40 موظف', contact:'📞 800-4455', price:250, unit:'للموظف الواحد'},
+      {name:'منتجع العين الصحي — يوم استجمام', img:'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=200&q=60', meta:'سبا + برك سباحة + أنشطة جماعية', contact:'📞 800-4455', price:310, unit:'للموظف الواحد'},
+      {name:'رحلة العلا الصحراوية — يومان', img:'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=200&q=60', meta:'تخييم صحراوي + جولات أثرية · 25 موظف فأكثر', contact:'📞 800-5522', price:608, unit:'للموظف الواحد'},
+      {name:'يوم ترفيهي في جزيرة سعديات', img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=60', meta:'أنشطة شاطئية + غداء بحري · 10-50 موظف', contact:'📞 800-4455', price:290, unit:'للموظف الواحد'},
+      {name:'رحلة كابادوكيا بالمنطاد — يوم كامل', img:'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=200&q=60', meta:'رحلة منطاد + جولة سياحية جماعية', contact:'📞 800-7788', price:698, unit:'للموظف الواحد'},
     ]
   },
   group: {
     title: currentLang==='ar' ? 'إقامات فندقية جماعية للشركات' : 'Corporate group accommodation deals',
     items: [
-      {name:'فندق نوفوتيل أبوظبي — غرف مجمّعة', img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60', meta:'خصم 20% لأكثر من 10 غرف · فوترة شهرية متاحة', contact:'📞 800-6600', price:'AED 260', unit:'لليلة/الغرفة'},
-      {name:'فندق روتانا دبي — إقامة طويلة الأجل', img:'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=200&q=60', meta:'دفع آجل حتى 30 يوم · إفطار مجاني', contact:'📞 800-6600', price:'AED 210', unit:'لليلة/الغرفة'},
-      {name:'فندق موفنبيك الشارقة — باقة الشركات', img:'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=200&q=60', meta:'نقل مجاني للمطار للمجموعات', contact:'📞 800-6600', price:'AED 185', unit:'لليلة/الغرفة'},
-      {name:'فندق هيلتون الرياض — أجنحة الشركات', img:'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=200&q=60', meta:'خصم 15% لأكثر من 8 غرف · قاعة اجتماعات مجانية', contact:'📞 800-5522', price:'SAR 340', unit:'لليلة/الغرفة'},
-      {name:'فندق كراون بلازا جدة — إقامة الفرق', img:'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=200&q=60', meta:'فوترة موحدة شهرية · إفطار وغداء عمل', contact:'📞 800-6611', price:'SAR 295', unit:'لليلة/الغرفة'},
-      {name:'فندق راديسون بلو إسطنبول — الشركات', img:'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=200&q=60', meta:'نقل مجاني من المطار للمجموعات', contact:'📞 800-7788', price:'USD 95', unit:'لليلة/الغرفة'},
+      {name:'فندق نوفوتيل أبوظبي — غرف مجمّعة', img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60', meta:'خصم 20% لأكثر من 10 غرف · فوترة شهرية متاحة', contact:'📞 800-6600', price:260, unit:'لليلة/الغرفة'},
+      {name:'فندق روتانا دبي — إقامة طويلة الأجل', img:'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=200&q=60', meta:'دفع آجل حتى 30 يوم · إفطار مجاني', contact:'📞 800-6600', price:210, unit:'لليلة/الغرفة'},
+      {name:'فندق موفنبيك الشارقة — باقة الشركات', img:'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=200&q=60', meta:'نقل مجاني للمطار للمجموعات', contact:'📞 800-6600', price:185, unit:'لليلة/الغرفة'},
+      {name:'فندق هيلتون الرياض — أجنحة الشركات', img:'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=200&q=60', meta:'خصم 15% لأكثر من 8 غرف · قاعة اجتماعات مجانية', contact:'📞 800-5522', price:333, unit:'لليلة/الغرفة'},
+      {name:'فندق كراون بلازا جدة — إقامة الفرق', img:'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=200&q=60', meta:'فوترة موحدة شهرية · إفطار وغداء عمل', contact:'📞 800-6611', price:289, unit:'لليلة/الغرفة'},
+      {name:'فندق راديسون بلو إسطنبول — الشركات', img:'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=200&q=60', meta:'نقل مجاني من المطار للمجموعات', contact:'📞 800-7788', price:349, unit:'لليلة/الغرفة'},
     ]
   },
   conference: {
     title: currentLang==='ar' ? 'قاعات مؤتمرات متاحة للحجز' : 'Conference halls available for booking',
     items: [
-      {name:'مركز مؤتمرات أبوظبي الوطني', img:'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=200&q=60', meta:'تتسع حتى 1200 شخص · تجهيزات صوتية كاملة', contact:'📞 800-3300 · events@primetravel.com', price:'AED 60,000', unit:'لليوم الواحد'},
-      {name:'قاعة الاجتماعات — فندق كونراد دبي', img:'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=200&q=60', meta:'تتسع حتى 300 شخص · شاشات عرض تفاعلية', contact:'📞 800-3300', price:'AED 18,000', unit:'لليوم الواحد'},
-      {name:'قاعة الأعمال — فندق فيرمونت الرياض', img:'https://images.unsplash.com/photo-1505409628601-edc9af17fda6?w=200&q=60', meta:'تتسع حتى 150 شخص · استراحات قهوة مجانية', contact:'📞 800-3300', price:'SAR 12,500', unit:'لليوم الواحد'},
-      {name:'مركز جدة الدولي للمؤتمرات', img:'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=200&q=60', meta:'تتسع حتى 800 شخص · ترجمة فورية متاحة', contact:'📞 800-6611', price:'SAR 42,000', unit:'لليوم الواحد'},
-      {name:'قاعة إسطنبول للمؤتمرات — فندق سويس أوتيل', img:'https://images.unsplash.com/photo-1540304453527-62f979142a17?w=200&q=60', meta:'تتسع حتى 500 شخص · إطلالة على البوسفور', contact:'📞 800-7788', price:'USD 7,200', unit:'لليوم الواحد'},
-      {name:'قاعة الشارقة للمعارض والمؤتمرات', img:'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=200&q=60', meta:'تتسع حتى 600 شخص · مواقف سيارات واسعة', contact:'📞 800-6600', price:'AED 22,000', unit:'لليوم الواحد'},
+      {name:'مركز مؤتمرات أبوظبي الوطني', img:'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=200&q=60', meta:'تتسع حتى 1200 شخص · تجهيزات صوتية كاملة', contact:'📞 800-3300 · events@primetravel.com', price:60000, unit:'لليوم الواحد'},
+      {name:'قاعة الاجتماعات — فندق كونراد دبي', img:'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=200&q=60', meta:'تتسع حتى 300 شخص · شاشات عرض تفاعلية', contact:'📞 800-3300', price:18000, unit:'لليوم الواحد'},
+      {name:'قاعة الأعمال — فندق فيرمونت الرياض', img:'https://images.unsplash.com/photo-1505409628601-edc9af17fda6?w=200&q=60', meta:'تتسع حتى 150 شخص · استراحات قهوة مجانية', contact:'📞 800-3300', price:12255, unit:'لليوم الواحد'},
+      {name:'مركز جدة الدولي للمؤتمرات', img:'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=200&q=60', meta:'تتسع حتى 800 شخص · ترجمة فورية متاحة', contact:'📞 800-6611', price:41175, unit:'لليوم الواحد'},
+      {name:'قاعة إسطنبول للمؤتمرات — فندق سويس أوتيل', img:'https://images.unsplash.com/photo-1540304453527-62f979142a17?w=200&q=60', meta:'تتسع حتى 500 شخص · إطلالة على البوسفور', contact:'📞 800-7788', price:26470, unit:'لليوم الواحد'},
+      {name:'قاعة الشارقة للمعارض والمؤتمرات', img:'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=200&q=60', meta:'تتسع حتى 600 شخص · مواقف سيارات واسعة', contact:'📞 800-6600', price:22000, unit:'لليوم الواحد'},
     ]
   },
 };
@@ -2076,7 +2239,7 @@ function openCorpModal(key){
         <div class="contact">${it.contact}</div>
       </div>
       <div class="price-tag">
-        <b>${it.price}</b><span>${it.unit}</span>
+        <b>${fmtPrice(it.price)}</b><span>${it.unit}</span>
         <button class="book-btn" data-corp-book="${it.name}">${currentLang==='ar'?'طلب حجز':'Request booking'}</button>
       </div>
     </div>`).join('');
