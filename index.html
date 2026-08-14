@@ -1277,36 +1277,57 @@ function airlineIata(airlineName){
   return info ? info.iata : '';
 }
 const PARTNERS = [
-  {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', note:true},
-  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://www.makemytrip.com'},
-  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com'},
-  {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com'},
-  {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com'},
-  {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com'},
-  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.booking.com/flights'},
-  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://www.kiwi.com'},
+  {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', cpc:1.4, note:true},
+  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://www.makemytrip.com', type:'ota', trust:93, color:'#eb2026', cpc:1.5},
+  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com', type:'ota', trust:95, color:'#2a67f4', cpc:2.0},
+  {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', cpc:1.2},
+  {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', cpc:1.0},
+  {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', cpc:1.3},
+  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.booking.com/flights', type:'ota', trust:98, color:'#003580', cpc:2.5},
+  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://www.kiwi.com', type:'ota', trust:90, color:'#e5384d', cpc:1.3},
+  {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', cpc:1.5},
+  {name:'Wego', logo:'https://logo.clearbit.com/wego.com', site:'https://www.wego.com', type:'meta', trust:92, color:'#44b50c', cpc:1.2},
+  {name:'المسافر (Almosafer)', logo:'https://logo.clearbit.com/almosafer.com', site:'https://www.almosafer.com', type:'ota', trust:94, color:'#1c9c6b', cpc:1.8},
 ];
 const AIRCRAFT_TYPES = ['Airbus A320','Airbus A321','Boeing 737-800','Boeing 787-9','Airbus A350'];
+/* simple seeded pseudo-random generator so results feel different per route/date search,
+   instead of being 100% identical no matter what the visitor searches for */
+function seededRand(seed){
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+function hashStr(s){
+  let h = 0;
+  for(let i=0;i<s.length;i++){ h = ((h<<5)-h) + s.charCodeAt(i); h |= 0; }
+  return Math.abs(h);
+}
 function genFlights(seed, count){
   const out = [];
+  const base = hashStr(seed);
   for(let i=0;i<count;i++){
-    const stops = i%3===0?0:(i%3===1?1:2);
-    const isMorning = i%2===0;
-    const dur = 3 + (i%5);
-    const price = 620 + i*135 + (stops*80);
+    const r1 = seededRand(base + i*7.13);
+    const r2 = seededRand(base + i*13.7 + 3);
+    const r3 = seededRand(base + i*19.3 + 9);
+    const airlineIdx = Math.floor(r1 * AIRLINES.length);
+    const stops = r2 < 0.45 ? 0 : (r2 < 0.8 ? 1 : 2);
+    const isMorning = r3 < 0.5;
+    const dur = 3 + Math.floor(seededRand(base + i*5.1) * 6);
+    const price = 550 + Math.floor(r1 * 900) + i*70 + (stops*90);
+    const depHour = isMorning ? (5 + Math.floor(seededRand(base+i*2.2)*7)) : (18 + Math.floor(seededRand(base+i*2.2)*5));
+    const depMin = Math.floor(seededRand(base+i*3.3)*60);
     out.push({
       id: seed+'-'+i,
-      airline: AIRLINES[i%AIRLINES.length],
-      code: airlineIata(AIRLINES[i%AIRLINES.length])+(100+i),
+      airline: AIRLINES[airlineIdx],
+      code: airlineIata(AIRLINES[airlineIdx])+(100+Math.floor(r2*800)),
       stops, morning:isMorning, dur, price,
-      aircraft: AIRCRAFT_TYPES[(i+seed.length)%AIRCRAFT_TYPES.length],
-      dep: isMorning ? `0${6+i}:${(i*7)%60<10?'0':''}${(i*7)%60}` : `${19+i%4}:${(i*11)%60<10?'0':''}${(i*11)%60}`,
+      aircraft: AIRCRAFT_TYPES[Math.floor(seededRand(base+i*8.8)*AIRCRAFT_TYPES.length)],
+      dep: `${depHour<10?'0':''}${depHour}:${depMin<10?'0':''}${depMin}`,
     });
   }
   return out.sort((a,b)=>a.price-b.price);
 }
-let outbound = genFlights('out', 6);
-let inbound = genFlights('in', 6);
+let outbound = genFlights('out-0-2', 6);
+let inbound = genFlights('in-0-2', 6);
 let selectedOut = null, selectedIn = null;
 let currentSort = 'recommended';
 
@@ -1587,8 +1608,14 @@ function switchVideo(){
 function goResults(){
   const from = COUNTRIES[fromIdx];
   const to = COUNTRIES[toIdx];
+  const depVal = document.getElementById('depDate').value;
+  const retVal = document.getElementById('retDate').value;
+  // regenerate flights based on the actual route + dates searched, so results genuinely change per search
+  outbound = genFlights('out-'+fromIdx+'-'+toIdx+'-'+depVal, 8);
+  inbound = genFlights('in-'+toIdx+'-'+fromIdx+'-'+retVal, 8);
+  selectedOut = null; selectedIn = null;
   document.getElementById('resRoute').innerHTML = `<img src="${flagImgUrl(from.code)}" style="width:18px;vertical-align:middle;border-radius:2px;margin-inline-end:3px;">${currentLang==='ar'?from.city_ar:from.city_en} → <img src="${flagImgUrl(to.code)}" style="width:18px;vertical-align:middle;border-radius:2px;margin-inline-end:3px;">${currentLang==='ar'?to.city_ar:to.city_en}`;
-  document.getElementById('resMeta').textContent = `${document.getElementById('depDate').value} — ${document.getElementById('retDate').value} · ${document.getElementById('paxSel').selectedOptions[0].textContent}`;
+  document.getElementById('resMeta').textContent = `${depVal} — ${retVal} · ${document.getElementById('paxSel').selectedOptions[0].textContent}`;
   document.getElementById('homePage').classList.add('hidden');
   document.getElementById('resultsPage').classList.add('open');
   window.scrollTo({top:0});
@@ -1708,16 +1735,6 @@ let currentUser = null;
    In-memory only (no localStorage — that fails inside the Claude.ai artifact/preview sandbox and this file
    may be viewed there as well as in a real browser). Data resets on page reload; wire to a real backend DB
    once the site has one. Seeded with realistic starting numbers so the dashboard isn't empty on first load. */
-const ADMIN_PARTNERS = [
-  {name:'Booking.com', site:'booking.com', trust:98, type:'ota', color:'#003580', cpc:2.5},
-  {name:'Trip.com', site:'trip.com', trust:95, type:'ota', color:'#2a67f4', cpc:2.0},
-  {name:'المسافر (Almosafer)', site:'almosafer.com', trust:94, type:'ota', color:'#1c9c6b', cpc:1.8},
-  {name:'Skyscanner', site:'skyscanner.net', trust:96, type:'meta', color:'#0764d4', cpc:1.5},
-  {name:'Wego', site:'wego.com', trust:92, type:'meta', color:'#44b50c', cpc:1.2},
-  {name:'MakeMyTrip', site:'makemytrip.com', trust:93, type:'ota', color:'#eb2026', cpc:1.5},
-  {name:'FlightNetwork', site:'flightnetwork.com', trust:87, type:'ota', color:'#0aa1a3', cpc:1.0},
-  {name:'Kiwi.com', site:'kiwi.com', trust:90, type:'ota', color:'#e5384d', cpc:1.3},
-];
 let trackingClicks = [];   // {id, partner, price, currency, time, status} — loaded live from Supabase, starts empty/real
 let trackingCommissions = []; // {id, clickId, partner, amount, status, time} — same
 
@@ -1740,7 +1757,7 @@ async function loadTrackingFromSupabase(){
 function trackClick(partnerName, price){
   const id = 'CLK-'+Date.now()+'-'+Math.floor(Math.random()*1000);
   trackingClicks.push({id, partner:partnerName, price, currency:currentCurrency, time:new Date().toISOString(), status:'clicked'});
-  const partner = ADMIN_PARTNERS.find(p=>p.name===partnerName) || {cpc:1.5};
+  const partner = PARTNERS.find(p=>p.name===partnerName) || {cpc:1.5};
   const commAmt = Math.round((price||0)*0.04 + partner.cpc);
   trackingCommissions.push({id:'COM-'+id, clickId:id, partner:partnerName, amount:commAmt, status:'pending', time:new Date().toISOString()});
   if(document.getElementById('adminApp').classList.contains('open')) renderAdminAll();
@@ -1887,14 +1904,14 @@ function commOverviewHTML(){
   const rate = totalClicks>0 ? ((bookings/totalClicks)*100).toFixed(1) : '0.0';
   return `
     <div class="stat-grid">
-      <div class="stat-card"><div class="lbl">إجمالي النقرات</div><div class="val">${totalClicks.toLocaleString()}</div><div class="change">عبر ${ADMIN_PARTNERS.length} شركاء</div></div>
+      <div class="stat-card"><div class="lbl">إجمالي النقرات</div><div class="val">${totalClicks.toLocaleString()}</div><div class="change">عبر ${PARTNERS.length} شركاء</div></div>
       <div class="stat-card"><div class="lbl">العمولات المتوقعة</div><div class="val gold">AED ${totalComm.toLocaleString()}</div><div class="change">${confirmed} مؤكدة · ${pending} معلقة</div></div>
       <div class="stat-card"><div class="lbl">معدل التحويل</div><div class="val green">${rate}%</div><div class="change">نقرة → حجز مؤكد</div></div>
-      <div class="stat-card"><div class="lbl">الشركاء النشطون</div><div class="val">${ADMIN_PARTNERS.length}</div><div class="change">نشط الآن</div></div>
+      <div class="stat-card"><div class="lbl">الشركاء النشطون</div><div class="val">${PARTNERS.length}</div><div class="change">نشط الآن</div></div>
     </div>
     <h3 style="font-size:14.5px; margin:20px 0 12px;">توزيع النقرات حسب الشريك</h3>
     <div style="display:flex; gap:14px; flex-wrap:wrap;">
-      ${ADMIN_PARTNERS.map(p=>{
+      ${PARTNERS.map(p=>{
         const clicks = trackingClicks.filter(c=>c.partner===p.name).length;
         const pct = totalClicks>0 ? Math.round(clicks/totalClicks*100) : 0;
         return `<div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:14px; min-width:190px; flex:1;">
@@ -1956,7 +1973,7 @@ function commPartnersHTML(){
     <table class="data">
       <thead><tr><th>الشريك</th><th>النوع</th><th>الثقة</th><th>CPC</th><th>الحالة</th></tr></thead>
       <tbody>
-        ${ADMIN_PARTNERS.map(p=>`<tr>
+        ${PARTNERS.map(p=>`<tr>
           <td><b>${p.name}</b><br><small style="color:var(--dim);">${p.site}</small></td>
           <td>${p.type==='ota'?'مكتب حجز':'محرك بحث مقارنة'}</td>
           <td><span class="trust-bar-mini"><span class="trust-fill-mini" style="display:block; width:${p.trust}%; background:${p.color};"></span></span>${p.trust}%</td>
