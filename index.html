@@ -1718,24 +1718,24 @@ const ADMIN_PARTNERS = [
   {name:'FlightNetwork', site:'flightnetwork.com', trust:87, type:'ota', color:'#0aa1a3', cpc:1.0},
   {name:'Kiwi.com', site:'kiwi.com', trust:90, type:'ota', color:'#e5384d', cpc:1.3},
 ];
-let trackingClicks = [];   // {id, partner, price, currency, time, status}
-let trackingCommissions = []; // {id, clickId, partner, amount, status, time}
-function seedTrackingDemoData(){
-  const now = Date.now();
-  ADMIN_PARTNERS.forEach((p,i)=>{
-    const n = 8 + Math.floor(Math.abs(Math.sin(i*17))*40);
-    for(let k=0;k<n;k++){
-      const price = 900 + Math.floor(Math.abs(Math.sin(i*31+k))*2200);
-      const id = 'CLK-'+(now-k*997-i*10007);
-      trackingClicks.push({id, partner:p.name, price, currency:'AED', time:new Date(now-(k*3+i)*3600*1000).toISOString(), status: k%4===0?'confirmed':'clicked'});
-      if(k%4===0){
-        const commAmt = Math.round(price*0.04 + p.cpc);
-        trackingCommissions.push({id:'COM-'+id, clickId:id, partner:p.name, amount:commAmt, status: k%8===0?'confirmed':'pending', time:new Date(now-(k*3+i)*3600*1000).toISOString()});
-      }
-    }
-  });
+let trackingClicks = [];   // {id, partner, price, currency, time, status} — loaded live from Supabase, starts empty/real
+let trackingCommissions = []; // {id, clickId, partner, amount, status, time} — same
+
+// Real data, loaded from Supabase (not seeded/fake). Called when the admin dashboard opens.
+async function loadTrackingFromSupabase(){
+  try{
+    const { data: clicks, error: clicksErr } = await sb.from('tracking_clicks').select('*').order('created_at', {ascending:false}).limit(500);
+    if(clicksErr) throw clicksErr;
+    trackingClicks = (clicks||[]).map(c=>({ id:c.id, partner:c.partner_name, price:c.price, currency:c.currency, time:c.created_at, status:c.status }));
+
+    const { data: comms, error: commsErr } = await sb.from('commissions').select('*').order('created_at', {ascending:false}).limit(500);
+    if(commsErr) throw commsErr;
+    trackingCommissions = (comms||[]).map(c=>({ id:c.id, clickId:c.click_id, partner:c.partner_name, amount:Number(c.amount), status:c.status, time:c.created_at }));
+  }catch(e){
+    console.error('Could not load real tracking data from Supabase (showing 0 until connection works):', e);
+    trackingClicks = []; trackingCommissions = [];
+  }
 }
-seedTrackingDemoData();
 
 function trackClick(partnerName, price){
   const id = 'CLK-'+Date.now()+'-'+Math.floor(Math.random()*1000);
@@ -1761,11 +1761,6 @@ function trackClick(partnerName, price){
   })();
 }
 
-const commData = [
-  {name:'Booking.com', clicks:1420, bookings:98, comm:5820},
-  {name:'Skyscanner', clicks:1180, bookings:76, comm:4310},
-  {name:'Emirates Direct', clicks:860, bookings:64, comm:3900},
-];
 let teamData = [
   {name:'سارة أحمد', email:'sara@primetravel.com', role:'super_admin', roleLabel:'مدير عام', totp:true, last:'اليوم 09:20'},
   {name:'عمر خالد', email:'omar@primetravel.com', role:'content_editor', roleLabel:'محرر محتوى', totp:true, last:'أمس 17:05'},
@@ -1825,7 +1820,10 @@ function enterDashboard(){
   document.getElementById('whoRole').textContent = currentUser.roleLabel;
   document.querySelectorAll('[id^="roleBadge"]').forEach(b=>b.textContent = currentUser.roleLabel);
   applyRoleGuards();
-  renderAdminAll();
+  renderAdminAll(); // render immediately with whatever's in memory so the UI isn't blank
+  loadTrackingFromSupabase().then(()=>{
+    if(currentCommSubtab) renderCommSubtab(currentCommSubtab); // refresh with real numbers once they arrive
+  });
 }
 
 function applyRoleGuards(){
