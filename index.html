@@ -214,6 +214,8 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
 .modal-head h3{font-size:17px;}
 .close-x{width:32px; height:32px; border-radius:8px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:16px;}
+.auth-tab{flex:1; padding:9px; border-radius:9px; background:var(--card2); border:1px solid var(--border); color:var(--dim); font-weight:700; font-size:12.5px;}
+.auth-tab.active{background:var(--blue); color:#fff; border-color:var(--blue);}
 .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px;}
 .stat{background:var(--card2); border-radius:10px; padding:12px; text-align:center;}
 .stat b{display:block; font-size:19px;}
@@ -493,15 +495,46 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       <select id="currencySel" style="background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:7px; padding:6px 8px; font-size:12px;"></select>
       <select id="langSel" style="background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:7px; padding:6px 8px; font-size:12px;"></select>
     </div>
-    <div class="auth-row">
-      <button class="btn btn-ghost" data-i18n="login">تسجيل الدخول</button>
-      <button class="btn btn-primary" data-i18n="signup">إنشاء حساب</button>
+    <div class="auth-row" id="authRowLoggedOut">
+      <button class="btn btn-ghost" id="btnOpenLogin" data-i18n="login">تسجيل الدخول</button>
+      <button class="btn btn-primary" id="btnOpenSignup" data-i18n="signup">إنشاء حساب</button>
+    </div>
+    <div class="auth-row" id="authRowLoggedIn" style="display:none; align-items:center; gap:10px;">
+      <span id="travelerGreeting" style="font-size:13px; font-weight:700;"></span>
+      <button class="btn btn-ghost" id="btnTravelerLogout" data-i18n="logout">تسجيل الخروج</button>
     </div>
   </div>
   <div class="ticker-bar">
     <div class="ticker-track" id="tickerTrack"></div>
   </div>
 </div>
+
+<!-- ============ TRAVELER LOGIN/SIGNUP MODAL (real Supabase Auth — separate from admin panel) ============ -->
+<div class="overlay" id="authModal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head"><h3 id="authModalTitle">تسجيل الدخول</h3><button class="close-x" id="closeAuthModal">✕</button></div>
+    <div class="auth-tabs" style="display:flex; gap:8px; margin-bottom:16px;">
+      <button class="auth-tab active" data-mode="login" id="authTabLogin">تسجيل الدخول</button>
+      <button class="auth-tab" data-mode="signup" id="authTabSignup">حساب جديد</button>
+    </div>
+    <div class="err-msg" id="authErr" style="background:rgba(235,87,87,.12); border:1px solid var(--red); color:#ffb4b4; font-size:12px; padding:8px 10px; border-radius:8px; margin-bottom:12px; display:none;"></div>
+    <div class="field" id="authNameField" style="display:none; margin-bottom:12px;">
+      <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:5px;" id="authNameLabel">الاسم الكامل</label>
+      <input type="text" id="authName" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; color:var(--text); font-size:13.5px;">
+    </div>
+    <div class="field" style="margin-bottom:12px;">
+      <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:5px;" id="authEmailLabel">البريد الإلكتروني</label>
+      <input type="email" id="authEmail" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; color:var(--text); font-size:13.5px;">
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:5px;" id="authPassLabel">كلمة المرور</label>
+      <input type="password" id="authPass" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; color:var(--text); font-size:13.5px;">
+    </div>
+    <button class="btn btn-primary" id="authSubmit" style="width:100%; padding:11px;">تسجيل الدخول</button>
+    <p style="font-size:11px; color:var(--dim); text-align:center; margin-top:12px;" id="authNote">حساب حقيقي محفوظ بأمان عبر Supabase Auth</p>
+  </div>
+</div>
+
 <div class="page-spacer"></div>
 
 <div class="home-page" id="homePage">
@@ -984,7 +1017,7 @@ let currentLang = 'ar';
 
 const I18N = {
   ar:{brand:"PrimeTravel", logo_tag:"منصة البحث الذكي للسفر والفنادق وقاعات الأعمال والمناسبات", nav_home:"الرئيسية", nav_flights:"✈️ رحلات الطيران", nav_hotels:"فنادق ومناسبات", nav_admin:"لوحة التحكم", rqn_hotels:"🏨 فنادق ومناسبات", rqn_events:"🏛️ قاعات وفعاليات", rqn_wedding:"💍 أفراح ومناسبات", rqn_leisure:"🌴 رحلات ترفيهية",
-  login:"تسجيل الدخول", signup:"إنشاء حساب", eyebrow:"المستشار الذكي لسفرك", hero_h1:"اكتشف العالم معنا",
+  login:"تسجيل الدخول", signup:"إنشاء حساب", logout:"تسجيل الخروج", eyebrow:"المستشار الذكي لسفرك", hero_h1:"اكتشف العالم معنا",
   hero_p:"أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.",
   vid_now:"الآن يعرض:", vid1_label:"إقلاع الطائرات", vid2_label:"صالات المطار",
   assistant:"المستشار الذكي", online:"متصل الآن", assist_greet:"مرحباً! أنا مساعدك الذكي في السفر، كيف يمكنني مساعدتك اليوم؟", assist_ph:"اسألني عن وجهتك...",
@@ -1017,7 +1050,7 @@ const I18N = {
   footer_routes:"الوجهات الشائعة", footer_support:"الدعم", footer_help:"مركز المساعدة",
   footer_cancel:"سياسة الإلغاء", footer_terms:"الشروط والأحكام", footer_privacy:"سياسة الخصوصية"},
   en:{brand:"PrimeTravel", logo_tag:"Smart flight, hotel & event venue search platform", nav_home:"Home", nav_flights:"✈️ Flights", nav_hotels:"Hotels & Deals", nav_admin:"Admin panel", rqn_hotels:"🏨 Hotels & Deals", rqn_events:"🏛️ Halls & Events", rqn_wedding:"💍 Weddings & Events", rqn_leisure:"🌴 Recreational Trips",
-  login:"Log in", signup:"Sign up", eyebrow:"Your smart travel advisor", hero_h1:"Discover the world with us",
+  login:"Log in", signup:"Sign up", logout:"Log out", eyebrow:"Your smart travel advisor", hero_h1:"Discover the world with us",
   hero_p:"The best flight and hotel prices, compared instantly across dozens of trusted sources.",
   vid_now:"Now showing:", vid1_label:"Take-off", vid2_label:"Airport terminals",
   assistant:"Smart advisor", online:"Online now", assist_greet:"Hi! I'm your smart travel assistant, how can I help today?", assist_ph:"Ask me about your destination...",
@@ -1860,6 +1893,94 @@ let auditData = [
   {action:'رفع فيديو جديد', by:'عمر خالد', details:'الفيديو الدائري - الرئيسية', time:'أمس 16:40'},
   {action:'إضافة عضو إدارة', by:'سارة أحمد', details:'lina@primetravel.com — مالية', time:'قبل 5 أيام'},
 ];
+
+/* ============================================================
+   TRAVELER LOGIN / SIGNUP — real Supabase Auth (not the custom email-only
+   check used for the admin panel). This is what powers the "تسجيل الدخول"/
+   "إنشاء حساب" buttons for regular site visitors, and it was completely
+   unwired before — clicking those buttons did nothing.
+   ============================================================ */
+let authMode = 'login';
+let currentTraveler = null;
+
+function setAuthMode(mode){
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach(b=>b.classList.toggle('active', b.getAttribute('data-mode')===mode));
+  document.getElementById('authModalTitle').textContent = mode==='login' ? t('login') : t('signup');
+  document.getElementById('authNameField').style.display = mode==='signup' ? 'block' : 'none';
+  document.getElementById('authSubmit').textContent = mode==='login' ? t('login') : t('signup');
+  document.getElementById('authErr').classList.remove('show');
+  document.getElementById('authErr').style.display = 'none';
+}
+
+function openAuthModal(mode){
+  setAuthMode(mode);
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPass').value = '';
+  document.getElementById('authName').value = '';
+  document.getElementById('authModal').classList.add('open');
+}
+document.getElementById('btnOpenLogin').onclick = ()=> openAuthModal('login');
+document.getElementById('btnOpenSignup').onclick = ()=> openAuthModal('signup');
+document.getElementById('closeAuthModal').onclick = ()=> document.getElementById('authModal').classList.remove('open');
+document.getElementById('authModal').addEventListener('click', e=>{ if(e.target.id==='authModal') document.getElementById('authModal').classList.remove('open'); });
+document.getElementById('authTabLogin').onclick = ()=> setAuthMode('login');
+document.getElementById('authTabSignup').onclick = ()=> setAuthMode('signup');
+
+function updateTravelerUI(){
+  const loggedIn = !!currentTraveler;
+  document.getElementById('authRowLoggedOut').style.display = loggedIn ? 'none' : 'flex';
+  document.getElementById('authRowLoggedIn').style.display = loggedIn ? 'flex' : 'none';
+  if(loggedIn){
+    const name = currentTraveler.user_metadata?.name || currentTraveler.email.split('@')[0];
+    document.getElementById('travelerGreeting').textContent = (currentLang==='ar'?'مرحبًا، ':'Hi, ') + name;
+  }
+}
+
+document.getElementById('authSubmit').onclick = async ()=>{
+  const email = document.getElementById('authEmail').value.trim();
+  const pass = document.getElementById('authPass').value;
+  const name = document.getElementById('authName').value.trim();
+  const errBox = document.getElementById('authErr');
+  const btn = document.getElementById('authSubmit');
+  if(!email || !pass){ errBox.textContent = currentLang==='ar'?'أدخل البريد وكلمة المرور':'Enter email and password'; errBox.style.display='block'; return; }
+  if(authMode==='signup' && pass.length < 6){ errBox.textContent = currentLang==='ar'?'كلمة المرور 6 أحرف على الأقل':'Password must be at least 6 characters'; errBox.style.display='block'; return; }
+  btn.disabled = true; errBox.style.display = 'none';
+  try{
+    if(authMode==='signup'){
+      const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { name: name || email.split('@')[0] } } });
+      if(error) throw error;
+      currentTraveler = data.user;
+      showToast(currentLang==='ar' ? 'تم إنشاء الحساب بنجاح — قد تحتاج تأكيد بريدك الإلكتروني' : 'Account created — you may need to confirm your email');
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if(error) throw error;
+      currentTraveler = data.user;
+      showToast(currentLang==='ar' ? 'تم تسجيل الدخول بنجاح' : 'Logged in successfully');
+    }
+    updateTravelerUI();
+    document.getElementById('authModal').classList.remove('open');
+  }catch(e){
+    errBox.textContent = e.message || (currentLang==='ar'?'حدث خطأ، حاول مجددًا':'Something went wrong, try again');
+    errBox.style.display = 'block';
+  }
+  btn.disabled = false;
+};
+
+document.getElementById('btnTravelerLogout').onclick = async ()=>{
+  await sb.auth.signOut();
+  currentTraveler = null;
+  updateTravelerUI();
+  showToast(currentLang==='ar' ? 'تم تسجيل الخروج' : 'Logged out');
+};
+
+// restore session on page load (e.g. after a refresh) so the visitor doesn't have to log in again every time
+sb.auth.getSession().then(({data})=>{
+  if(data.session && data.session.user){
+    currentTraveler = data.session.user;
+    updateTravelerUI();
+  }
+}).catch(()=>{});
 
 document.getElementById('btnLogin').onclick = async ()=>{
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
