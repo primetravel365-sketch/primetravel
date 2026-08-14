@@ -108,6 +108,20 @@ button{font-family:inherit; cursor:pointer; border:none;}
 
 /* ---------- video panel: centered rectangle (assistant moved to a floating bubble — see .ai-bubble) ---------- */
 .top-panels{display:flex; justify-content:center; margin:28px 0;}
+
+/* ============ Unified hero search box — white card like Booking.com/Wego reference ============ */
+.hero-search-wrap{display:flex; justify-content:center; margin:28px 0 0;}
+.hero-search-card{background:#ffffff; border-radius:18px; box-shadow:0 16px 40px rgba(0,0,0,.3); width:100%; max-width:760px; overflow:hidden;}
+.hero-search-tabs{display:flex; border-bottom:1px solid #eef0f4;}
+.hs-tab{flex:1; padding:14px; font-size:13.5px; font-weight:800; color:#7a828e; background:#f7f8fa;}
+.hs-tab.active{color:#111318; background:#ffffff; border-bottom:3px solid var(--gold);}
+.hero-search-row{display:flex; align-items:stretch; gap:0; flex-wrap:wrap; padding:16px 18px;}
+.hs-field{flex:1; min-width:140px; padding:0 14px; border-inline-end:1px solid #eef0f4; cursor:pointer;}
+.hs-field:last-of-type{border-inline-end:none;}
+.hs-field label{display:block; font-size:10.5px; color:#8a92a0; font-weight:700; margin-bottom:4px;}
+.hs-field .hs-value{font-size:14px; color:#111318; font-weight:700;}
+.hero-search-btn{background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:14px; padding:12px 32px; border-radius:11px; margin:6px; white-space:nowrap;}
+@media(max-width:640px){.hero-search-row{flex-direction:column; gap:10px;} .hs-field{border-inline-end:none; border-bottom:1px solid #eef0f4; padding-bottom:8px;} .hero-search-btn{width:100%;}}
 .video-panel{
   background:transparent; border:none;
   display:flex; align-items:center; justify-content:center; padding:0;
@@ -630,6 +644,31 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <h1><span data-i18n="brand">PrimeTravel</span> <span data-i18n="hero_h1">اكتشف العالم معنا</span></h1>
     <p data-i18n="hero_p">أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.</p>
   </section>
+
+  <!-- ============ UNIFIED HERO SEARCH BOX (white card, Flights/Hotels toggle) ============ -->
+  <div class="hero-search-wrap">
+    <div class="hero-search-card">
+      <div class="hero-search-tabs">
+        <button class="hs-tab active" data-hs="flights">✈️ <span data-i18n="hs_flights">رحلات الطيران</span></button>
+        <button class="hs-tab" data-hs="hotels">🏨 <span data-i18n="hs_hotels">فنادق</span></button>
+      </div>
+      <div class="hero-search-row">
+        <div class="hs-field">
+          <label data-i18n="hs_where">إلى أين؟</label>
+          <span class="hs-value" id="heroSearchDest" data-i18n="hs_where_ph">ابحث عن وجهتك...</span>
+        </div>
+        <div class="hs-field">
+          <label data-i18n="hs_dates">التواريخ</label>
+          <span class="hs-value" id="heroSearchDates">—</span>
+        </div>
+        <div class="hs-field">
+          <label data-i18n="hs_guests">المسافرون</label>
+          <span class="hs-value" id="heroSearchGuests">1</span>
+        </div>
+        <button class="hero-search-btn" id="heroSearchBtn" data-i18n="hs_btn">بحث</button>
+      </div>
+    </div>
+  </div>
 
   <div class="top-panels">
     <div class="video-panel">
@@ -1192,7 +1231,7 @@ const I18N = {
   f_time:"وقت الرحلة", f_morning:"صباحية", f_night:"ليلية", f_airlines:"شركات الطيران", f_duration:"مدة الرحلة",
   f_price:"نطاق السعر", f_experience:"تجربة الرحلة", f_no_overnight:"بدون توقف ليلي", f_same_airline:"إتمام الرحلة بنفس الشركة فقط",
   sort_recommended:"الموصى بها", sort_cheapest:"الأرخص", sort_fastest:"الأسرع",
-  outbound:"رحلة الذهاب", inbound:"رحلة العودة", book_now:"احجز الآن", baggage:"سياسة الحجز والتذاكر", cancel_policy:"الإرجاع والتغيير", book_leg:"احجز هذه الرحلة", leg_selected:"محجوزة",
+  outbound:"رحلة الذهاب", inbound:"رحلة العودة", book_now:"احجز الآن", baggage:"سياسة الحقائب", cancel_policy:"سياسة الحجز والتذاكر", book_leg:"احجز هذه الرحلة", leg_selected:"محجوزة",
   alert_email:"تنبيه عبر البريد الإلكتروني", alert_wa:"تنبيه عبر واتساب", price_drop:"تنبيه انخفاض السعر",
   footer:"© 2026 PrimeTravel — جميع الحقوق محفوظة",
   admin_title:"لوحة تحكم الإدارة — العمولات والتتبع", admin_clicks:"نقرات هذا الشهر", admin_bookings:"حجوزات مؤكدة", admin_commission:"إجمالي العمولات",
@@ -1207,6 +1246,7 @@ const I18N = {
   hotel_dest:"الوجهة", hotel_checkin:"تاريخ الوصول", hotel_checkout:"تاريخ المغادرة", hotel_rooms:"الغرف والضيوف",
   hg_1_1:"غرفة واحدة، ضيف واحد", hg_1_2:"غرفة واحدة، ضيفان", hg_2_4:"غرفتان، 4 ضيوف", hg_3_6:"3 غرف، 6 ضيوف",
   hotel_search_btn:"بحث عن فنادق", hotel_sort_rating:"الأعلى تقييمًا", hotel_stars:"تصنيف النجوم",
+  hs_flights:"رحلات الطيران", hs_hotels:"فنادق", hs_where:"إلى أين؟", hs_where_ph:"ابحث عن وجهتك...", hs_dates:"التواريخ", hs_guests:"المسافرون", hs_btn:"بحث",
   hotel_price_range:"نطاق السعر لليلة", hotel_amenities:"المرافق",
   am_wifi:"واي فاي مجاني", am_pool:"مسبح", am_breakfast:"إفطار مجاني", am_gym:"صالة رياضية",
   corp_wedding_h:"الأفراح والمناسبات", corp_wedding_p:"حجز قاعات الأفراح في أفضل الفنادق والمنتجعات مع باقات شاملة.",
@@ -1232,7 +1272,7 @@ const I18N = {
   f_time:"Time of day", f_morning:"Morning", f_night:"Night", f_airlines:"Airlines", f_duration:"Duration",
   f_price:"Price range", f_experience:"Flight experience", f_no_overnight:"No overnight stops", f_same_airline:"Complete trip on same airline",
   sort_recommended:"Recommended", sort_cheapest:"Cheapest", sort_fastest:"Fastest",
-  outbound:"Outbound", inbound:"Return", book_now:"Book now", baggage:"Booking & baggage policy", cancel_policy:"Change & cancellation", book_leg:"Book this flight", leg_selected:"Selected",
+  outbound:"Outbound", inbound:"Return", book_now:"Book now", baggage:"Baggage policy", cancel_policy:"Booking & ticket policy", book_leg:"Book this flight", leg_selected:"Selected",
   alert_email:"Alert by email", alert_wa:"Alert by WhatsApp", price_drop:"Price drop alert",
   footer:"© 2026 PrimeTravel — All rights reserved",
   admin_title:"Admin panel — commissions and tracking", admin_clicks:"Clicks this month", admin_bookings:"Confirmed bookings", admin_commission:"Total commission",
@@ -1247,6 +1287,7 @@ const I18N = {
   hotel_dest:"Destination", hotel_checkin:"Check-in", hotel_checkout:"Check-out", hotel_rooms:"Rooms & guests",
   hg_1_1:"1 room, 1 guest", hg_1_2:"1 room, 2 guests", hg_2_4:"2 rooms, 4 guests", hg_3_6:"3 rooms, 6 guests",
   hotel_search_btn:"Search hotels", hotel_sort_rating:"Top rated", hotel_stars:"Star rating",
+  hs_flights:"Flights", hs_hotels:"Hotels", hs_where:"Where to?", hs_where_ph:"Search destinations...", hs_dates:"Dates", hs_guests:"Travelers", hs_btn:"Search",
   hotel_price_range:"Price range per night", hotel_amenities:"Amenities",
   am_wifi:"Free WiFi", am_pool:"Pool", am_breakfast:"Free breakfast", am_gym:"Gym",
   corp_wedding_h:"Weddings & Events", corp_wedding_p:"Book wedding halls at top hotels and resorts with all-inclusive packages.",
@@ -1828,15 +1869,22 @@ const AIRLINE_POLICIES = {
   'Air Arabia':        {cabin_ar:'7 كجم + حقيبة يد 3 كجم', cabin_en:'7kg + 3kg personal item', checked_ar:'غير مشمولة في الفئة الأساسية؛ مشمولة في فئتي Value وUltimate', checked_en:'Not included on Basic fare; included on Value & Ultimate fares', change_ar:'الفئة الأساسية غير قابلة للتغيير؛ فئتا Value وUltimate تسمحان بالتغيير مقابل رسوم', change_en:'Basic fare is non-changeable; Value & Ultimate fares allow changes for a fee'},
   'Royal Jordanian':   {cabin_ar:'7 كجم', cabin_en:'7kg', checked_ar:'حقيبة واحدة حتى 23 كجم مجانًا', checked_en:'1 bag up to 23kg included', change_ar:'رسوم التغيير والإلغاء تُحدَّد حسب فئة التذكرة المحجوزة', change_en:'Change/cancellation fees are determined by the booked fare class'},
 };
-function airlinePolicyHTML(airlineName){
+function airlineBaggageHTML(airlineName){
   const p = AIRLINE_POLICIES[airlineName];
   if(!p) return '';
   const ar = currentLang==='ar';
   return `
     <div><b>${ar?'المقصورة: ':'Cabin: '}</b>${ar?p.cabin_ar:p.cabin_en}</div>
     <div style="margin-top:4px;"><b>${ar?'الحقيبة المسجّلة: ':'Checked bag: '}</b>${ar?p.checked_ar:p.checked_en}</div>
-    <div style="margin-top:6px;"><b>${ar?'التغيير والإلغاء: ':'Change & cancellation: '}</b>${ar?p.change_ar:p.change_en}</div>
-    <div style="margin-top:6px; font-size:10px; color:var(--dim);">${ar?`سياسة ${airlineName} المعلنة رسميًا (2026) — تختلف حسب الفئة والمسار، يُنصح بالتأكد عند الحجز الفعلي.`:`${airlineName}'s officially published policy (2026) — varies by fare and route, please verify at actual booking.`}</div>`;
+    <div style="margin-top:6px; font-size:10px; color:var(--dim);">${ar?`سياسة حقائب ${airlineName} المعلنة رسميًا (2026)`:`${airlineName}'s officially published baggage policy (2026)`}</div>`;
+}
+function airlineTicketHTML(airlineName){
+  const p = AIRLINE_POLICIES[airlineName];
+  if(!p) return '';
+  const ar = currentLang==='ar';
+  return `
+    <div><b>${ar?'التغيير والإلغاء: ':'Change & cancellation: '}</b>${ar?p.change_ar:p.change_en}</div>
+    <div style="margin-top:6px; font-size:10px; color:var(--dim);">${ar?`سياسة حجز وتذاكر ${airlineName} — تختلف حسب الفئة والمسار، يُنصح بالتأكد عند الحجز الفعلي.`:`${airlineName}'s booking/ticket policy — varies by fare and route, please verify at actual booking.`}</div>`;
 }
 function airlineFlagUrl(airlineName){
   const info = AIRLINE_IATA[airlineName];
@@ -1930,7 +1978,12 @@ function wegoRowHTML(f, group){
     </div>
     <button class="chip-btn" data-pop="bag-${f.id}-${group}">${t('baggage')}
       <div class="popover" id="bag-${f.id}-${group}">
-        ${airlinePolicyHTML(f.airline)}
+        ${airlineBaggageHTML(f.airline)}
+      </div>
+    </button>
+    <button class="chip-btn" data-pop="ticket-${f.id}-${group}">${t('cancel_policy')}
+      <div class="popover" id="ticket-${f.id}-${group}">
+        ${airlineTicketHTML(f.airline)}
       </div>
     </button>
     <button class="alert-btn" data-pop="alert-${f.id}-${group}" aria-label="alert">🔔
@@ -2244,9 +2297,53 @@ function goHome(){
   window.scrollTo({top:0});
 }
 
+/* ============================================================
+   UNIFIED HERO SEARCH BOX — Flights/Hotels toggle at the top of the
+   homepage. It mirrors the real state of the actual flight/hotel search
+   cards further down the page (same dates/destination), and its button
+   triggers the real search flow — no separate/duplicate search logic.
+   ============================================================ */
+let heroSearchMode = 'flights';
+function syncHeroSearchDisplay(){
+  if(heroSearchMode==='flights'){
+    const from = COUNTRIES[fromIdx], to = COUNTRIES[toIdx];
+    const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
+    const fromCity = currentLang==='ar' ? fromAp.city_ar : fromAp.city_en;
+    const toCity = currentLang==='ar' ? toAp.city_ar : toAp.city_en;
+    document.getElementById('heroSearchDest').textContent = `${fromCity} → ${toCity}`;
+    document.getElementById('heroSearchDates').textContent = `${document.getElementById('depDate').value} — ${document.getElementById('retDate').value}`;
+    document.getElementById('heroSearchGuests').textContent = document.getElementById('paxSel').selectedOptions[0].textContent;
+  } else {
+    const destIdx = Number(document.getElementById('hotelDest').value);
+    const dest = HOTEL_CITIES[destIdx];
+    document.getElementById('heroSearchDest').textContent = currentLang==='ar' ? dest.cityAr : dest.cityEn;
+    document.getElementById('heroSearchDates').textContent = `${document.getElementById('hotelCheckin').value} — ${document.getElementById('hotelCheckout').value}`;
+    document.getElementById('heroSearchGuests').textContent = document.getElementById('hotelGuests').selectedOptions[0].textContent;
+  }
+}
+document.querySelectorAll('.hs-tab').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.hs-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    heroSearchMode = btn.getAttribute('data-hs');
+    syncHeroSearchDisplay();
+  };
+});
+document.querySelectorAll('.hs-field').forEach(field=>{
+  field.onclick = ()=>{
+    const target = heroSearchMode==='flights' ? document.querySelector('.search-card') : document.getElementById('hotelDest');
+    target?.scrollIntoView({behavior:'smooth', block:'center'});
+  };
+});
+document.getElementById('heroSearchBtn').onclick = ()=>{
+  if(heroSearchMode==='flights') goResults();
+  else runHotelSearch();
+};
+
 function renderAll(){
   buildCurrencySelect(); buildLangSelect(); buildTicker(); buildCountrySelects(); renderCountryImgs(); buildHotelDestSelect();
   buildCompareStrip(); buildDeals();
+  syncHeroSearchDisplay();
   if(document.getElementById('resultsPage').classList.contains('open')) renderFlightLists();
 }
 
