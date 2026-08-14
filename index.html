@@ -1277,14 +1277,14 @@ function airlineIata(airlineName){
   return info ? info.iata : '';
 }
 const PARTNERS = [
-  {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', note:true},
-  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com'},
-  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com'},
-  {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com'},
-  {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com'},
-  {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com'},
-  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com'},
-  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com'},
+  {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', note:true},
+  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://www.makemytrip.com'},
+  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com'},
+  {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com'},
+  {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com'},
+  {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com'},
+  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.booking.com/flights'},
+  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://www.kiwi.com'},
 ];
 const AIRCRAFT_TYPES = ['Airbus A320','Airbus A321','Boeing 737-800','Boeing 787-9','Airbus A350'];
 function genFlights(seed, count){
@@ -1527,14 +1527,16 @@ function openTripDetails(){
     <div class="price-row">
       <div class="partner"><img src="${o.logo}" alt="${o.name}" onerror="this.outerHTML='<b>${o.name}</b>'"> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}</div>
       <div class="p-price">${fmtPrice(o.price)}</div>
-      <button class="choose-btn" data-partner="${o.name}" data-price="${o.price}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
+      <button class="choose-btn" data-partner="${o.name}" data-price="${o.price}" data-site="${o.site}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
     </div>`).join('');
   document.querySelectorAll('.choose-btn').forEach(btn=>{
     btn.onclick = ()=>{
       const partnerName = btn.getAttribute('data-partner');
       const priceAED = parseFloat(btn.getAttribute('data-price'));
+      const site = btn.getAttribute('data-site');
       trackClick(partnerName, priceAED); // logs the click + estimated commission into the admin dashboard
-      showToast((currentLang==='ar'?'تم تحويلك إلى ':'Redirecting to ')+partnerName+(currentLang==='ar'?' لإتمام الحجز (تجريبي)':' to complete booking (demo)'));
+      showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking'));
+      window.open(site, '_blank', 'noopener'); // opens the provider's own official site — real deep-link affiliate URLs come once we're on Travelpayouts/Wego Affiliate API
     };
   });
   document.getElementById('resultsPage').classList.remove('open');
