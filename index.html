@@ -116,10 +116,10 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .hero-search-shell{
   --bg:#ffffff; --card:#ffffff; --card2:#f4f6f9; --border:#e2e6ec; --text:#111318; --dim:#5c6470;
   background:#ffffff; border-radius:18px; box-shadow:0 16px 40px rgba(0,0,0,.3);
-  width:100%; max-width:760px; margin:28px auto 0; padding:18px;
+  width:100%; max-width:760px; margin:28px auto 0; padding:12px 14px;
 }
-.hero-search-tabs{display:flex; gap:8px; margin-bottom:14px;}
-.hs-tab{flex:1; padding:11px; font-size:13.5px; font-weight:800; color:#7a828e; background:#f7f8fa; border-radius:10px;}
+.hero-search-tabs{display:flex; gap:8px; margin-bottom:10px;}
+.hs-tab{flex:1; padding:8px; font-size:13px; font-weight:800; color:#7a828e; background:#f7f8fa; border-radius:9px;}
 .hs-tab.active{color:#111318; background:#fff; border:2px solid var(--gold);}
 .video-panel{
   background:transparent; border:none;
@@ -162,7 +162,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .assist-input button{width:40px; border-radius:9px; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center;}
 
 /* ---------- search box ---------- */
-.search-block{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:24px;}
+.search-block{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:12px; margin-bottom:24px;}
 .search-toprow{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px;}
 .trip-tabs{display:flex; gap:6px; background:var(--card2); padding:4px; border-radius:9px;}
 .trip-tabs button{padding:7px 14px; border-radius:7px; font-size:12.5px; color:var(--dim); background:transparent; font-weight:700;}
@@ -178,6 +178,10 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .flag-field-display{display:flex; align-items:center; gap:7px; font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .flag-field-display img{width:20px; height:auto; display:block; flex-shrink:0; border-radius:2px; box-shadow:0 0 0 1px rgba(255,255,255,.08);}
 .flag-dd{position:absolute; top:calc(100% + 6px); right:0; left:0; background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.4); max-height:320px; overflow-y:auto; z-index:80; display:none; padding:8px;}
+/* The dropdown is a floating dark panel by design, even when its search-form ancestor is
+   re-themed white (like inside .hero-search-shell) — re-assert the dark palette here so it
+   never inherits a light theme and becomes unreadable. */
+.flag-dd{--card:#111d33; --card2:#0f1a2c; --border:#22314f; --text:#eaf0fb; --dim:#8ea0c2;}
 .flag-dd.open{display:block;}
 .flag-dd input.flag-search{width:100%; background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text); font-size:13px; margin-bottom:6px;}
 .flag-dd .flag-country-head{display:flex; align-items:center; gap:8px; padding:8px 9px 4px; font-size:11.5px; font-weight:800; color:var(--dim); text-transform:uppercase; letter-spacing:.4px;}
@@ -1350,6 +1354,96 @@ const COUNTRIES = [
    imgs:[{u:'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=300&q=60', l_ar:'برج بيغ بن', l_en:'Big Ben'},
          {u:'https://images.unsplash.com/photo-1520986606214-8b456906c813?w=300&q=60', l_ar:'جسر البرج', l_en:'Tower Bridge'},
          {u:'https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=300&q=60', l_ar:'عين لندن', l_en:'London Eye'}]},
+  {code:'QA', name_ar:'قطر', name_en:'Qatar', airports:[
+     {code:'DOH', name_ar:'مطار حمد الدولي', name_en:'Hamad International Airport', city_ar:'الدوحة', city_en:'Doha'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=60', l_ar:'أبراج الدوحة', l_en:'Doha skyline'}]},
+  {code:'KW', name_ar:'الكويت', name_en:'Kuwait', airports:[
+     {code:'KWI', name_ar:'مطار الكويت الدولي', name_en:'Kuwait International Airport', city_ar:'مدينة الكويت', city_en:'Kuwait City'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=60', l_ar:'أبراج الكويت', l_en:'Kuwait Towers'}]},
+  {code:'BH', name_ar:'البحرين', name_en:'Bahrain', airports:[
+     {code:'BAH', name_ar:'مطار البحرين الدولي', name_en:'Bahrain International Airport', city_ar:'المنامة', city_en:'Manama'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=60', l_ar:'المنامة', l_en:'Manama skyline'}]},
+  {code:'OM', name_ar:'عُمان', name_en:'Oman', airports:[
+     {code:'MCT', name_ar:'مطار مسقط الدولي', name_en:'Muscat International Airport', city_ar:'مسقط', city_en:'Muscat'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&q=60', l_ar:'مسقط القديمة', l_en:'Old Muscat'}]},
+  {code:'JO', name_ar:'الأردن', name_en:'Jordan', airports:[
+     {code:'AMM', name_ar:'مطار الملكة علياء الدولي', name_en:'Queen Alia International Airport', city_ar:'عمّان', city_en:'Amman'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1591298670922-2c65b0b70a48?w=300&q=60', l_ar:'البتراء', l_en:'Petra'}]},
+  {code:'LB', name_ar:'لبنان', name_en:'Lebanon', airports:[
+     {code:'BEY', name_ar:'مطار بيروت رفيق الحريري الدولي', name_en:'Beirut–Rafic Hariri Intl Airport', city_ar:'بيروت', city_en:'Beirut'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&q=60', l_ar:'وسط بيروت', l_en:'Beirut downtown'}]},
+  {code:'MA', name_ar:'المغرب', name_en:'Morocco', airports:[
+     {code:'CMN', name_ar:'مطار محمد الخامس الدولي', name_en:'Mohammed V International Airport', city_ar:'الدار البيضاء', city_en:'Casablanca'},
+     {code:'RAK', name_ar:'مطار مراكش المنارة', name_en:'Marrakesh Menara Airport', city_ar:'مراكش', city_en:'Marrakesh'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=300&q=60', l_ar:'أسواق مراكش', l_en:'Marrakesh souks'}]},
+  {code:'TN', name_ar:'تونس', name_en:'Tunisia', airports:[
+     {code:'TUN', name_ar:'مطار تونس قرطاج الدولي', name_en:'Tunis–Carthage Intl Airport', city_ar:'تونس', city_en:'Tunis'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=300&q=60', l_ar:'مدينة تونس', l_en:'Tunis medina'}]},
+  {code:'IN', name_ar:'الهند', name_en:'India', airports:[
+     {code:'DEL', name_ar:'مطار إنديرا غاندي الدولي', name_en:'Indira Gandhi International Airport', city_ar:'دلهي', city_en:'Delhi'},
+     {code:'BOM', name_ar:'مطار تشاتراباتي شيفاجي', name_en:'Chhatrapati Shivaji Intl Airport', city_ar:'مومباي', city_en:'Mumbai'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=300&q=60', l_ar:'تاج محل', l_en:'Taj Mahal'}]},
+  {code:'PK', name_ar:'باكستان', name_en:'Pakistan', airports:[
+     {code:'KHI', name_ar:'مطار جناح الدولي', name_en:'Jinnah International Airport', city_ar:'كراتشي', city_en:'Karachi'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=300&q=60', l_ar:'كراتشي', l_en:'Karachi'}]},
+  {code:'CN', name_ar:'الصين', name_en:'China', airports:[
+     {code:'PEK', name_ar:'مطار بكين العاصمة الدولي', name_en:'Beijing Capital Intl Airport', city_ar:'بكين', city_en:'Beijing'},
+     {code:'PVG', name_ar:'مطار شنغهاي بودونغ الدولي', name_en:'Shanghai Pudong Intl Airport', city_ar:'شنغهاي', city_en:'Shanghai'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=300&q=60', l_ar:'سور الصين العظيم', l_en:'Great Wall of China'}]},
+  {code:'JP', name_ar:'اليابان', name_en:'Japan', airports:[
+     {code:'NRT', name_ar:'مطار ناريتا الدولي', name_en:'Narita International Airport', city_ar:'طوكيو', city_en:'Tokyo'},
+     {code:'KIX', name_ar:'مطار كانساي الدولي', name_en:'Kansai International Airport', city_ar:'أوساكا', city_en:'Osaka'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=300&q=60', l_ar:'جبل فوجي', l_en:'Mount Fuji'}]},
+  {code:'KR', name_ar:'كوريا الجنوبية', name_en:'South Korea', airports:[
+     {code:'ICN', name_ar:'مطار إنتشون الدولي', name_en:'Incheon International Airport', city_ar:'سول', city_en:'Seoul'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=300&q=60', l_ar:'سول', l_en:'Seoul skyline'}]},
+  {code:'MY', name_ar:'ماليزيا', name_en:'Malaysia', airports:[
+     {code:'KUL', name_ar:'مطار كوالالمبور الدولي', name_en:'Kuala Lumpur International Airport', city_ar:'كوالالمبور', city_en:'Kuala Lumpur'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=300&q=60', l_ar:'برجا بتروناس', l_en:'Petronas Towers'}]},
+  {code:'TH', name_ar:'تايلاند', name_en:'Thailand', airports:[
+     {code:'BKK', name_ar:'مطار سوفارنابومي', name_en:'Suvarnabhumi Airport', city_ar:'بانكوك', city_en:'Bangkok'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=300&q=60', l_ar:'معابد بانكوك', l_en:'Bangkok temples'}]},
+  {code:'ID', name_ar:'إندونيسيا', name_en:'Indonesia', airports:[
+     {code:'CGK', name_ar:'مطار سوكارنو هاتا', name_en:'Soekarno–Hatta Intl Airport', city_ar:'جاكرتا', city_en:'Jakarta'},
+     {code:'DPS', name_ar:'مطار نغوراه راي', name_en:'Ngurah Rai International Airport', city_ar:'بالي', city_en:'Bali'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=300&q=60', l_ar:'شواطئ بالي', l_en:'Bali beaches'}]},
+  {code:'SG', name_ar:'سنغافورة', name_en:'Singapore', airports:[
+     {code:'SIN', name_ar:'مطار تشانغي', name_en:'Singapore Changi Airport', city_ar:'سنغافورة', city_en:'Singapore'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=300&q=60', l_ar:'حدائق الخليج', l_en:'Gardens by the Bay'}]},
+  {code:'DE', name_ar:'ألمانيا', name_en:'Germany', airports:[
+     {code:'FRA', name_ar:'مطار فرانكفورت الدولي', name_en:'Frankfurt Airport', city_ar:'فرانكفورت', city_en:'Frankfurt'},
+     {code:'MUC', name_ar:'مطار ميونخ', name_en:'Munich Airport', city_ar:'ميونخ', city_en:'Munich'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=300&q=60', l_ar:'بوابة براندنبورغ', l_en:'Brandenburg Gate'}]},
+  {code:'IT', name_ar:'إيطاليا', name_en:'Italy', airports:[
+     {code:'FCO', name_ar:'مطار ليوناردو دا فينشي', name_en:'Leonardo da Vinci–Fiumicino Airport', city_ar:'روما', city_en:'Rome'},
+     {code:'MXP', name_ar:'مطار مالبنسا', name_en:'Milan Malpensa Airport', city_ar:'ميلانو', city_en:'Milan'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=300&q=60', l_ar:'الكولوسيوم', l_en:'Colosseum'}]},
+  {code:'ES', name_ar:'إسبانيا', name_en:'Spain', airports:[
+     {code:'MAD', name_ar:'مطار مدريد باراخاس', name_en:'Adolfo Suárez Madrid–Barajas Airport', city_ar:'مدريد', city_en:'Madrid'},
+     {code:'BCN', name_ar:'مطار برشلونة البرات', name_en:'Barcelona–El Prat Airport', city_ar:'برشلونة', city_en:'Barcelona'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=300&q=60', l_ar:'ساغرادا فاميليا', l_en:'Sagrada Família'}]},
+  {code:'NL', name_ar:'هولندا', name_en:'Netherlands', airports:[
+     {code:'AMS', name_ar:'مطار سخيبول', name_en:'Amsterdam Airport Schiphol', city_ar:'أمستردام', city_en:'Amsterdam'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=300&q=60', l_ar:'قنوات أمستردام', l_en:'Amsterdam canals'}]},
+  {code:'GR', name_ar:'اليونان', name_en:'Greece', airports:[
+     {code:'ATH', name_ar:'مطار أثينا الدولي', name_en:'Athens International Airport', city_ar:'أثينا', city_en:'Athens'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1503152394-c571994fd383?w=300&q=60', l_ar:'الأكروبوليس', l_en:'Acropolis'}]},
+  {code:'US', name_ar:'أمريكا', name_en:'United States', airports:[
+     {code:'JFK', name_ar:'مطار جون كينيدي الدولي', name_en:'John F. Kennedy Intl Airport', city_ar:'نيويورك', city_en:'New York'},
+     {code:'LAX', name_ar:'مطار لوس أنجلوس الدولي', name_en:'Los Angeles International Airport', city_ar:'لوس أنجلوس', city_en:'Los Angeles'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=300&q=60', l_ar:'أفق نيويورك', l_en:'New York skyline'}]},
+  {code:'CA', name_ar:'كندا', name_en:'Canada', airports:[
+     {code:'YYZ', name_ar:'مطار تورونتو بيرسون', name_en:'Toronto Pearson Airport', city_ar:'تورونتو', city_en:'Toronto'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1517090504586-fde19ea6066f?w=300&q=60', l_ar:'أفق تورونتو', l_en:'Toronto skyline'}]},
+  {code:'AU', name_ar:'أستراليا', name_en:'Australia', airports:[
+     {code:'SYD', name_ar:'مطار سيدني كينغسفورد سميث', name_en:'Sydney Kingsford Smith Airport', city_ar:'سيدني', city_en:'Sydney'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=300&q=60', l_ar:'دار أوبرا سيدني', l_en:'Sydney Opera House'}]},
+  {code:'ZA', name_ar:'جنوب أفريقيا', name_en:'South Africa', airports:[
+     {code:'JNB', name_ar:'مطار أو.آر.تامبو الدولي', name_en:'O.R. Tambo International Airport', city_ar:'جوهانسبرغ', city_en:'Johannesburg'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=300&q=60', l_ar:'كيب تاون', l_en:'Cape Town'}]},
+  {code:'KE', name_ar:'كينيا', name_en:'Kenya', airports:[
+     {code:'NBO', name_ar:'مطار جومو كينياتا الدولي', name_en:'Jomo Kenyatta Intl Airport', city_ar:'نيروبي', city_en:'Nairobi'},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=300&q=60', l_ar:'سفاري كينيا', l_en:'Kenyan safari'}]},
 ];
 
 function flagEmoji(iso2){
