@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PrimeTravel | اكتشف العالم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 :root{
@@ -24,7 +24,7 @@ body{
     center/cover fixed;
   background-color:#0a2540;
   color:var(--text);
-  font-family:'Tajawal','Cairo',sans-serif;
+  font-family:'IBM Plex Sans Arabic','Cairo',sans-serif;
   line-height:1.6;
 }
 /* background-attachment:fixed is well known to flicker/show blank white on mobile browsers during scroll
@@ -48,8 +48,8 @@ body::after{
   animation:lightShimmer 12s ease-in-out infinite;
 }
 @keyframes lightShimmer{0%{background-position:0% 0%;}50%{background-position:100% 60%;}100%{background-position:0% 0%;}}
-body.lang-en{font-family:'Tajawal',Arial,sans-serif;}
-h1,h2,h3{font-family:'Cairo','Tajawal',sans-serif; font-weight:800;}
+body.lang-en{font-family:'IBM Plex Sans Arabic',Arial,sans-serif;}
+h1,h2,h3{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif; font-weight:800;}
 img{max-width:100%; display:block;}
 a{color:inherit; text-decoration:none;}
 button{font-family:inherit; cursor:pointer; border:none;}
@@ -175,15 +175,15 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .field label{display:block; font-size:10.5px; color:var(--dim); margin-bottom:3px;}
 .field select, .field input{width:100%; background:transparent; border:none; color:var(--text); font-size:13.5px; font-weight:700; font-family:inherit;}
 .field select:focus, .field input:focus{outline:none;}
-.flag-field-display{display:flex; align-items:center; gap:7px; font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.flag-field-display{display:flex; align-items:center; gap:7px; font-size:13.5px; font-weight:700; color:var(--text);}
 .flag-field-display img{width:20px; height:auto; display:block; flex-shrink:0; border-radius:2px; box-shadow:0 0 0 1px rgba(255,255,255,.08);}
+.flag-field-input{flex:1; min-width:0; background:transparent; border:none; outline:none; color:var(--text); font-family:inherit; font-size:13.5px; font-weight:700; padding:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .flag-dd{position:absolute; top:calc(100% + 6px); right:0; left:0; background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.4); max-height:320px; overflow-y:auto; z-index:80; display:none; padding:8px;}
 /* The dropdown is a floating dark panel by design, even when its search-form ancestor is
    re-themed white (like inside .hero-search-shell) — re-assert the dark palette here so it
    never inherits a light theme and becomes unreadable. */
 .flag-dd{--card:#111d33; --card2:#0f1a2c; --border:#22314f; --text:#eaf0fb; --dim:#8ea0c2;}
 .flag-dd.open{display:block;}
-.flag-dd input.flag-search{width:100%; background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text); font-size:13px; margin-bottom:6px;}
 .flag-dd .flag-country-head{display:flex; align-items:center; gap:8px; padding:8px 9px 4px; font-size:11.5px; font-weight:800; color:var(--dim); text-transform:uppercase; letter-spacing:.4px;}
 .flag-dd .flag-country-head:not(:first-child){border-top:1px solid var(--border); margin-top:4px;}
 .flag-dd .flag-country-head img{width:16px; height:auto; border-radius:2px;}
@@ -532,7 +532,16 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .tl-sub{display:block; font-size:11px; color:var(--dim); margin-top:1px;}
 .tdp-tl-mid{background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin:4px 0 10px;}
 .tdp-tl-mid .airline-line{display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:4px;}
-.tdp-amenities{margin-top:6px; font-size:13px; letter-spacing:4px;}
+.tdp-amenities{margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;}
+.tdp-amenities span{display:inline-flex; align-items:center; gap:5px; background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; font-size:11px; color:var(--dim);}
+.tdp-amenities span i{color:var(--blue-l); font-size:12px;}
+.tdp-policies{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+@media(max-width:640px){.tdp-policies{grid-template-columns:1fr;}}
+.tdp-policy-box{background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
+.tdp-policy-box .tpb-title{display:flex; align-items:center; gap:7px; font-weight:800; font-size:12.5px; color:var(--text); margin-bottom:8px;}
+.tdp-policy-box .tpb-title i{color:var(--gold-l); font-size:13px;}
+.tdp-policy-box{font-size:12px; line-height:1.7; color:var(--dim);}
+.tdp-policy-box b{color:var(--text);}
 .price-options{margin-top:26px; padding-bottom:40px;}
 .price-options .num{font-size:14px; font-weight:800; color:var(--dim); margin-bottom:4px;}
 .price-options h3{font-size:15px; margin-bottom:4px;}
@@ -671,14 +680,20 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
           </div>
         </div>
         <div class="search-row">
-          <div class="field" id="fromFieldWrap" style="position:relative; cursor:pointer;">
+          <div class="field" id="fromFieldWrap" style="position:relative; cursor:text;">
             <label data-i18n="from">من</label>
-            <div id="fromDisplay" class="flag-field-display"></div>
+            <div class="flag-field-display">
+              <img id="fromFlagIcon" src="" alt="">
+              <input type="text" id="fromDisplay" class="flag-field-input" autocomplete="off" spellcheck="false">
+            </div>
             <div class="flag-dd" id="fromDD"></div>
           </div>
-          <div class="field" id="toFieldWrap" style="position:relative; cursor:pointer;">
+          <div class="field" id="toFieldWrap" style="position:relative; cursor:text;">
             <label data-i18n="to">إلى</label>
-            <div id="toDisplay" class="flag-field-display"></div>
+            <div class="flag-field-display">
+              <img id="toFlagIcon" src="" alt="">
+              <input type="text" id="toDisplay" class="flag-field-input" autocomplete="off" spellcheck="false">
+            </div>
             <div class="flag-dd" id="toDD"></div>
           </div>
           <div class="field">
@@ -1240,6 +1255,8 @@ const I18N = {
   hs_flights:"رحلات الطيران", hs_hotels:"فنادق", hs_where:"إلى أين؟", hs_where_ph:"ابحث عن وجهتك...", hs_dates:"التواريخ", hs_guests:"المسافرون", hs_btn:"بحث",
   hotel_price_range:"نطاق السعر لليلة", hotel_amenities:"المرافق",
   am_wifi:"واي فاي مجاني", am_pool:"مسبح", am_breakfast:"إفطار مجاني", am_gym:"صالة رياضية",
+  fa_meal:"وجبة", fa_wifi:"واي فاي", fa_power:"شحن", fa_entertainment:"ترفيه",
+  policy_baggage_title:"سياسة الحقائب", policy_ticket_title:"سياسة الحجز والتذاكر",
   corp_wedding_h:"الأفراح والمناسبات", corp_wedding_p:"حجز قاعات الأفراح في أفضل الفنادق والمنتجعات مع باقات شاملة.",
   corp_leisure_h:"رحلات ترفيهية", corp_leisure_p:"تنظيم رحلات سياحية للموظفين مع برامج وأنشطة متكاملة.",
   corp_group_h:"إقامات جماعية", corp_group_p:"حجوزات فندقية مخصصة للشركات مع إمكانية الدفع الآجل والفوترة الشهرية.",
@@ -1281,6 +1298,8 @@ const I18N = {
   hs_flights:"Flights", hs_hotels:"Hotels", hs_where:"Where to?", hs_where_ph:"Search destinations...", hs_dates:"Dates", hs_guests:"Travelers", hs_btn:"Search",
   hotel_price_range:"Price range per night", hotel_amenities:"Amenities",
   am_wifi:"Free WiFi", am_pool:"Pool", am_breakfast:"Free breakfast", am_gym:"Gym",
+  fa_meal:"Meal", fa_wifi:"WiFi", fa_power:"Power", fa_entertainment:"Entertainment",
+  policy_baggage_title:"Baggage Policy", policy_ticket_title:"Booking & Ticket Policy",
   corp_wedding_h:"Weddings & Events", corp_wedding_p:"Book wedding halls at top hotels and resorts with all-inclusive packages.",
   corp_leisure_h:"Recreational Trips", corp_leisure_p:"Organize staff trips with integrated programs and activities.",
   corp_group_h:"Group Accommodation", corp_group_p:"Custom corporate hotel bookings with deferred payment and monthly billing options.",
@@ -1444,6 +1463,503 @@ const COUNTRIES = [
   {code:'KE', name_ar:'كينيا', name_en:'Kenya', airports:[
      {code:'NBO', name_ar:'مطار جومو كينياتا الدولي', name_en:'Jomo Kenyatta Intl Airport', city_ar:'نيروبي', city_en:'Nairobi'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=300&q=60', l_ar:'سفاري كينيا', l_en:'Kenyan safari'}]},
+  {code:'NG', name_ar:'نيجيريا', name_en:'Nigeria', airports:[
+     {code:'LOS', name_ar:'مطار مورتالا محمد الدولي', name_en:'Murtala Muhammed International Airport', city_ar:'لاغوس', city_en:'Lagos'},
+     {code:'ABV', name_ar:'مطار نامدي أزيكيوي الدولي', name_en:'Nnamdi Azikiwe International Airport', city_ar:'أبوجا', city_en:'Abuja'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ng.png', l_ar:'نيجيريا', l_en:'Nigeria'}]},
+  {code:'ET', name_ar:'إثيوبيا', name_en:'Ethiopia', airports:[
+     {code:'ADD', name_ar:'مطار بولي الدولي', name_en:'Addis Ababa Bole International Airport', city_ar:'أديس أبابا', city_en:'Addis Ababa'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/et.png', l_ar:'إثيوبيا', l_en:'Ethiopia'}]},
+  {code:'GH', name_ar:'غانا', name_en:'Ghana', airports:[
+     {code:'ACC', name_ar:'مطار كوتوكا الدولي', name_en:'Kotoka International Airport', city_ar:'أكرا', city_en:'Accra'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/gh.png', l_ar:'غانا', l_en:'Ghana'}]},
+  {code:'TZ', name_ar:'تنزانيا', name_en:'Tanzania', airports:[
+     {code:'DAR', name_ar:'مطار جوليوس نيريري الدولي', name_en:'Julius Nyerere International Airport', city_ar:'دار السلام', city_en:'Dar es Salaam'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/tz.png', l_ar:'تنزانيا', l_en:'Tanzania'}]},
+  {code:'UG', name_ar:'أوغندا', name_en:'Uganda', airports:[
+     {code:'EBB', name_ar:'مطار عنتيبي الدولي', name_en:'Entebbe International Airport', city_ar:'عنتيبي', city_en:'Entebbe'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ug.png', l_ar:'أوغندا', l_en:'Uganda'}]},
+  {code:'RW', name_ar:'رواندا', name_en:'Rwanda', airports:[
+     {code:'KGL', name_ar:'مطار كيغالي الدولي', name_en:'Kigali International Airport', city_ar:'كيغالي', city_en:'Kigali'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/rw.png', l_ar:'رواندا', l_en:'Rwanda'}]},
+  {code:'SN', name_ar:'السنغال', name_en:'Senegal', airports:[
+     {code:'DSS', name_ar:'مطار بليز دياني الدولي', name_en:'Blaise Diagne International Airport', city_ar:'داكار', city_en:'Dakar'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/sn.png', l_ar:'السنغال', l_en:'Senegal'}]},
+  {code:'CI', name_ar:'كوت ديفوار', name_en:'Ivory Coast', airports:[
+     {code:'ABJ', name_ar:'مطار فيليكس أوفوييه بوانيه الدولي', name_en:'Félix-Houphouët-Boigny International Airport', city_ar:'أبيدجان', city_en:'Abidjan'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ci.png', l_ar:'كوت ديفوار', l_en:'Ivory Coast'}]},
+  {code:'DZ', name_ar:'الجزائر', name_en:'Algeria', airports:[
+     {code:'ALG', name_ar:'مطار هواري بومدين الدولي', name_en:'Houari Boumediene Airport', city_ar:'الجزائر العاصمة', city_en:'Algiers'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/dz.png', l_ar:'الجزائر', l_en:'Algeria'}]},
+  {code:'LY', name_ar:'ليبيا', name_en:'Libya', airports:[
+     {code:'TIP', name_ar:'مطار طرابلس الدولي', name_en:'Tripoli International Airport', city_ar:'طرابلس', city_en:'Tripoli'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ly.png', l_ar:'ليبيا', l_en:'Libya'}]},
+  {code:'SD', name_ar:'السودان', name_en:'Sudan', airports:[
+     {code:'KRT', name_ar:'مطار الخرطوم الدولي', name_en:'Khartoum International Airport', city_ar:'الخرطوم', city_en:'Khartoum'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/sd.png', l_ar:'السودان', l_en:'Sudan'}]},
+  {code:'ZM', name_ar:'زامبيا', name_en:'Zambia', airports:[
+     {code:'LUN', name_ar:'مطار كينيث كاوندا الدولي', name_en:'Kenneth Kaunda International Airport', city_ar:'لوساكا', city_en:'Lusaka'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/zm.png', l_ar:'زامبيا', l_en:'Zambia'}]},
+  {code:'ZW', name_ar:'زيمبابوي', name_en:'Zimbabwe', airports:[
+     {code:'HRE', name_ar:'مطار روبرت موغابي الدولي', name_en:'Robert Gabriel Mugabe International Airport', city_ar:'هراري', city_en:'Harare'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/zw.png', l_ar:'زيمبابوي', l_en:'Zimbabwe'}]},
+  {code:'MZ', name_ar:'موزمبيق', name_en:'Mozambique', airports:[
+     {code:'MPM', name_ar:'مطار مابوتو الدولي', name_en:'Maputo International Airport', city_ar:'مابوتو', city_en:'Maputo'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mz.png', l_ar:'موزمبيق', l_en:'Mozambique'}]},
+  {code:'AO', name_ar:'أنغولا', name_en:'Angola', airports:[
+     {code:'LAD', name_ar:'مطار كوارتو دي فيفيريرو', name_en:'Quatro de Fevereiro Airport', city_ar:'لواندا', city_en:'Luanda'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ao.png', l_ar:'أنغولا', l_en:'Angola'}]},
+  {code:'CM', name_ar:'الكاميرون', name_en:'Cameroon', airports:[
+     {code:'DLA', name_ar:'مطار دوالا الدولي', name_en:'Douala International Airport', city_ar:'دوالا', city_en:'Douala'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cm.png', l_ar:'الكاميرون', l_en:'Cameroon'}]},
+  {code:'CD', name_ar:'الكونغو الديمقراطية', name_en:'DR Congo', airports:[
+     {code:'FIH', name_ar:'مطار نجيلي الدولي', name_en:'N\'djili Airport', city_ar:'كينشاسا', city_en:'Kinshasa'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cd.png', l_ar:'الكونغو الديمقراطية', l_en:'DR Congo'}]},
+  {code:'CG', name_ar:'الكونغو', name_en:'Congo', airports:[
+     {code:'BZV', name_ar:'مطار مايا مايا', name_en:'Maya-Maya Airport', city_ar:'برازافيل', city_en:'Brazzaville'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cg.png', l_ar:'الكونغو', l_en:'Congo'}]},
+  {code:'NA', name_ar:'ناميبيا', name_en:'Namibia', airports:[
+     {code:'WDH', name_ar:'مطار هوسيا كوتاكو الدولي', name_en:'Hosea Kutako International Airport', city_ar:'ويندهوك', city_en:'Windhoek'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/na.png', l_ar:'ناميبيا', l_en:'Namibia'}]},
+  {code:'BW', name_ar:'بوتسوانا', name_en:'Botswana', airports:[
+     {code:'GBE', name_ar:'مطار سير سيريتسي خاما الدولي', name_en:'Sir Seretse Khama International Airport', city_ar:'غابورون', city_en:'Gaborone'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bw.png', l_ar:'بوتسوانا', l_en:'Botswana'}]},
+  {code:'MU', name_ar:'موريشيوس', name_en:'Mauritius', airports:[
+     {code:'MRU', name_ar:'مطار السير سيووساغور رامغولام الدولي', name_en:'Sir Seewoosagur Ramgoolam Intl Airport', city_ar:'بلين ماجيان', city_en:'Plaine Magnien'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mu.png', l_ar:'موريشيوس', l_en:'Mauritius'}]},
+  {code:'SC', name_ar:'سيشل', name_en:'Seychelles', airports:[
+     {code:'SEZ', name_ar:'مطار سيشل الدولي', name_en:'Seychelles International Airport', city_ar:'ماهي', city_en:'Mahé'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/sc.png', l_ar:'سيشل', l_en:'Seychelles'}]},
+  {code:'MG', name_ar:'مدغشقر', name_en:'Madagascar', airports:[
+     {code:'TNR', name_ar:'مطار إيفاتو الدولي', name_en:'Ivato International Airport', city_ar:'أنتاناناريفو', city_en:'Antananarivo'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mg.png', l_ar:'مدغشقر', l_en:'Madagascar'}]},
+  {code:'SL', name_ar:'سيراليون', name_en:'Sierra Leone', airports:[
+     {code:'FNA', name_ar:'مطار فريتاون الدولي', name_en:'Freetown International Airport', city_ar:'فريتاون', city_en:'Freetown'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/sl.png', l_ar:'سيراليون', l_en:'Sierra Leone'}]},
+  {code:'ML', name_ar:'مالي', name_en:'Mali', airports:[
+     {code:'BKO', name_ar:'مطار باماكو سينو الدولي', name_en:'Bamako–Sénou International Airport', city_ar:'باماكو', city_en:'Bamako'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ml.png', l_ar:'مالي', l_en:'Mali'}]},
+  {code:'BF', name_ar:'بوركينا فاسو', name_en:'Burkina Faso', airports:[
+     {code:'OUA', name_ar:'مطار واغادوغو الدولي', name_en:'Ouagadougou Airport', city_ar:'واغادوغو', city_en:'Ouagadougou'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bf.png', l_ar:'بوركينا فاسو', l_en:'Burkina Faso'}]},
+  {code:'NE', name_ar:'النيجر', name_en:'Niger', airports:[
+     {code:'NIM', name_ar:'مطار نيامي الدولي', name_en:'Diori Hamani International Airport', city_ar:'نيامي', city_en:'Niamey'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ne.png', l_ar:'النيجر', l_en:'Niger'}]},
+  {code:'TD', name_ar:'تشاد', name_en:'Chad', airports:[
+     {code:'NDJ', name_ar:'مطار نجامينا الدولي', name_en:'N\'Djamena International Airport', city_ar:'نجامينا', city_en:'N\'Djamena'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/td.png', l_ar:'تشاد', l_en:'Chad'}]},
+  {code:'DJ', name_ar:'جيبوتي', name_en:'Djibouti', airports:[
+     {code:'JIB', name_ar:'مطار جيبوتي أمبولي الدولي', name_en:'Djibouti–Ambouli International Airport', city_ar:'جيبوتي', city_en:'Djibouti'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/dj.png', l_ar:'جيبوتي', l_en:'Djibouti'}]},
+  {code:'SO', name_ar:'الصومال', name_en:'Somalia', airports:[
+     {code:'MGQ', name_ar:'مطار أدن عدي الدولي', name_en:'Aden Adde International Airport', city_ar:'مقديشو', city_en:'Mogadishu'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/so.png', l_ar:'الصومال', l_en:'Somalia'}]},
+  {code:'GN', name_ar:'غينيا', name_en:'Guinea', airports:[
+     {code:'CKY', name_ar:'مطار كوناكري الدولي', name_en:'Conakry International Airport', city_ar:'كوناكري', city_en:'Conakry'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/gn.png', l_ar:'غينيا', l_en:'Guinea'}]},
+  {code:'BJ', name_ar:'بنين', name_en:'Benin', airports:[
+     {code:'COO', name_ar:'مطار كادجيهون', name_en:'Cadjehoun Airport', city_ar:'كوتونو', city_en:'Cotonou'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bj.png', l_ar:'بنين', l_en:'Benin'}]},
+  {code:'TG', name_ar:'توغو', name_en:'Togo', airports:[
+     {code:'LFW', name_ar:'مطار لومي توكوان الدولي', name_en:'Lomé–Tokoin International Airport', city_ar:'لومي', city_en:'Lomé'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/tg.png', l_ar:'توغو', l_en:'Togo'}]},
+  {code:'GA', name_ar:'الغابون', name_en:'Gabon', airports:[
+     {code:'LBV', name_ar:'مطار ليبرفيل الدولي', name_en:'Libreville International Airport', city_ar:'ليبرفيل', city_en:'Libreville'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ga.png', l_ar:'الغابون', l_en:'Gabon'}]},
+  {code:'MW', name_ar:'مالاوي', name_en:'Malawi', airports:[
+     {code:'LLW', name_ar:'مطار ليلونغوي الدولي', name_en:'Lilongwe International Airport', city_ar:'ليلونغوي', city_en:'Lilongwe'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mw.png', l_ar:'مالاوي', l_en:'Malawi'}]},
+  {code:'GM', name_ar:'غامبيا', name_en:'Gambia', airports:[
+     {code:'BJL', name_ar:'مطار بانجول الدولي', name_en:'Banjul International Airport', city_ar:'بانجول', city_en:'Banjul'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/gm.png', l_ar:'غامبيا', l_en:'Gambia'}]},
+  {code:'LR', name_ar:'ليبيريا', name_en:'Liberia', airports:[
+     {code:'ROB', name_ar:'مطار روبرتسفيلد الدولي', name_en:'Roberts International Airport', city_ar:'منروفيا', city_en:'Monrovia'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/lr.png', l_ar:'ليبيريا', l_en:'Liberia'}]},
+  {code:'MX', name_ar:'المكسيك', name_en:'Mexico', airports:[
+     {code:'MEX', name_ar:'مطار مكسيكو سيتي الدولي', name_en:'Mexico City International Airport', city_ar:'مكسيكو سيتي', city_en:'Mexico City'},
+     {code:'CUN', name_ar:'مطار كانكون الدولي', name_en:'Cancún International Airport', city_ar:'كانكون', city_en:'Cancún'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mx.png', l_ar:'المكسيك', l_en:'Mexico'}]},
+  {code:'BR', name_ar:'البرازيل', name_en:'Brazil', airports:[
+     {code:'GRU', name_ar:'مطار ساو باولو-غوارولوس الدولي', name_en:'São Paulo–Guarulhos International Airport', city_ar:'ساو باولو', city_en:'São Paulo'},
+     {code:'GIG', name_ar:'مطار ريو دي جانيرو-غاليون الدولي', name_en:'Rio de Janeiro–Galeão International Airport', city_ar:'ريو دي جانيرو', city_en:'Rio de Janeiro'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/br.png', l_ar:'البرازيل', l_en:'Brazil'}]},
+  {code:'AR', name_ar:'الأرجنتين', name_en:'Argentina', airports:[
+     {code:'EZE', name_ar:'مطار إيزيزا الدولي', name_en:'Ministro Pistarini International Airport', city_ar:'بوينس آيرس', city_en:'Buenos Aires'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ar.png', l_ar:'الأرجنتين', l_en:'Argentina'}]},
+  {code:'CL', name_ar:'تشيلي', name_en:'Chile', airports:[
+     {code:'SCL', name_ar:'مطار أرتورو ميرينو بينيتيز الدولي', name_en:'Arturo Merino Benítez International Airport', city_ar:'سانتياغو', city_en:'Santiago'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cl.png', l_ar:'تشيلي', l_en:'Chile'}]},
+  {code:'CO', name_ar:'كولومبيا', name_en:'Colombia', airports:[
+     {code:'BOG', name_ar:'مطار الدورادو الدولي', name_en:'El Dorado International Airport', city_ar:'بوغوتا', city_en:'Bogotá'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/co.png', l_ar:'كولومبيا', l_en:'Colombia'}]},
+  {code:'PE', name_ar:'بيرو', name_en:'Peru', airports:[
+     {code:'LIM', name_ar:'مطار خورخي تشافيز الدولي', name_en:'Jorge Chávez International Airport', city_ar:'ليما', city_en:'Lima'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/pe.png', l_ar:'بيرو', l_en:'Peru'}]},
+  {code:'EC', name_ar:'الإكوادور', name_en:'Ecuador', airports:[
+     {code:'UIO', name_ar:'مطار ماريسكال سوكري الدولي', name_en:'Mariscal Sucre International Airport', city_ar:'كيتو', city_en:'Quito'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ec.png', l_ar:'الإكوادور', l_en:'Ecuador'}]},
+  {code:'VE', name_ar:'فنزويلا', name_en:'Venezuela', airports:[
+     {code:'CCS', name_ar:'مطار سيمون بوليفار الدولي', name_en:'Simón Bolívar International Airport', city_ar:'كاراكاس', city_en:'Caracas'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ve.png', l_ar:'فنزويلا', l_en:'Venezuela'}]},
+  {code:'UY', name_ar:'الأوروغواي', name_en:'Uruguay', airports:[
+     {code:'MVD', name_ar:'مطار كارّاسكو الدولي', name_en:'Carrasco International Airport', city_ar:'مونتيفيديو', city_en:'Montevideo'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/uy.png', l_ar:'الأوروغواي', l_en:'Uruguay'}]},
+  {code:'PY', name_ar:'باراغواي', name_en:'Paraguay', airports:[
+     {code:'ASU', name_ar:'مطار سيلفيو بيتيروسي الدولي', name_en:'Silvio Pettirossi International Airport', city_ar:'أسونسيون', city_en:'Asunción'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/py.png', l_ar:'باراغواي', l_en:'Paraguay'}]},
+  {code:'BO', name_ar:'بوليفيا', name_en:'Bolivia', airports:[
+     {code:'VVI', name_ar:'مطار فيرو فيانو الدولي', name_en:'Viru Viru International Airport', city_ar:'سانتا كروز', city_en:'Santa Cruz'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bo.png', l_ar:'بوليفيا', l_en:'Bolivia'}]},
+  {code:'PA', name_ar:'بنما', name_en:'Panama', airports:[
+     {code:'PTY', name_ar:'مطار توكومين الدولي', name_en:'Tocumen International Airport', city_ar:'مدينة بنما', city_en:'Panama City'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/pa.png', l_ar:'بنما', l_en:'Panama'}]},
+  {code:'CR', name_ar:'كوستاريكا', name_en:'Costa Rica', airports:[
+     {code:'SJO', name_ar:'مطار خوان سانتامريا الدولي', name_en:'Juan Santamaría International Airport', city_ar:'سان خوسيه', city_en:'San José'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cr.png', l_ar:'كوستاريكا', l_en:'Costa Rica'}]},
+  {code:'GT', name_ar:'غواتيمالا', name_en:'Guatemala', airports:[
+     {code:'GUA', name_ar:'مطار لا أورورا الدولي', name_en:'La Aurora International Airport', city_ar:'مدينة غواتيمالا', city_en:'Guatemala City'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/gt.png', l_ar:'غواتيمالا', l_en:'Guatemala'}]},
+  {code:'DO', name_ar:'جمهورية الدومينيكان', name_en:'Dominican Republic', airports:[
+     {code:'SDQ', name_ar:'مطار لاس أمريكاس الدولي', name_en:'Las Américas International Airport', city_ar:'سانتو دومينغو', city_en:'Santo Domingo'},
+     {code:'PUJ', name_ar:'مطار بونتا كانا الدولي', name_en:'Punta Cana International Airport', city_ar:'بونتا كانا', city_en:'Punta Cana'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/do.png', l_ar:'جمهورية الدومينيكان', l_en:'Dominican Republic'}]},
+  {code:'JM', name_ar:'جامايكا', name_en:'Jamaica', airports:[
+     {code:'KIN', name_ar:'مطار نورمان مانلي الدولي', name_en:'Norman Manley International Airport', city_ar:'كينغستون', city_en:'Kingston'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/jm.png', l_ar:'جامايكا', l_en:'Jamaica'}]},
+  {code:'CU', name_ar:'كوبا', name_en:'Cuba', airports:[
+     {code:'HAV', name_ar:'مطار خوسيه مارتي الدولي', name_en:'José Martí International Airport', city_ar:'هافانا', city_en:'Havana'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cu.png', l_ar:'كوبا', l_en:'Cuba'}]},
+  {code:'BS', name_ar:'الباهاما', name_en:'Bahamas', airports:[
+     {code:'NAS', name_ar:'مطار لندن بيندلينغ الدولي', name_en:'Lynden Pindling International Airport', city_ar:'ناسو', city_en:'Nassau'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bs.png', l_ar:'الباهاما', l_en:'Bahamas'}]},
+  {code:'TT', name_ar:'ترينيداد وتوباغو', name_en:'Trinidad and Tobago', airports:[
+     {code:'POS', name_ar:'مطار بيارکو الدولي', name_en:'Piarco International Airport', city_ar:'بورت أوف سبين', city_en:'Port of Spain'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/tt.png', l_ar:'ترينيداد وتوباغو', l_en:'Trinidad and Tobago'}]},
+  {code:'HN', name_ar:'هندوراس', name_en:'Honduras', airports:[
+     {code:'SAP', name_ar:'مطار رامون فيليدا موراليس الدولي', name_en:'Ramón Villeda Morales International Airport', city_ar:'سان بيدرو سولا', city_en:'San Pedro Sula'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/hn.png', l_ar:'هندوراس', l_en:'Honduras'}]},
+  {code:'SV', name_ar:'السلفادور', name_en:'El Salvador', airports:[
+     {code:'SAL', name_ar:'مطار السلفادور الدولي', name_en:'El Salvador International Airport', city_ar:'سان سلفادور', city_en:'San Salvador'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/sv.png', l_ar:'السلفادور', l_en:'El Salvador'}]},
+  {code:'NI', name_ar:'نيكاراغوا', name_en:'Nicaragua', airports:[
+     {code:'MGA', name_ar:'مطار أوغستو سيزار سانديو الدولي', name_en:'Augusto C. Sandino International Airport', city_ar:'ماناغوا', city_en:'Managua'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ni.png', l_ar:'نيكاراغوا', l_en:'Nicaragua'}]},
+  {code:'PT', name_ar:'البرتغال', name_en:'Portugal', airports:[
+     {code:'LIS', name_ar:'مطار لشبونة هومبرتو دلغادو', name_en:'Humberto Delgado Airport', city_ar:'لشبونة', city_en:'Lisbon'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/pt.png', l_ar:'البرتغال', l_en:'Portugal'}]},
+  {code:'CH', name_ar:'سويسرا', name_en:'Switzerland', airports:[
+     {code:'ZRH', name_ar:'مطار زيورخ', name_en:'Zurich Airport', city_ar:'زيورخ', city_en:'Zurich'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ch.png', l_ar:'سويسرا', l_en:'Switzerland'}]},
+  {code:'AT', name_ar:'النمسا', name_en:'Austria', airports:[
+     {code:'VIE', name_ar:'مطار فيينا الدولي', name_en:'Vienna International Airport', city_ar:'فيينا', city_en:'Vienna'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/at.png', l_ar:'النمسا', l_en:'Austria'}]},
+  {code:'BE', name_ar:'بلجيكا', name_en:'Belgium', airports:[
+     {code:'BRU', name_ar:'مطار بروكسل الدولي', name_en:'Brussels Airport', city_ar:'بروكسل', city_en:'Brussels'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/be.png', l_ar:'بلجيكا', l_en:'Belgium'}]},
+  {code:'IE', name_ar:'أيرلندا', name_en:'Ireland', airports:[
+     {code:'DUB', name_ar:'مطار دبلن', name_en:'Dublin Airport', city_ar:'دبلن', city_en:'Dublin'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ie.png', l_ar:'أيرلندا', l_en:'Ireland'}]},
+  {code:'PL', name_ar:'بولندا', name_en:'Poland', airports:[
+     {code:'WAW', name_ar:'مطار وارسو شوبان', name_en:'Warsaw Chopin Airport', city_ar:'وارسو', city_en:'Warsaw'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/pl.png', l_ar:'بولندا', l_en:'Poland'}]},
+  {code:'CZ', name_ar:'التشيك', name_en:'Czechia', airports:[
+     {code:'PRG', name_ar:'مطار براغ فاتسلاف هافل', name_en:'Václav Havel Airport Prague', city_ar:'براغ', city_en:'Prague'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cz.png', l_ar:'التشيك', l_en:'Czechia'}]},
+  {code:'HU', name_ar:'المجر', name_en:'Hungary', airports:[
+     {code:'BUD', name_ar:'مطار بودابست فيرنك ليست', name_en:'Budapest Ferenc Liszt Intl Airport', city_ar:'بودابست', city_en:'Budapest'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/hu.png', l_ar:'المجر', l_en:'Hungary'}]},
+  {code:'RO', name_ar:'رومانيا', name_en:'Romania', airports:[
+     {code:'OTP', name_ar:'مطار بوخارست هنري كواندا', name_en:'Henri Coandă International Airport', city_ar:'بوخارست', city_en:'Bucharest'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ro.png', l_ar:'رومانيا', l_en:'Romania'}]},
+  {code:'BG', name_ar:'بلغاريا', name_en:'Bulgaria', airports:[
+     {code:'SOF', name_ar:'مطار صوفيا', name_en:'Sofia Airport', city_ar:'صوفيا', city_en:'Sofia'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bg.png', l_ar:'بلغاريا', l_en:'Bulgaria'}]},
+  {code:'HR', name_ar:'كرواتيا', name_en:'Croatia', airports:[
+     {code:'ZAG', name_ar:'مطار زغرب فرانيو تودمان', name_en:'Zagreb Airport', city_ar:'زغرب', city_en:'Zagreb'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/hr.png', l_ar:'كرواتيا', l_en:'Croatia'}]},
+  {code:'RS', name_ar:'صربيا', name_en:'Serbia', airports:[
+     {code:'BEG', name_ar:'مطار بلغراد نيكولا تسلا', name_en:'Belgrade Nikola Tesla Airport', city_ar:'بلغراد', city_en:'Belgrade'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/rs.png', l_ar:'صربيا', l_en:'Serbia'}]},
+  {code:'DK', name_ar:'الدنمارك', name_en:'Denmark', airports:[
+     {code:'CPH', name_ar:'مطار كوبنهاغن', name_en:'Copenhagen Airport', city_ar:'كوبنهاغن', city_en:'Copenhagen'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/dk.png', l_ar:'الدنمارك', l_en:'Denmark'}]},
+  {code:'SE', name_ar:'السويد', name_en:'Sweden', airports:[
+     {code:'ARN', name_ar:'مطار ستوكهولم أرلاندا', name_en:'Stockholm Arlanda Airport', city_ar:'ستوكهولم', city_en:'Stockholm'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/se.png', l_ar:'السويد', l_en:'Sweden'}]},
+  {code:'NO', name_ar:'النرويج', name_en:'Norway', airports:[
+     {code:'OSL', name_ar:'مطار أوسلو', name_en:'Oslo Airport', city_ar:'أوسلو', city_en:'Oslo'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/no.png', l_ar:'النرويج', l_en:'Norway'}]},
+  {code:'FI', name_ar:'فنلندا', name_en:'Finland', airports:[
+     {code:'HEL', name_ar:'مطار هلسنكي فانتا', name_en:'Helsinki Airport', city_ar:'هلسنكي', city_en:'Helsinki'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/fi.png', l_ar:'فنلندا', l_en:'Finland'}]},
+  {code:'IS', name_ar:'آيسلندا', name_en:'Iceland', airports:[
+     {code:'KEF', name_ar:'مطار كيفلافيك الدولي', name_en:'Keflavík International Airport', city_ar:'ريكيافيك', city_en:'Reykjavik'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/is.png', l_ar:'آيسلندا', l_en:'Iceland'}]},
+  {code:'RU', name_ar:'روسيا', name_en:'Russia', airports:[
+     {code:'SVO', name_ar:'مطار شيريميتيفو الدولي', name_en:'Sheremetyevo International Airport', city_ar:'موسكو', city_en:'Moscow'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ru.png', l_ar:'روسيا', l_en:'Russia'}]},
+  {code:'UA', name_ar:'أوكرانيا', name_en:'Ukraine', airports:[
+     {code:'KBP', name_ar:'مطار بوريسبل الدولي', name_en:'Boryspil International Airport', city_ar:'كييف', city_en:'Kyiv'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ua.png', l_ar:'أوكرانيا', l_en:'Ukraine'}]},
+  {code:'CY', name_ar:'قبرص', name_en:'Cyprus', airports:[
+     {code:'LCA', name_ar:'مطار لارنكا الدولي', name_en:'Larnaca International Airport', city_ar:'لارنكا', city_en:'Larnaca'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/cy.png', l_ar:'قبرص', l_en:'Cyprus'}]},
+  {code:'MT', name_ar:'مالطا', name_en:'Malta', airports:[
+     {code:'MLA', name_ar:'مطار مالطا الدولي', name_en:'Malta International Airport', city_ar:'فاليتا', city_en:'Valletta'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mt.png', l_ar:'مالطا', l_en:'Malta'}]},
+  {code:'GE', name_ar:'جورجيا', name_en:'Georgia', airports:[
+     {code:'TBS', name_ar:'مطار تبليسي الدولي', name_en:'Tbilisi International Airport', city_ar:'تبليسي', city_en:'Tbilisi'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ge.png', l_ar:'جورجيا', l_en:'Georgia'}]},
+  {code:'AM', name_ar:'أرمينيا', name_en:'Armenia', airports:[
+     {code:'EVN', name_ar:'مطار زفارتنوتس الدولي', name_en:'Zvartnots International Airport', city_ar:'يريفان', city_en:'Yerevan'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/am.png', l_ar:'أرمينيا', l_en:'Armenia'}]},
+  {code:'AZ', name_ar:'أذربيجان', name_en:'Azerbaijan', airports:[
+     {code:'GYD', name_ar:'مطار حيدر علييف الدولي', name_en:'Heydar Aliyev International Airport', city_ar:'باكو', city_en:'Baku'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/az.png', l_ar:'أذربيجان', l_en:'Azerbaijan'}]},
+  {code:'AL', name_ar:'ألبانيا', name_en:'Albania', airports:[
+     {code:'TIA', name_ar:'مطار تيرانا الدولي', name_en:'Tirana International Airport', city_ar:'تيرانا', city_en:'Tirana'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/al.png', l_ar:'ألبانيا', l_en:'Albania'}]},
+  {code:'SI', name_ar:'سلوفينيا', name_en:'Slovenia', airports:[
+     {code:'LJU', name_ar:'مطار ليوبليانا', name_en:'Ljubljana Airport', city_ar:'ليوبليانا', city_en:'Ljubljana'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/si.png', l_ar:'سلوفينيا', l_en:'Slovenia'}]},
+  {code:'SK', name_ar:'سلوفاكيا', name_en:'Slovakia', airports:[
+     {code:'BTS', name_ar:'مطار براتيسلافا', name_en:'Bratislava Airport', city_ar:'براتيسلافا', city_en:'Bratislava'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/sk.png', l_ar:'سلوفاكيا', l_en:'Slovakia'}]},
+  {code:'BA', name_ar:'البوسنة والهرسك', name_en:'Bosnia and Herzegovina', airports:[
+     {code:'SJJ', name_ar:'مطار سراييفو الدولي', name_en:'Sarajevo International Airport', city_ar:'سراييفو', city_en:'Sarajevo'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ba.png', l_ar:'البوسنة والهرسك', l_en:'Bosnia and Herzegovina'}]},
+  {code:'MK', name_ar:'مقدونيا الشمالية', name_en:'North Macedonia', airports:[
+     {code:'SKP', name_ar:'مطار سكوبيه الدولي', name_en:'Skopje International Airport', city_ar:'سكوبيه', city_en:'Skopje'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mk.png', l_ar:'مقدونيا الشمالية', l_en:'North Macedonia'}]},
+  {code:'ME', name_ar:'الجبل الأسود', name_en:'Montenegro', airports:[
+     {code:'TGD', name_ar:'مطار بودغوريتسا', name_en:'Podgorica Airport', city_ar:'بودغوريتسا', city_en:'Podgorica'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/me.png', l_ar:'الجبل الأسود', l_en:'Montenegro'}]},
+  {code:'EE', name_ar:'إستونيا', name_en:'Estonia', airports:[
+     {code:'TLL', name_ar:'مطار تالين', name_en:'Tallinn Airport', city_ar:'تالين', city_en:'Tallinn'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ee.png', l_ar:'إستونيا', l_en:'Estonia'}]},
+  {code:'LV', name_ar:'لاتفيا', name_en:'Latvia', airports:[
+     {code:'RIX', name_ar:'مطار ريغا الدولي', name_en:'Riga International Airport', city_ar:'ريغا', city_en:'Riga'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/lv.png', l_ar:'لاتفيا', l_en:'Latvia'}]},
+  {code:'LT', name_ar:'ليتوانيا', name_en:'Lithuania', airports:[
+     {code:'VNO', name_ar:'مطار فيلنيوس الدولي', name_en:'Vilnius Airport', city_ar:'فيلنيوس', city_en:'Vilnius'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/lt.png', l_ar:'ليتوانيا', l_en:'Lithuania'}]},
+  {code:'LU', name_ar:'لوكسمبورغ', name_en:'Luxembourg', airports:[
+     {code:'LUX', name_ar:'مطار لوكسمبورغ', name_en:'Luxembourg Airport', city_ar:'لوكسمبورغ', city_en:'Luxembourg'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/lu.png', l_ar:'لوكسمبورغ', l_en:'Luxembourg'}]},
+  {code:'MD', name_ar:'مولدوفا', name_en:'Moldova', airports:[
+     {code:'KIV', name_ar:'مطار كيشيناو الدولي', name_en:'Chișinău International Airport', city_ar:'كيشيناو', city_en:'Chișinău'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/md.png', l_ar:'مولدوفا', l_en:'Moldova'}]},
+  {code:'VN', name_ar:'فيتنام', name_en:'Vietnam', airports:[
+     {code:'SGN', name_ar:'مطار تان سون نات الدولي', name_en:'Tan Son Nhat International Airport', city_ar:'هوشي منه', city_en:'Ho Chi Minh City'},
+     {code:'HAN', name_ar:'مطار نوي باي الدولي', name_en:'Noi Bai International Airport', city_ar:'هانوي', city_en:'Hanoi'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/vn.png', l_ar:'فيتنام', l_en:'Vietnam'}]},
+  {code:'PH', name_ar:'الفلبين', name_en:'Philippines', airports:[
+     {code:'MNL', name_ar:'مطار نينوي أكينو الدولي', name_en:'Ninoy Aquino International Airport', city_ar:'مانيلا', city_en:'Manila'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ph.png', l_ar:'الفلبين', l_en:'Philippines'}]},
+  {code:'BD', name_ar:'بنغلاديش', name_en:'Bangladesh', airports:[
+     {code:'DAC', name_ar:'مطار هزرت شاه جلال الدولي', name_en:'Hazrat Shahjalal International Airport', city_ar:'دكا', city_en:'Dhaka'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bd.png', l_ar:'بنغلاديش', l_en:'Bangladesh'}]},
+  {code:'LK', name_ar:'سريلانكا', name_en:'Sri Lanka', airports:[
+     {code:'CMB', name_ar:'مطار بندرانايكه الدولي', name_en:'Bandaranaike International Airport', city_ar:'كولومبو', city_en:'Colombo'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/lk.png', l_ar:'سريلانكا', l_en:'Sri Lanka'}]},
+  {code:'NP', name_ar:'نيبال', name_en:'Nepal', airports:[
+     {code:'KTM', name_ar:'مطار تريبوفان الدولي', name_en:'Tribhuvan International Airport', city_ar:'كاتماندو', city_en:'Kathmandu'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/np.png', l_ar:'نيبال', l_en:'Nepal'}]},
+  {code:'MM', name_ar:'ميانمار', name_en:'Myanmar', airports:[
+     {code:'RGN', name_ar:'مطار يانغون الدولي', name_en:'Yangon International Airport', city_ar:'يانغون', city_en:'Yangon'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mm.png', l_ar:'ميانمار', l_en:'Myanmar'}]},
+  {code:'KH', name_ar:'كمبوديا', name_en:'Cambodia', airports:[
+     {code:'PNH', name_ar:'مطار بنوم بنه الدولي', name_en:'Phnom Penh International Airport', city_ar:'بنوم بنه', city_en:'Phnom Penh'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/kh.png', l_ar:'كمبوديا', l_en:'Cambodia'}]},
+  {code:'LA', name_ar:'لاوس', name_en:'Laos', airports:[
+     {code:'VTE', name_ar:'مطار وات تاي الدولي', name_en:'Wattay International Airport', city_ar:'فيينتيان', city_en:'Vientiane'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/la.png', l_ar:'لاوس', l_en:'Laos'}]},
+  {code:'KZ', name_ar:'كازاخستان', name_en:'Kazakhstan', airports:[
+     {code:'ALA', name_ar:'مطار ألماتي الدولي', name_en:'Almaty International Airport', city_ar:'ألماتي', city_en:'Almaty'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/kz.png', l_ar:'كازاخستان', l_en:'Kazakhstan'}]},
+  {code:'UZ', name_ar:'أوزبكستان', name_en:'Uzbekistan', airports:[
+     {code:'TAS', name_ar:'مطار طشقند الدولي', name_en:'Tashkent International Airport', city_ar:'طشقند', city_en:'Tashkent'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/uz.png', l_ar:'أوزبكستان', l_en:'Uzbekistan'}]},
+  {code:'MN', name_ar:'منغوليا', name_en:'Mongolia', airports:[
+     {code:'ULN', name_ar:'مطار تشنغيز خان الدولي', name_en:'Chinggis Khaan International Airport', city_ar:'أولان باتور', city_en:'Ulaanbaatar'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mn.png', l_ar:'منغوليا', l_en:'Mongolia'}]},
+  {code:'IQ', name_ar:'العراق', name_en:'Iraq', airports:[
+     {code:'BGW', name_ar:'مطار بغداد الدولي', name_en:'Baghdad International Airport', city_ar:'بغداد', city_en:'Baghdad'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/iq.png', l_ar:'العراق', l_en:'Iraq'}]},
+  {code:'IR', name_ar:'إيران', name_en:'Iran', airports:[
+     {code:'IKA', name_ar:'مطار الإمام الخميني الدولي', name_en:'Imam Khomeini International Airport', city_ar:'طهران', city_en:'Tehran'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ir.png', l_ar:'إيران', l_en:'Iran'}]},
+  {code:'AF', name_ar:'أفغانستان', name_en:'Afghanistan', airports:[
+     {code:'KBL', name_ar:'مطار حامد كرزاي الدولي', name_en:'Hamid Karzai International Airport', city_ar:'كابل', city_en:'Kabul'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/af.png', l_ar:'أفغانستان', l_en:'Afghanistan'}]},
+  {code:'YE', name_ar:'اليمن', name_en:'Yemen', airports:[
+     {code:'SAH', name_ar:'مطار صنعاء الدولي', name_en:'Sana\'a International Airport', city_ar:'صنعاء', city_en:'Sana\'a'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/ye.png', l_ar:'اليمن', l_en:'Yemen'}]},
+  {code:'SY', name_ar:'سوريا', name_en:'Syria', airports:[
+     {code:'DAM', name_ar:'مطار دمشق الدولي', name_en:'Damascus International Airport', city_ar:'دمشق', city_en:'Damascus'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/sy.png', l_ar:'سوريا', l_en:'Syria'}]},
+  {code:'TW', name_ar:'تايوان', name_en:'Taiwan', airports:[
+     {code:'TPE', name_ar:'مطار تايوان تاويوان الدولي', name_en:'Taiwan Taoyuan International Airport', city_ar:'تايبيه', city_en:'Taipei'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/tw.png', l_ar:'تايوان', l_en:'Taiwan'}]},
+  {code:'HK', name_ar:'هونغ كونغ', name_en:'Hong Kong', airports:[
+     {code:'HKG', name_ar:'مطار هونغ كونغ الدولي', name_en:'Hong Kong International Airport', city_ar:'هونغ كونغ', city_en:'Hong Kong'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/hk.png', l_ar:'هونغ كونغ', l_en:'Hong Kong'}]},
+  {code:'MO', name_ar:'ماكاو', name_en:'Macau', airports:[
+     {code:'MFM', name_ar:'مطار ماكاو الدولي', name_en:'Macau International Airport', city_ar:'ماكاو', city_en:'Macau'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mo.png', l_ar:'ماكاو', l_en:'Macau'}]},
+  {code:'BN', name_ar:'بروناي', name_en:'Brunei', airports:[
+     {code:'BWN', name_ar:'مطار بروناي الدولي', name_en:'Brunei International Airport', city_ar:'بندر سري بكاوان', city_en:'Bandar Seri Begawan'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bn.png', l_ar:'بروناي', l_en:'Brunei'}]},
+  {code:'MV', name_ar:'المالديف', name_en:'Maldives', airports:[
+     {code:'MLE', name_ar:'مطار فيلانا الدولي', name_en:'Velana International Airport', city_ar:'ماليه', city_en:'Malé'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/mv.png', l_ar:'المالديف', l_en:'Maldives'}]},
+  {code:'BT', name_ar:'بوتان', name_en:'Bhutan', airports:[
+     {code:'PBH', name_ar:'مطار بارو', name_en:'Paro Airport', city_ar:'بارو', city_en:'Paro'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/bt.png', l_ar:'بوتان', l_en:'Bhutan'}]},
+  {code:'TM', name_ar:'تركمانستان', name_en:'Turkmenistan', airports:[
+     {code:'ASB', name_ar:'مطار عشق آباد الدولي', name_en:'Ashgabat International Airport', city_ar:'عشق آباد', city_en:'Ashgabat'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/tm.png', l_ar:'تركمانستان', l_en:'Turkmenistan'}]},
+  {code:'KG', name_ar:'قيرغيزستان', name_en:'Kyrgyzstan', airports:[
+     {code:'FRU', name_ar:'مطار مانس الدولي', name_en:'Manas International Airport', city_ar:'بيشكيك', city_en:'Bishkek'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/kg.png', l_ar:'قيرغيزستان', l_en:'Kyrgyzstan'}]},
+  {code:'TJ', name_ar:'طاجيكستان', name_en:'Tajikistan', airports:[
+     {code:'DYU', name_ar:'مطار دوشنبه الدولي', name_en:'Dushanbe International Airport', city_ar:'دوشنبه', city_en:'Dushanbe'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/tj.png', l_ar:'طاجيكستان', l_en:'Tajikistan'}]},
+  {code:'IL', name_ar:'إسرائيل', name_en:'Israel', airports:[
+     {code:'TLV', name_ar:'مطار بن غوريون الدولي', name_en:'Ben Gurion International Airport', city_ar:'تل أبيب', city_en:'Tel Aviv'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/il.png', l_ar:'إسرائيل', l_en:'Israel'}]},
+  {code:'NZ', name_ar:'نيوزيلندا', name_en:'New Zealand', airports:[
+     {code:'AKL', name_ar:'مطار أوكلاند الدولي', name_en:'Auckland Airport', city_ar:'أوكلاند', city_en:'Auckland'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/nz.png', l_ar:'نيوزيلندا', l_en:'New Zealand'}]},
+  {code:'FJ', name_ar:'فيجي', name_en:'Fiji', airports:[
+     {code:'NAN', name_ar:'مطار نادي الدولي', name_en:'Nadi International Airport', city_ar:'نادي', city_en:'Nadi'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/fj.png', l_ar:'فيجي', l_en:'Fiji'}]},
+  {code:'PG', name_ar:'بابوا غينيا الجديدة', name_en:'Papua New Guinea', airports:[
+     {code:'POM', name_ar:'مطار جاكسون الدولي', name_en:'Jacksons International Airport', city_ar:'بورت مورسبي', city_en:'Port Moresby'},
+   ],
+   imgs:[{u:'https://flagcdn.com/w320/pg.png', l_ar:'بابوا غينيا الجديدة', l_en:'Papua New Guinea'}]},
 ];
 
 function flagEmoji(iso2){
@@ -1775,22 +2291,47 @@ function airportLabel(country, ap){
   const city = currentLang==='ar' ? ap.city_ar : ap.city_en;
   return `${apName} (${ap.code}) — ${city}, ${cName}`;
 }
+/* The from/to fields are real text inputs now: typing happens directly in the field itself
+   (not in a separate search box inside the dropdown), and the dropdown panel only ever shows
+   the grouped country/city/airport list — no nested search input. */
 function buildCountrySelects(){
   renderFlagDisplays();
-  renderFlagDD('fromDD', 'from');
-  renderFlagDD('toDD', 'to');
-  document.getElementById('fromFieldWrap').onclick = (e)=>{ if(e.target.closest('.flag-dd')) return; toggleFlagDD('fromDD'); };
-  document.getElementById('toFieldWrap').onclick = (e)=>{ if(e.target.closest('.flag-dd')) return; toggleFlagDD('toDD'); };
+  renderFlagDD('fromDD', 'from', '');
+  renderFlagDD('toDD', 'to', '');
+  setupFlagInput('fromDisplay', 'fromDD', 'from', 'fromFieldWrap');
+  setupFlagInput('toDisplay', 'toDD', 'to', 'toFieldWrap');
   document.addEventListener('click', e=>{
-    if(!e.target.closest('#fromFieldWrap')) document.getElementById('fromDD').classList.remove('open');
-    if(!e.target.closest('#toFieldWrap')) document.getElementById('toDD').classList.remove('open');
+    if(!e.target.closest('#fromFieldWrap')){ document.getElementById('fromDD').classList.remove('open'); }
+    if(!e.target.closest('#toFieldWrap')){ document.getElementById('toDD').classList.remove('open'); }
+  });
+}
+function setupFlagInput(inputId, ddId, which, wrapId){
+  const input = document.getElementById(inputId);
+  const dd = document.getElementById(ddId);
+  input.addEventListener('focus', ()=>{
+    document.querySelectorAll('.flag-dd').forEach(d=>d.classList.remove('open'));
+    dd.classList.add('open');
+    renderFlagDD(ddId, which, '');
+    input.select();
+  });
+  input.addEventListener('input', (e)=>{
+    dd.classList.add('open');
+    renderFlagDD(ddId, which, e.target.value);
+  });
+  input.addEventListener('click', (e)=> e.stopPropagation());
+  input.addEventListener('blur', ()=> renderFlagDisplays());
+  document.getElementById(wrapId).addEventListener('click', (e)=>{
+    if(e.target.closest('.flag-dd')) return;
+    input.focus();
   });
 }
 function renderFlagDisplays(){
   const fromC = COUNTRIES[fromIdx], toC = COUNTRIES[toIdx];
   const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
-  document.getElementById('fromDisplay').innerHTML = `<img src="${flagImgUrl(fromC.code)}" alt=""><span>${airportLabel(fromC, fromAp)}</span>`;
-  document.getElementById('toDisplay').innerHTML = `<img src="${flagImgUrl(toC.code)}" alt=""><span>${airportLabel(toC, toAp)}</span>`;
+  document.getElementById('fromFlagIcon').src = flagImgUrl(fromC.code);
+  document.getElementById('fromDisplay').value = airportLabel(fromC, fromAp);
+  document.getElementById('toFlagIcon').src = flagImgUrl(toC.code);
+  document.getElementById('toDisplay').value = airportLabel(toC, toAp);
 }
 function renderFlagDD(ddId, which, filterText){
   const q = (filterText||'').trim().toLowerCase();
@@ -1811,10 +2352,7 @@ function renderFlagDD(ddId, which, filterText){
       rows.push(`<div class="flag-opt" data-cidx="${ci}" data-apidx="${api}"><span class="fo-city">${cityName}</span><span class="fo-airport">${apName}</span><span class="fo-sub">${ap.code}</span></div>`);
     });
   });
-  dd.innerHTML = `<input class="flag-search" placeholder="${currentLang==='ar'?'ابحث عن دولة أو مدينة أو مطار...':'Search country, city or airport...'}">` + (rows.join('') || `<div class="fo-empty">${currentLang==='ar'?'لا توجد نتائج':'No results'}</div>`);
-  dd.querySelector('.flag-search').value = filterText||'';
-  dd.querySelector('.flag-search').oninput = (e)=> renderFlagDD(ddId, which, e.target.value);
-  dd.querySelector('.flag-search').onclick = (e)=> e.stopPropagation();
+  dd.innerHTML = rows.join('') || `<div class="fo-empty">${currentLang==='ar'?'لا توجد نتائج':'No results'}</div>`;
   dd.querySelectorAll('.flag-opt').forEach(opt=>{
     opt.onclick = ()=>{
       const ci = parseInt(opt.getAttribute('data-cidx'),10);
@@ -1825,12 +2363,6 @@ function renderFlagDD(ddId, which, filterText){
       renderCountryImgs();
     };
   });
-}
-function toggleFlagDD(ddId){
-  const dd = document.getElementById(ddId);
-  const isOpen = dd.classList.contains('open');
-  document.querySelectorAll('.flag-dd').forEach(d=>d.classList.remove('open'));
-  if(!isOpen){ dd.classList.add('open'); const s=dd.querySelector('.flag-search'); if(s) s.focus(); }
 }
 function renderCountryImgs(){
   const from = COUNTRIES[fromIdx];
@@ -1914,8 +2446,11 @@ const AIRLINE_GLYPH = {
   'Royal Jordanian': `<svg viewBox="0 0 40 40" width="70%" height="70%"><path d="M8 24 L11 12 L16 19 L20 8 L24 19 L29 12 L32 24 Z" fill="none" stroke="#8a6d1f" stroke-width="2.4" stroke-linejoin="round"/><circle cx="20" cy="27" r="2" fill="#8a6d1f"/></svg>`,
   'Air Arabia': `<svg viewBox="0 0 40 40" width="72%" height="72%"><path d="M20 4 C28 12, 32 20, 20 36 C8 20, 12 12, 20 4 Z" fill="#fff"/></svg>`,
 };
-function airlineBadge(airlineName, size){
-  const s = size||30;
+/* Real airline logo images via Kiwi.com's public airline-logo CDN (images.kiwi.com/airlines/64/<IATA>.png) —
+   free, no API key, keyed by real IATA code so each airline shows its actual brand logo. If a specific
+   airline's logo fails to load (missing/renamed on the CDN), the <img>'s onerror swaps it for the old
+   colored-badge markup inline, so we never show a broken image icon. */
+function airlineBadgeFallbackHTML(airlineName, s){
   const info = AIRLINE_IATA[airlineName] || {iata: airlineName.slice(0,2).toUpperCase()};
   const bg = AIRLINE_COLORS[airlineName] || 'var(--blue)';
   const glyph = AIRLINE_GLYPH[airlineName];
@@ -1924,6 +2459,15 @@ function airlineBadge(airlineName, size){
     return `<span style="display:inline-flex; align-items:center; justify-content:center; width:${s}px; height:${s}px; min-width:${s}px; border-radius:8px; background:${bg}; ${border} flex-shrink:0;">${glyph}</span>`;
   }
   return `<span style="display:inline-flex; align-items:center; justify-content:center; width:${s}px; height:${s}px; min-width:${s}px; border-radius:8px; background:${bg}; color:#fff; font-weight:800; font-size:${Math.round(s*0.36)}px; flex-shrink:0;">${info.iata}</span>`;
+}
+function airlineBadge(airlineName, size){
+  const s = size||30;
+  const info = AIRLINE_IATA[airlineName] || {iata: airlineName.slice(0,2).toUpperCase()};
+  const fallback = airlineBadgeFallbackHTML(airlineName, s).replace(/"/g, '&quot;');
+  return `<span style="display:inline-flex; align-items:center; justify-content:center; width:${s}px; height:${s}px; min-width:${s}px; border-radius:8px; background:#fff; border:1.5px solid var(--border); flex-shrink:0; overflow:hidden;">
+    <img src="https://images.kiwi.com/airlines/64/${info.iata}.png" alt="${airlineName}" style="width:82%; height:82%; object-fit:contain;"
+      onerror="this.parentElement.outerHTML='${fallback}';">
+  </span>`;
 }
 /* Real IATA airline codes + home-country ISO2 (for the flag), so results show a genuine code like "EK" — not a made-up one */
 const AIRLINE_IATA = {
@@ -2233,9 +2777,24 @@ function tdpBoxHTML(f, label, fromAp, toAp){
       <div class="tdp-tl-mid">
         <div class="airline-line" style="margin:0; padding:0; border:none;">${airlineBadge(f.airline, 24)}<b>${f.airline}</b><span>${f.code} (${f.aircraft})</span></div>
         <div class="sub-meta">${currentLang==='ar'?'الدرجة الاقتصادية':'Economy'}</div>
-        <div class="tdp-amenities">🍽️ 🎬 📶 🔌</div>
+        <div class="tdp-amenities">
+          <span><i class="fa-solid fa-utensils"></i>${t('fa_meal')}</span>
+          <span><i class="fa-solid fa-film"></i>${t('fa_entertainment')}</span>
+          <span><i class="fa-solid fa-wifi"></i>${t('fa_wifi')}</span>
+          <span><i class="fa-solid fa-plug"></i>${t('fa_power')}</span>
+        </div>
       </div>
       <div class="tdp-tl-row"><span class="tl-dot end"></span><div><b>${toAirport}</b><span class="tl-sub">(${toAp.code}) ${toName}</span></div></div>
+    </div>
+    <div class="tdp-policies">
+      <div class="tdp-policy-box">
+        <div class="tpb-title"><i class="fa-solid fa-suitcase-rolling"></i>${t('policy_baggage_title')}</div>
+        ${airlineBaggageHTML(f.airline)}
+      </div>
+      <div class="tdp-policy-box">
+        <div class="tpb-title"><i class="fa-solid fa-ticket"></i>${t('policy_ticket_title')}</div>
+        ${airlineTicketHTML(f.airline)}
+      </div>
     </div>`;
 }
 function openTripDetails(){
