@@ -109,19 +109,18 @@ button{font-family:inherit; cursor:pointer; border:none;}
 /* ---------- video panel: centered rectangle (assistant moved to a floating bubble — see .ai-bubble) ---------- */
 .top-panels{display:flex; justify-content:center; margin:28px 0;}
 
-/* ============ Unified hero search box — white card like Booking.com/Wego reference ============ */
+/* ============ Unified hero search box — white card, real functional forms (moved from lower
+   on the page, not duplicated), reusing the CSS-variable scoping trick already proven on the
+   trip-details-page for a clean white theme without touching the rest of the site. ============ */
 .hero-search-wrap{display:flex; justify-content:center; margin:28px 0 0;}
-.hero-search-card{background:#ffffff; border-radius:18px; box-shadow:0 16px 40px rgba(0,0,0,.3); width:100%; max-width:760px; overflow:hidden;}
-.hero-search-tabs{display:flex; border-bottom:1px solid #eef0f4;}
-.hs-tab{flex:1; padding:14px; font-size:13.5px; font-weight:800; color:#7a828e; background:#f7f8fa;}
-.hs-tab.active{color:#111318; background:#ffffff; border-bottom:3px solid var(--gold);}
-.hero-search-row{display:flex; align-items:stretch; gap:0; flex-wrap:wrap; padding:16px 18px;}
-.hs-field{flex:1; min-width:140px; padding:0 14px; border-inline-end:1px solid #eef0f4; cursor:pointer;}
-.hs-field:last-of-type{border-inline-end:none;}
-.hs-field label{display:block; font-size:10.5px; color:#8a92a0; font-weight:700; margin-bottom:4px;}
-.hs-field .hs-value{font-size:14px; color:#111318; font-weight:700;}
-.hero-search-btn{background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:14px; padding:12px 32px; border-radius:11px; margin:6px; white-space:nowrap;}
-@media(max-width:640px){.hero-search-row{flex-direction:column; gap:10px;} .hs-field{border-inline-end:none; border-bottom:1px solid #eef0f4; padding-bottom:8px;} .hero-search-btn{width:100%;}}
+.hero-search-shell{
+  --bg:#ffffff; --card:#ffffff; --card2:#f4f6f9; --border:#e2e6ec; --text:#111318; --dim:#5c6470;
+  background:#ffffff; border-radius:18px; box-shadow:0 16px 40px rgba(0,0,0,.3);
+  width:100%; max-width:760px; margin:28px auto 0; padding:18px;
+}
+.hero-search-tabs{display:flex; gap:8px; margin-bottom:14px;}
+.hs-tab{flex:1; padding:11px; font-size:13.5px; font-weight:800; color:#7a828e; background:#f7f8fa; border-radius:10px;}
+.hs-tab.active{color:#111318; background:#fff; border:2px solid var(--gold);}
 .video-panel{
   background:transparent; border:none;
   display:flex; align-items:center; justify-content:center; padding:0;
@@ -580,7 +579,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <video id="bgVideo" autoplay muted loop playsinline
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
-  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/primetravel_bg_ocean_muted.mp4" type="video/mp4">
+  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/primetravel_bg_ocean_v2.mp4" type="video/mp4">
 </video>
 
 <div class="topbar">
@@ -645,27 +644,77 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <p data-i18n="hero_p">أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.</p>
   </section>
 
-  <!-- ============ UNIFIED HERO SEARCH BOX (white card, Flights/Hotels toggle) ============ -->
-  <div class="hero-search-wrap">
-    <div class="hero-search-card">
-      <div class="hero-search-tabs">
-        <button class="hs-tab active" data-hs="flights">✈️ <span data-i18n="hs_flights">رحلات الطيران</span></button>
-        <button class="hs-tab" data-hs="hotels">🏨 <span data-i18n="hs_hotels">فنادق</span></button>
+  <!-- ============ UNIFIED HERO SEARCH BOX — real, fully-functional forms (not a summary widget),
+       reskinned white to match the professional reference. Flights/Hotels tab toggles between the
+       actual flight search form and the actual hotel search form — same state, same search logic,
+       just relocated to the top of the page and restyled. ============ -->
+  <div class="hero-search-shell">
+    <div class="hero-search-tabs">
+      <button class="hs-tab active" data-hs="flights">✈️ <span data-i18n="hs_flights">رحلات الطيران</span></button>
+      <button class="hs-tab" data-hs="hotels">🏨 <span data-i18n="hs_hotels">فنادق</span></button>
+    </div>
+    <div id="heroFlightForm">
+      <div class="search-block" style="margin-bottom:0;">
+        <div class="search-toprow">
+          <div class="trip-tabs">
+            <button class="active" data-i18n="trip_round">ذهاب وعودة</button>
+            <button data-i18n="trip_one">ذهاب فقط</button>
+            <button data-i18n="trip_multi">وجهات متعددة</button>
+          </div>
+          <div class="pref-selects">
+            <select id="paxSel"><option data-i18n="pax1">1 مسافر</option><option data-i18n="pax2">2 مسافرين</option><option data-i18n="pax4">4 مسافرين</option></select>
+            <select id="classSel"><option data-i18n="cls_eco">اقتصادية</option><option data-i18n="cls_biz">رجال أعمال</option><option data-i18n="cls_first">الدرجة الأولى</option></select>
+          </div>
+        </div>
+        <div class="search-row">
+          <div class="field" id="fromFieldWrap" style="position:relative; cursor:pointer;">
+            <label data-i18n="from">من</label>
+            <div id="fromDisplay" class="flag-field-display"></div>
+            <div class="flag-dd" id="fromDD"></div>
+          </div>
+          <div class="field" id="toFieldWrap" style="position:relative; cursor:pointer;">
+            <label data-i18n="to">إلى</label>
+            <div id="toDisplay" class="flag-field-display"></div>
+            <div class="flag-dd" id="toDD"></div>
+          </div>
+          <div class="field">
+            <label data-i18n="depart">تاريخ المغادرة</label>
+            <input type="date" id="depDate" value="2026-08-15">
+          </div>
+          <div class="field">
+            <label data-i18n="return">تاريخ العودة</label>
+            <input type="date" id="retDate" value="2026-08-22">
+          </div>
+          <button class="search-btn" id="searchBtn"><span>🔍</span><span data-i18n="search_btn">بحث عن رحلات الطيران</span></button>
+        </div>
       </div>
-      <div class="hero-search-row">
-        <div class="hs-field">
-          <label data-i18n="hs_where">إلى أين؟</label>
-          <span class="hs-value" id="heroSearchDest" data-i18n="hs_where_ph">ابحث عن وجهتك...</span>
+    </div>
+    <div id="heroHotelForm" style="display:none;">
+      <div class="search-card" style="margin-bottom:0;">
+        <div class="search-row">
+          <div class="field">
+            <label data-i18n="hotel_dest">الوجهة</label>
+            <select id="hotelDest"></select>
+          </div>
+          <div class="field">
+            <label data-i18n="hotel_checkin">تاريخ الوصول</label>
+            <input type="date" id="hotelCheckin" value="2026-08-15">
+          </div>
+          <div class="field">
+            <label data-i18n="hotel_checkout">تاريخ المغادرة</label>
+            <input type="date" id="hotelCheckout" value="2026-08-18">
+          </div>
+          <div class="field">
+            <label data-i18n="hotel_rooms">الغرف والضيوف</label>
+            <select id="hotelGuests">
+              <option value="1-1" data-i18n="hg_1_1">غرفة واحدة، ضيف واحد</option>
+              <option value="1-2" selected data-i18n="hg_1_2">غرفة واحدة، ضيفان</option>
+              <option value="2-4" data-i18n="hg_2_4">غرفتان، 4 ضيوف</option>
+              <option value="3-6" data-i18n="hg_3_6">3 غرف، 6 ضيوف</option>
+            </select>
+          </div>
+          <button class="search-btn" id="hotelSearchBtn"><span>🏨</span><span data-i18n="hotel_search_btn">بحث عن فنادق</span></button>
         </div>
-        <div class="hs-field">
-          <label data-i18n="hs_dates">التواريخ</label>
-          <span class="hs-value" id="heroSearchDates">—</span>
-        </div>
-        <div class="hs-field">
-          <label data-i18n="hs_guests">المسافرون</label>
-          <span class="hs-value" id="heroSearchGuests">1</span>
-        </div>
-        <button class="hero-search-btn" id="heroSearchBtn" data-i18n="hs_btn">بحث</button>
       </div>
     </div>
   </div>
@@ -701,41 +750,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     </div>
   </div>
 
-  <div class="search-block">
-    <div class="search-toprow">
-      <div class="trip-tabs">
-        <button class="active" data-i18n="trip_round">ذهاب وعودة</button>
-        <button data-i18n="trip_one">ذهاب فقط</button>
-        <button data-i18n="trip_multi">وجهات متعددة</button>
-      </div>
-      <div class="pref-selects">
-        <select id="paxSel"><option data-i18n="pax1">1 مسافر</option><option data-i18n="pax2">2 مسافرين</option><option data-i18n="pax4">4 مسافرين</option></select>
-        <select id="classSel"><option data-i18n="cls_eco">اقتصادية</option><option data-i18n="cls_biz">رجال أعمال</option><option data-i18n="cls_first">الدرجة الأولى</option></select>
-      </div>
-    </div>
-    <div class="search-row">
-      <div class="field" id="fromFieldWrap" style="position:relative; cursor:pointer;">
-        <label data-i18n="from">من</label>
-        <div id="fromDisplay" class="flag-field-display"></div>
-        <div class="flag-dd" id="fromDD"></div>
-      </div>
-      <div class="field" id="toFieldWrap" style="position:relative; cursor:pointer;">
-        <label data-i18n="to">إلى</label>
-        <div id="toDisplay" class="flag-field-display"></div>
-        <div class="flag-dd" id="toDD"></div>
-      </div>
-      <div class="field">
-        <label data-i18n="depart">تاريخ المغادرة</label>
-        <input type="date" id="depDate" value="2026-08-15">
-      </div>
-      <div class="field">
-        <label data-i18n="return">تاريخ العودة</label>
-        <input type="date" id="retDate" value="2026-08-22">
-      </div>
-      <button class="search-btn" id="searchBtn"><span>🔍</span><span data-i18n="search_btn">بحث عن رحلات الطيران</span></button>
-    </div>
-  </div>
-
   <div class="country-panels">
     <div class="country-card">
       <div class="head"><b data-i18n="from_country">معالم بلد المغادرة</b><span id="fromCountryName"></span></div>
@@ -763,33 +777,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <h2 data-i18n="hotels_head">فنادق العالم — قارن الأسعار والمرافق</h2>
     <span class="sub" data-i18n="hotels_sub">اختر وجهتك وتواريخك، وسنقارن لك بين أفضل مواقع الحجز فورًا</span>
   </div>
-  <div class="search-card" style="margin-bottom:24px;">
-    <div class="search-row">
-      <div class="field">
-        <label data-i18n="hotel_dest">الوجهة</label>
-        <select id="hotelDest"></select>
-      </div>
-      <div class="field">
-        <label data-i18n="hotel_checkin">تاريخ الوصول</label>
-        <input type="date" id="hotelCheckin" value="2026-08-15">
-      </div>
-      <div class="field">
-        <label data-i18n="hotel_checkout">تاريخ المغادرة</label>
-        <input type="date" id="hotelCheckout" value="2026-08-18">
-      </div>
-      <div class="field">
-        <label data-i18n="hotel_rooms">الغرف والضيوف</label>
-        <select id="hotelGuests">
-          <option value="1-1" data-i18n="hg_1_1">غرفة واحدة، ضيف واحد</option>
-          <option value="1-2" selected data-i18n="hg_1_2">غرفة واحدة، ضيفان</option>
-          <option value="2-4" data-i18n="hg_2_4">غرفتان، 4 ضيوف</option>
-          <option value="3-6" data-i18n="hg_3_6">3 غرف، 6 ضيوف</option>
-        </select>
-      </div>
-      <button class="search-btn" id="hotelSearchBtn"><span>🏨</span><span data-i18n="hotel_search_btn">بحث عن فنادق</span></button>
-    </div>
-  </div>
-
   <div id="hotelResultsWrap" style="display:none;">
     <div class="sort-tabs" id="hotelSortTabs">
       <button class="sort-tab active" data-sort="recommended"><span data-i18n="sort_recommended">الموصى بها</span></button>
@@ -2298,52 +2285,22 @@ function goHome(){
 }
 
 /* ============================================================
-   UNIFIED HERO SEARCH BOX — Flights/Hotels toggle at the top of the
-   homepage. It mirrors the real state of the actual flight/hotel search
-   cards further down the page (same dates/destination), and its button
-   triggers the real search flow — no separate/duplicate search logic.
+   UNIFIED HERO SEARCH BOX — real Flights/Hotels forms (physically moved here
+   from lower on the page, not duplicated) with a simple tab toggle between them.
    ============================================================ */
-let heroSearchMode = 'flights';
-function syncHeroSearchDisplay(){
-  if(heroSearchMode==='flights'){
-    const from = COUNTRIES[fromIdx], to = COUNTRIES[toIdx];
-    const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
-    const fromCity = currentLang==='ar' ? fromAp.city_ar : fromAp.city_en;
-    const toCity = currentLang==='ar' ? toAp.city_ar : toAp.city_en;
-    document.getElementById('heroSearchDest').textContent = `${fromCity} → ${toCity}`;
-    document.getElementById('heroSearchDates').textContent = `${document.getElementById('depDate').value} — ${document.getElementById('retDate').value}`;
-    document.getElementById('heroSearchGuests').textContent = document.getElementById('paxSel').selectedOptions[0].textContent;
-  } else {
-    const destIdx = Number(document.getElementById('hotelDest').value);
-    const dest = HOTEL_CITIES[destIdx];
-    document.getElementById('heroSearchDest').textContent = currentLang==='ar' ? dest.cityAr : dest.cityEn;
-    document.getElementById('heroSearchDates').textContent = `${document.getElementById('hotelCheckin').value} — ${document.getElementById('hotelCheckout').value}`;
-    document.getElementById('heroSearchGuests').textContent = document.getElementById('hotelGuests').selectedOptions[0].textContent;
-  }
-}
 document.querySelectorAll('.hs-tab').forEach(btn=>{
   btn.onclick = ()=>{
     document.querySelectorAll('.hs-tab').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    heroSearchMode = btn.getAttribute('data-hs');
-    syncHeroSearchDisplay();
+    const mode = btn.getAttribute('data-hs');
+    document.getElementById('heroFlightForm').style.display = mode==='flights' ? 'block' : 'none';
+    document.getElementById('heroHotelForm').style.display = mode==='hotels' ? 'block' : 'none';
   };
 });
-document.querySelectorAll('.hs-field').forEach(field=>{
-  field.onclick = ()=>{
-    const target = heroSearchMode==='flights' ? document.querySelector('.search-card') : document.getElementById('hotelDest');
-    target?.scrollIntoView({behavior:'smooth', block:'center'});
-  };
-});
-document.getElementById('heroSearchBtn').onclick = ()=>{
-  if(heroSearchMode==='flights') goResults();
-  else runHotelSearch();
-};
 
 function renderAll(){
   buildCurrencySelect(); buildLangSelect(); buildTicker(); buildCountrySelects(); renderCountryImgs(); buildHotelDestSelect();
   buildCompareStrip(); buildDeals();
-  syncHeroSearchDisplay();
   if(document.getElementById('resultsPage').classList.contains('open')) renderFlightLists();
 }
 
