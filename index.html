@@ -1,6 +1,54 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- ============================================================
+     لوحة أخطاء ظاهرة على الشاشة — بدون أي حاجة لفتح أدوات المطوّر (F12).
+     أي خطأ برمجي أو مشكلة اتصال بالخادم تظهر هنا مباشرة كنص أحمر.
+     ============================================================ -->
+<style>
+  #onScreenErrorBanner{
+    display:none; position:fixed; top:0; left:0; right:0; z-index:999999;
+    background:#4a0d0d; color:#ffe5e5; padding:14px 18px; font-family:monospace;
+    font-size:13px; direction:ltr; text-align:left; white-space:pre-wrap;
+    max-height:40vh; overflow-y:auto; border-bottom:3px solid #e5544a;
+    box-shadow:0 4px 12px rgba(0,0,0,.5);
+  }
+  #onScreenErrorBanner .close-banner{
+    float:left; margin-inline-end:12px; background:#e5544a; color:#fff;
+    border:none; border-radius:6px; padding:4px 10px; cursor:pointer; font-weight:800;
+  }
+</style>
+<script>
+(function(){
+  var banner = null;
+  function showError(msg){
+    if(!banner){
+      banner = document.createElement('div');
+      banner.id = 'onScreenErrorBanner';
+      var closeBtn = document.createElement('button');
+      closeBtn.className = 'close-banner';
+      closeBtn.textContent = 'إغلاق ✕';
+      closeBtn.onclick = function(){ banner.style.display = 'none'; };
+      banner.appendChild(closeBtn);
+      var textEl = document.createElement('div');
+      textEl.id = 'onScreenErrorText';
+      banner.appendChild(textEl);
+      document.documentElement.appendChild(banner);
+    }
+    var textEl = document.getElementById('onScreenErrorText');
+    var time = new Date().toLocaleTimeString('ar');
+    textEl.textContent += '[' + time + '] ' + msg + '\n\n';
+    banner.style.display = 'block';
+  }
+  window.addEventListener('error', function(e){
+    showError('خطأ JS: ' + e.message + ' — الملف: ' + (e.filename||'?') + ' — السطر: ' + (e.lineno||'?'));
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    showError('خطأ في طلب/وعد (Promise): ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+  });
+})();
+</script>
+</head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PrimeTravel | اكتشف العالم</title>
@@ -1321,7 +1369,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* ============================================================
    Supabase connection — real database, replacing the old
