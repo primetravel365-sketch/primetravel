@@ -87,10 +87,9 @@ button{font-family:inherit; cursor:pointer; border:none;}
   .logo .logo-name{font-size:16.5px;}
   .auth-row{order:2; margin-inline-start:auto;}
   .auth-row .btn{padding:7px 11px; font-size:12px;}
-  .nav-row{order:3; width:100%; flex-wrap:nowrap; overflow-x:auto; gap:6px; padding-bottom:2px; -webkit-overflow-scrolling:touch; scrollbar-width:none;}
-  .nav-row::-webkit-scrollbar{display:none;}
-  .nav-row a, .nav-row button.navlink{padding:6px 10px; font-size:12px; flex-shrink:0;}
-  .nav-row select{flex-shrink:0; padding:6px 8px !important; font-size:11.5px !important;}
+  .nav-row{order:3; width:100%; flex-wrap:wrap; gap:6px; min-height:32px;}
+  .nav-row a, .nav-row button.navlink{padding:6px 10px; font-size:12px;}
+  .nav-row select{padding:6px 8px !important; font-size:11.5px !important;}
   /* let the ticker sit in normal flow right under the now-taller header instead of a hardcoded
      top:58px (which only matched the old single-row desktop height and hid part of row 2) */
   .ticker-bar{position:static; top:auto;}
@@ -197,7 +196,14 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .pref-selects select{background:var(--card2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 10px; font-size:12.5px; font-family:inherit;}
 
 .search-row{display:flex; gap:10px; flex-wrap:wrap;}
-.field{flex:1 1 150px; min-width:130px; background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:8px 12px;}
+.field{flex:1 1 150px; min-width:130px; background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:8px 12px; position:relative;}
+/* native <input type="date"> renders its displayed text using the phone's OS locale (which is why it showed
+   "Aug 2026 15" instead of a normal day/month/year order) — that format can't be controlled via CSS/JS on the
+   native input itself. Fix: hide the native text (keep the tappable native picker/icon working underneath)
+   and draw our own always-dd/mm/yyyy text on top via this overlay span. */
+.field input[type="date"]{color:transparent;}
+.date-display{position:absolute; inset:0; display:flex; align-items:center; pointer-events:none; font-size:13.5px; font-weight:700; color:var(--text); font-family:inherit;}
+@media(max-width:760px){.date-display{font-size:15px;}}
 .field label{display:block; font-size:10.5px; color:var(--dim); margin-bottom:3px;}
 .field select, .field input{width:100%; background:transparent; border:none; color:var(--text); font-size:13.5px; font-weight:700; font-family:inherit;}
 .field select:focus, .field input:focus{outline:none;}
@@ -306,7 +312,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .home-page.hidden{display:none;}
 .results-head{padding:20px 0; border-bottom:1px solid var(--border); margin-bottom:20px;}
 .results-summary{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
-.results-summary .route{font-size:18px; font-weight:800;}
+.results-summary .route{font-size:18px; font-weight:800; color:#141414;}
 .results-summary .meta{font-size:12.5px; color:var(--dim);}
 .back-link{display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800; color:#221703; margin-bottom:14px; background:linear-gradient(135deg,var(--gold-l),var(--gold)); padding:9px 18px; border-radius:10px; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(216,165,49,.3);}
 .back-link:hover{filter:brightness(1.06);}
@@ -741,11 +747,11 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
           </div>
           <div class="field">
             <label data-i18n="depart">تاريخ المغادرة</label>
-            <input type="date" id="depDate" value="2026-08-15">
+            <input type="date" id="depDate" value="2026-08-15"><span class="date-display" id="depDateDisplay"></span>
           </div>
           <div class="field">
             <label data-i18n="return">تاريخ العودة</label>
-            <input type="date" id="retDate" value="2026-08-22">
+            <input type="date" id="retDate" value="2026-08-22"><span class="date-display" id="retDateDisplay"></span>
           </div>
           <button class="search-btn" id="searchBtn"><span>🔍</span><span data-i18n="search_btn">بحث عن رحلات الطيران</span></button>
         </div>
@@ -760,11 +766,11 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
           </div>
           <div class="field">
             <label data-i18n="hotel_checkin">تاريخ الوصول</label>
-            <input type="date" id="hotelCheckin" value="2026-08-15">
+            <input type="date" id="hotelCheckin" value="2026-08-15"><span class="date-display" id="hotelCheckinDisplay"></span>
           </div>
           <div class="field">
             <label data-i18n="hotel_checkout">تاريخ المغادرة</label>
-            <input type="date" id="hotelCheckout" value="2026-08-18">
+            <input type="date" id="hotelCheckout" value="2026-08-18"><span class="date-display" id="hotelCheckoutDisplay"></span>
           </div>
           <div class="field">
             <label data-i18n="hotel_rooms">الغرف والضيوف</label>
@@ -2575,6 +2581,26 @@ const PARTNERS = [
   {name:'Wego', logo:'https://logo.clearbit.com/wego.com', site:'https://www.wego.com', type:'meta', trust:92, color:'#44b50c', cpc:1.2},
   {name:'المسافر (Almosafer)', logo:'https://logo.clearbit.com/almosafer.com', site:'https://www.almosafer.com', type:'ota', trust:94, color:'#1c9c6b', cpc:1.8},
 ];
+/* Official site of the parent/operating airline itself — added as an extra "book directly with the airline"
+   option alongside the OTA partners, so travelers who prefer the carrier's own site can pick it (and it
+   still counts as a tracked click/conversion for commission like every other option). */
+const AIRLINE_SITES = {
+  'Emirates':'https://www.emirates.com',
+  'flydubai':'https://www.flydubai.com',
+  'Saudia':'https://www.saudia.com',
+  'Turkish Airlines':'https://www.turkishairlines.com',
+  'EgyptAir':'https://www.egyptair.com',
+  'Etihad Airways':'https://www.etihad.com',
+  'Air Arabia':'https://www.airarabia.com',
+  'Royal Jordanian':'https://www.rj.com',
+};
+const AIRLINE_DIRECT_PARTNERS = AIRLINES.map(a=>({
+  name: a+' — حجز مباشر', airlineName:a, logo:null, site: AIRLINE_SITES[a] || '#',
+  type:'airline_direct', trust:99, color:(AIRLINE_COLORS[a] && AIRLINE_COLORS[a]!=='#ffffff') ? AIRLINE_COLORS[a] : 'var(--blue)', cpc:1.6,
+}));
+function findCommissionSource(partnerName){
+  return PARTNERS.find(p=>p.name===partnerName) || AIRLINE_DIRECT_PARTNERS.find(p=>p.name===partnerName);
+}
 const AIRCRAFT_TYPES = ['Airbus A320','Airbus A321','Boeing 737-800','Boeing 787-9','Airbus A350'];
 /* simple seeded pseudo-random generator so results feel different per route/date search,
    instead of being 100% identical no matter what the visitor searches for */
@@ -2847,11 +2873,21 @@ function openTripDetails(){
   document.getElementById('tdpOutBox').innerHTML = tdpBoxHTML(fOut, currentLang==='ar'?'رحلة الذهاب':'Outbound', fromAp, toAp);
   document.getElementById('tdpInBox').innerHTML = tdpBoxHTML(fIn, currentLang==='ar'?'رحلة العودة':'Return', toAp, fromAp);
   const basePrice = fOut.price + fIn.price;
-  const options = PARTNERS.map((p,i)=>({...p, price: Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004))})).sort((a,b)=>a.price-b.price);
+  const otaOptions = PARTNERS.map((p,i)=>({...p, price: Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004))}));
+  // one option per operating airline on this itinerary (usually one, occasionally two if outbound/return differ) —
+  // priced at the base fare with no OTA markup, since it's the direct-from-carrier price
+  const uniqueAirlines = [...new Set([fOut.airline, fIn.airline])];
+  const airlineOptions = uniqueAirlines.map(a=>{
+    const base = AIRLINE_DIRECT_PARTNERS.find(p=>p.airlineName===a) || {name:a+' — حجز مباشر', site:'#', color:'var(--blue)'};
+    return {...base, price: basePrice, isAirlineDirect:true};
+  });
+  const options = [...otaOptions, ...airlineOptions].sort((a,b)=>a.price-b.price);
   document.getElementById('priceOptNum').textContent = options.length;
   document.getElementById('priceOptionsList').innerHTML = options.map(o=>`
     <div class="price-row">
-      <div class="partner"><img src="${o.logo}" alt="${o.name}" onerror="this.outerHTML='<b>${o.name}</b>'"> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}</div>
+      <div class="partner">${o.isAirlineDirect
+        ? `${airlineBadge(o.airlineName,26)}<b>${currentLang==='ar'?o.airlineName+' — حجز مباشر':o.airlineName+' — Direct Booking'}</b><span class="partner-note" style="background:rgba(47,111,237,.15); color:var(--blue-l);">${currentLang==='ar'?'الناقل الأصلي':'Operating airline'}</span>`
+        : `<img src="${o.logo}" alt="${o.name}" onerror="this.outerHTML='<b>${o.name}</b>'"> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}`}</div>
       <div class="p-price">${fmtPrice(o.price)}</div>
       <button class="choose-btn" data-partner="${o.name}" data-price="${o.price}" data-site="${o.site}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
     </div>`).join('');
@@ -3000,6 +3036,28 @@ function renderAll(){
   if(document.getElementById('resultsPage').classList.contains('open')) renderFlightLists();
 }
 
+/* forces day/month/year display on the date fields regardless of the phone's OS locale — see the
+   .date-display overlay CSS + input[type=date]{color:transparent} above */
+function formatDMY(iso){
+  if(!iso) return '';
+  const parts = iso.split('-');
+  if(parts.length!==3) return '';
+  const [y,m,d] = parts;
+  return `${d}/${m}/${y}`;
+}
+function bindDateDisplay(inputId, displayId){
+  const inp = document.getElementById(inputId), disp = document.getElementById(displayId);
+  if(!inp || !disp) return;
+  const update = ()=>{ disp.textContent = formatDMY(inp.value); };
+  update();
+  inp.addEventListener('input', update);
+  inp.addEventListener('change', update);
+}
+bindDateDisplay('depDate','depDateDisplay');
+bindDateDisplay('retDate','retDateDisplay');
+bindDateDisplay('hotelCheckin','hotelCheckinDisplay');
+bindDateDisplay('hotelCheckout','hotelCheckoutDisplay');
+
 function openAdminApp(){
   document.getElementById('adminApp').classList.add('open');
 }
@@ -3135,7 +3193,7 @@ async function loadTrackingFromSupabase(){
 function trackClick(partnerName, price){
   const id = 'CLK-'+Date.now()+'-'+Math.floor(Math.random()*1000);
   trackingClicks.push({id, partner:partnerName, price, currency:currentCurrency, time:new Date().toISOString(), status:'clicked'});
-  const partner = PARTNERS.find(p=>p.name===partnerName) || {cpc:1.5};
+  const partner = findCommissionSource(partnerName) || {cpc:1.5};
   const commAmt = Math.round((price||0)*0.04 + partner.cpc);
   trackingCommissions.push({id:'COM-'+id, clickId:id, partner:partnerName, amount:commAmt, status:'pending', time:new Date().toISOString()});
   if(document.getElementById('adminApp').classList.contains('open')) renderAdminAll();
@@ -3370,14 +3428,14 @@ function commOverviewHTML(){
   const rate = totalClicks>0 ? ((bookings/totalClicks)*100).toFixed(1) : '0.0';
   return `
     <div class="stat-grid">
-      <div class="stat-card"><div class="lbl">إجمالي النقرات</div><div class="val">${totalClicks.toLocaleString()}</div><div class="change">عبر ${PARTNERS.length} شركاء</div></div>
+      <div class="stat-card"><div class="lbl">إجمالي النقرات</div><div class="val">${totalClicks.toLocaleString()}</div><div class="change">عبر ${PARTNERS.length+AIRLINE_DIRECT_PARTNERS.length} جهات</div></div>
       <div class="stat-card"><div class="lbl">العمولات المتوقعة</div><div class="val gold">AED ${totalComm.toLocaleString()}</div><div class="change">${confirmed} مؤكدة · ${pending} معلقة</div></div>
       <div class="stat-card"><div class="lbl">معدل التحويل</div><div class="val green">${rate}%</div><div class="change">نقرة → حجز مؤكد</div></div>
-      <div class="stat-card"><div class="lbl">الشركاء النشطون</div><div class="val">${PARTNERS.length}</div><div class="change">نشط الآن</div></div>
+      <div class="stat-card"><div class="lbl">الشركاء النشطون</div><div class="val">${PARTNERS.length+AIRLINE_DIRECT_PARTNERS.length}</div><div class="change">مكاتب حجز + شركات طيران</div></div>
     </div>
     <h3 style="font-size:14.5px; margin:20px 0 12px;">توزيع النقرات حسب الشريك</h3>
     <div style="display:flex; gap:14px; flex-wrap:wrap;">
-      ${PARTNERS.map(p=>{
+      ${[...PARTNERS, ...AIRLINE_DIRECT_PARTNERS].map(p=>{
         const clicks = trackingClicks.filter(c=>c.partner===p.name).length;
         const pct = totalClicks>0 ? Math.round(clicks/totalClicks*100) : 0;
         return `<div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:14px; min-width:190px; flex:1;">
@@ -3439,9 +3497,9 @@ function commPartnersHTML(){
     <table class="data">
       <thead><tr><th>الشريك</th><th>النوع</th><th>الثقة</th><th>CPC</th><th>الحالة</th></tr></thead>
       <tbody>
-        ${PARTNERS.map(p=>`<tr>
+        ${[...PARTNERS, ...AIRLINE_DIRECT_PARTNERS].map(p=>`<tr>
           <td><b>${p.name}</b><br><small style="color:var(--dim);">${p.site}</small></td>
-          <td>${p.type==='ota'?'مكتب حجز':'محرك بحث مقارنة'}</td>
+          <td>${p.type==='ota'?'مكتب حجز':p.type==='airline_direct'?'شركة طيران (حجز مباشر)':'محرك بحث مقارنة'}</td>
           <td><span class="trust-bar-mini"><span class="trust-fill-mini" style="display:block; width:${p.trust}%; background:${p.color};"></span></span>${p.trust}%</td>
           <td>${p.cpc} د.إ</td>
           <td><span class="pill active">نشط</span></td>
