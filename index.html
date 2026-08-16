@@ -208,7 +208,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .field input[type="date"]{color:transparent;}
 .field input[type="date"]::-webkit-calendar-picker-indicator{margin-top:7px; padding:2px; cursor:pointer;}
 .date-display{position:absolute; inset:0; display:flex; align-items:flex-end; pointer-events:none; font-size:13.5px; font-weight:700; color:var(--text); font-family:inherit; padding:0 14px 8px; line-height:1.2;}
-@media(max-width:760px){.date-display{font-size:15px; padding:0 14px 12px;}}
+@media(max-width:760px){.date-display{font-size:14px; padding:0 14px 8px;}}
 .field label{display:block; font-size:10.5px; color:var(--dim); margin-bottom:3px;}
 .field select, .field input{width:100%; background:transparent; border:none; color:var(--text); font-size:13.5px; font-weight:700; font-family:inherit;}
 .field select:focus, .field input:focus{outline:none;}
@@ -232,22 +232,25 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .flag-dd .fo-empty{padding:14px; text-align:center; color:var(--dim); font-size:12.5px;}
 .search-btn{flex:0 0 150px; background:linear-gradient(135deg,var(--blue-l),var(--blue)); border-radius:10px; color:#fff; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;}
 @media(max-width:900px){.search-row{flex-direction:column;} .search-btn{flex:1;} .field{flex:none; width:100%; min-width:0;}}
-/* Taller, more comfortable touch targets for the flight/hotel search card on phones — the card was
-   visually cramped on Android/iOS (fields felt squeezed together and the button looked clipped at the
-   bottom of the viewport). This only changes sizing on small screens; desktop is untouched. */
+/* حجم حقول البحث (رحلات/فنادق) على الموبايل — مقاس مضغوط بما يكفي ليبقى سهل اللمس، لكنه
+   مختصر عمدًا (بدل النسخة الأطول سابقًا) حتى يظهر صف التنقل العلوي بدون تمرير إضافي على
+   الشاشات القصيرة. هذا التعديل يخص المقاسات الصغيرة فقط؛ سطح المكتب لم يتأثر. */
 @media(max-width:600px){
-  .hero-search-shell{padding:18px 16px 20px; border-radius:20px;}
-  .hero-search-tabs{margin-bottom:14px;}
-  .hs-tab{padding:12px 8px; font-size:13.5px;}
-  .search-block{padding:16px;}
-  .search-toprow{margin-bottom:18px;}
-  .search-row{gap:14px;}
-  .field{padding:12px 14px 18px; min-height:72px; border-radius:12px;}
-  .field label{font-size:11.5px; margin-bottom:8px; display:block;}
-  .field select, .field input{font-size:15px;}
-  .flag-field-display, .flag-field-input{font-size:15px;}
-  .flag-field-display img{width:22px;}
-  .search-btn{padding:18px; font-size:16px; min-height:58px; margin-top:4px; border-radius:12px;}
+  .hero-search-shell{padding:14px 14px 16px; border-radius:18px;}
+  .hero-search-tabs{margin-bottom:10px;}
+  .hs-tab{padding:9px 8px; font-size:13px;}
+  .search-block{padding:12px;}
+  .search-toprow{margin-bottom:12px;}
+  .search-row{gap:8px;}
+  /* حقول من/إلى/تاريخ المغادرة/تاريخ العودة: بقيت مريحة للمس لكنها أقصر بوضوح من قبل،
+     حتى تأخذ بطاقة البحث مساحة رأسية أقل، ويظهر صف التنقل العلوي (الرئيسية/رحلات الطيران/
+     فنادق ومناسبات) بدون الحاجة لتمرير إضافي على شاشات الموبايل القصيرة. */
+  .field{padding:8px 14px 9px; min-height:52px; border-radius:11px;}
+  .field label{font-size:10.5px; margin-bottom:3px; display:block;}
+  .field select, .field input{font-size:14px;}
+  .flag-field-display, .flag-field-input{font-size:14px;}
+  .flag-field-display img{width:20px;}
+  .search-btn{padding:13px; font-size:15px; min-height:46px; margin-top:2px; border-radius:11px;}
 }
 
 /* ---------- country image panels ---------- */
@@ -260,14 +263,23 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .country-imgs{display:grid; grid-template-columns:repeat(3,1fr); gap:2px;}
 .country-imgs .cell{position:relative; aspect-ratio:1/1; overflow:hidden; display:flex; align-items:center; justify-content:center; transition:transform .3s;}
 .country-imgs .cell:hover{transform:scale(1.04);}
-.country-imgs .cell .ci-icon{font-size:30px; filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
-.country-imgs .cell span{position:absolute; bottom:6px; inset-inline:6px; font-size:10.5px; background:rgba(0,0,0,.55); padding:2px 6px; border-radius:5px; text-align:center;}
+.country-imgs .cell span{position:absolute; bottom:6px; inset-inline:6px; font-size:10.5px; background:rgba(0,0,0,.55); padding:2px 6px; border-radius:5px; text-align:center; z-index:2;}
+.country-imgs .cell img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .35s; z-index:1;}
+.country-imgs .cell img.loaded{opacity:1;}
 
 /* ---------- compare by day ---------- */
 .section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
 .section-head h2{font-size:19px;}
 .section-head .sub{font-size:12px; color:var(--dim);}
 .compare-strip{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; margin-bottom:32px;}
+/* ---------- فيديو ترويجي للوجهة (بين مقارنة الأسعار والعروض) ---------- */
+.promo-video-box{position:relative; width:100%; height:220px; border-radius:var(--radius); overflow:hidden; margin-bottom:32px; border:1px solid var(--border); background:#0b1626;}
+.promo-video-box video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:promoKenBurns 22s ease-in-out infinite alternate;}
+@keyframes promoKenBurns{from{transform:scale(1);} to{transform:scale(1.09);}}
+.promo-video-overlay{position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; gap:6px; padding:16px 20px; background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 55%, rgba(0,0,0,0) 100%);}
+.promo-video-badge{align-self:flex-start; font-size:10.5px; font-weight:800; color:#fff; background:rgba(216,165,49,.9); padding:3px 10px; border-radius:20px;}
+.promo-video-title{font-size:17px; font-weight:800; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.5);}
+@media(max-width:640px){.promo-video-box{height:170px;}}
 .day-card{flex:0 0 108px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 8px; text-align:center;}
 .day-card.best{border-color:var(--gold); background:linear-gradient(180deg,rgba(216,165,49,.12),transparent);}
 .day-card .dow{font-size:11.5px; color:var(--dim);}
@@ -644,10 +656,31 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 </head>
 <body>
 
-<video id="bgVideo" autoplay muted loop playsinline
+<video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
   <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/WhatsApp%20Video%202026-08-16%20at%207.27.22%20PM.mp4" type="video/mp4">
 </video>
+<script>
+// Diagnostics for the fixed background video: the file itself loads fine (confirmed reachable,
+// correct video/mp4 type), so if it's not visible the browser is silently failing to *decode* it.
+// The #1 cause with videos exported from WhatsApp on iPhone is the HEVC/H.265 codec, which Safari
+// plays but Chrome/Firefox/Edge on desktop and most Android devices do NOT support — the <video>
+// tag then just shows nothing (no error banner) and the static background image behind it stays
+// visible, which matches exactly what's being reported. This listener logs the real reason to the
+// browser console (F12 → Console) so it can be confirmed instead of guessed.
+(function(){
+  const v = document.getElementById('bgVideo');
+  if(!v) return;
+  v.addEventListener('error', () => {
+    const err = v.error;
+    console.warn('[bgVideo] failed to load/decode. code:', err && err.code, '— 1=aborted, 2=network, 3=decode(often unsupported codec like HEVC/H.265), 4=source not supported.');
+  });
+  v.addEventListener('loadeddata', () => console.info('[bgVideo] loaded and ready to play.'));
+  const tryPlay = () => v.play().catch(e => console.warn('[bgVideo] play() blocked/failed:', e.message));
+  document.addEventListener('DOMContentLoaded', tryPlay);
+  tryPlay();
+})();
+</script>
 
 <div class="topbar">
   <div class="topbar-inner">
@@ -843,6 +876,17 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <span class="sub" data-i18n="compare_sub">أقل سعر يوميًا من بين المصادر الموثوقة فقط</span>
   </div>
   <div class="compare-strip" id="compareStrip"></div>
+
+  <div class="promo-video-box" id="promoVideoBox">
+    <video id="promoVideo" autoplay muted loop playsinline preload="metadata"
+      poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600&q=80&auto=format&fit=crop">
+      <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sunset_beach_web.mp4" type="video/mp4">
+    </video>
+    <div class="promo-video-overlay">
+      <span class="promo-video-badge" data-i18n="promo_video_badge">فيديو ترويجي</span>
+      <div class="promo-video-title"><span data-i18n="promo_video_dest_prefix">اكتشف </span><span id="promoVideoDest"></span></div>
+    </div>
+  </div>
 
   <div class="section-head">
     <h2 data-i18n="deals_head">عروض السفر المميزة</h2>
@@ -1080,6 +1124,18 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 </div>
 
 <div id="adminApp">
+<div class="overlay" id="commPassModal">
+  <div class="modal" style="max-width:360px; text-align:center;">
+    <div class="modal-head" style="justify-content:center; border-bottom:none;"><h3>🔒 كلمة مرور العمولات والنقرات</h3></div>
+    <p style="font-size:12.5px; color:var(--dim); margin:-6px 0 16px;">هذا القسم يحتوي بيانات مالية حساسة — يطلب كلمة مرور مستقلة عن كلمة مرور الدخول للوحة، حتى داخل الحساب نفسه.</p>
+    <input type="password" id="commPassInput" placeholder="كلمة مرور القسم" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; color:var(--text); padding:11px 14px; font-size:14px; font-family:inherit; margin-bottom:8px;">
+    <div class="err-msg" id="commPassErr">كلمة المرور غير صحيحة</div>
+    <div style="display:flex; gap:8px; margin-top:6px;">
+      <button class="btn-full" id="commPassCancel" style="background:var(--card2); color:var(--text);">إلغاء</button>
+      <button class="btn-full" id="commPassSubmit">دخول</button>
+    </div>
+  </div>
+</div>
 <div class="admin-topbar"><a class="back-to-site" id="backToSite1">→ عودة لموقع الحجز</a></div>
 <!-- ============ LOGIN SCREEN ============ -->
 <div class="center-screen" id="screenLogin">
@@ -1296,6 +1352,7 @@ const I18N = {
   from:"من", to:"إلى", depart:"تاريخ المغادرة", return:"تاريخ العودة", search_btn:"بحث عن رحلات الطيران",
   from_country:"معالم بلد المغادرة", to_country:"معالم بلد الوصول",
   compare_head:"قارن أسعار أيام الحجز", compare_sub:"أقل سعر يوميًا من بين المصادر الموثوقة فقط",
+  promo_video_badge:"فيديو ترويجي", promo_video_dest_prefix:"اكتشف ",
   deals_head:"عروض السفر المميزة", back_home:"عودة للبحث", back_to_home:"العودة للصفحة الرئيسية", results_note:"نتائج مرتبة من الأقل سعرًا، مجمعة من مكاتب حجز وشركات طيران متعددة",
   filters_title:"تصفية النتائج", f_stops:"التوقفات", f_direct:"مباشرة", f_1stop:"توقف واحد", f_2stop:"توقفان أو أكثر",
   f_time:"وقت الرحلة", f_morning:"صباحية", f_night:"ليلية", f_airlines:"شركات الطيران", f_duration:"مدة الرحلة",
@@ -1339,6 +1396,7 @@ const I18N = {
   from:"From", to:"To", depart:"Departure date", return:"Return date", search_btn:"Search flights",
   from_country:"Departure country highlights", to_country:"Arrival country highlights",
   compare_head:"Compare booking-day prices", compare_sub:"Lowest daily price from trusted sources only",
+  promo_video_badge:"Promo video", promo_video_dest_prefix:"Discover ",
   deals_head:"Featured travel deals", back_home:"Back to search", back_to_home:"Back to Home Page", results_note:"Results sorted by lowest price, aggregated from multiple agencies and airlines",
   filters_title:"Filter results", f_stops:"Stops", f_direct:"Direct", f_1stop:"1 stop", f_2stop:"2+ stops",
   f_time:"Time of day", f_morning:"Morning", f_night:"Night", f_airlines:"Airlines", f_duration:"Duration",
@@ -1383,9 +1441,9 @@ const COUNTRIES = [
      {code:'SHJ', name_ar:'مطار الشارقة الدولي', name_en:'Sharjah International Airport', city_ar:'الشارقة', city_en:'Sharjah'},
      {code:'RKT', name_ar:'مطار رأس الخيمة الدولي', name_en:'Ras Al Khaimah International Airport', city_ar:'رأس الخيمة', city_en:'Ras Al Khaimah'},
    ],
-   imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=60', l_ar:'برج خليفة', l_en:'Burj Khalifa'},
-         {u:'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=300&q=60', l_ar:'برج العرب', l_en:'Burj Al Arab'},
-         {u:'https://images.unsplash.com/photo-1546412414-e1885259563a?w=300&q=60', l_ar:'دبي مارينا', l_en:'Dubai Marina'}]},
+   imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1600&q=85&auto=format&fit=crop', l_ar:'برج خليفة', l_en:'Burj Khalifa'},
+         {u:'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1600&q=85&auto=format&fit=crop', l_ar:'برج العرب', l_en:'Burj Al Arab'},
+         {u:'https://images.unsplash.com/photo-1546412414-e1885259563a?w=1600&q=85&auto=format&fit=crop', l_ar:'دبي مارينا', l_en:'Dubai Marina'}]},
   {code:'SA', name_ar:'السعودية', name_en:'Saudi Arabia',
    airports:[
      {code:'RUH', name_ar:'مطار الملك خالد الدولي', name_en:'King Khalid International Airport', city_ar:'الرياض', city_en:'Riyadh'},
@@ -1393,9 +1451,9 @@ const COUNTRIES = [
      {code:'DMM', name_ar:'مطار الملك فهد الدولي', name_en:'King Fahd International Airport', city_ar:'الدمام', city_en:'Dammam'},
      {code:'MED', name_ar:'مطار الأمير محمد بن عبدالعزيز', name_en:'Prince Mohammad Bin Abdulaziz Airport', city_ar:'المدينة المنورة', city_en:'Madinah'},
    ],
-   imgs:[{u:'https://images.unsplash.com/photo-1578894381163-e72c17f2d45f?w=300&q=60', l_ar:'برج المملكة', l_en:'Kingdom Tower'},
-         {u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&q=60', l_ar:'حي جدة التاريخي', l_en:'Jeddah old town'},
-         {u:'https://images.unsplash.com/photo-1591298670922-2c65b0b70a48?w=300&q=60', l_ar:'العلا', l_en:'AlUla'}]},
+   imgs:[{u:'https://images.unsplash.com/photo-1578894381163-e72c17f2d45f?w=1600&q=85&auto=format&fit=crop', l_ar:'برج المملكة', l_en:'Kingdom Tower'},
+         {u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=1600&q=85&auto=format&fit=crop', l_ar:'حي جدة التاريخي', l_en:'Jeddah old town'},
+         {u:'https://images.unsplash.com/photo-1591298670922-2c65b0b70a48?w=1600&q=85&auto=format&fit=crop', l_ar:'العلا', l_en:'AlUla'}]},
   {code:'TR', name_ar:'تركيا', name_en:'Turkey',
    airports:[
      {code:'IST', name_ar:'مطار إسطنبول', name_en:'Istanbul Airport', city_ar:'إسطنبول', city_en:'Istanbul'},
@@ -1403,9 +1461,9 @@ const COUNTRIES = [
      {code:'AYT', name_ar:'مطار أنطاليا', name_en:'Antalya Airport', city_ar:'أنطاليا', city_en:'Antalya'},
      {code:'ESB', name_ar:'مطار أنقرة إسنبوغا', name_en:'Esenboğa Airport', city_ar:'أنقرة', city_en:'Ankara'},
    ],
-   imgs:[{u:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=300&q=60', l_ar:'آيا صوفيا', l_en:'Hagia Sophia'},
-         {u:'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=300&q=60', l_ar:'برج غلطة', l_en:'Galata Tower'},
-         {u:'https://images.unsplash.com/photo-1527838832700-5059252407fa?w=300&q=60', l_ar:'مضيق البوسفور', l_en:'Bosphorus'}]},
+   imgs:[{u:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1600&q=85&auto=format&fit=crop', l_ar:'آيا صوفيا', l_en:'Hagia Sophia'},
+         {u:'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1600&q=85&auto=format&fit=crop', l_ar:'برج غلطة', l_en:'Galata Tower'},
+         {u:'https://images.unsplash.com/photo-1527838832700-5059252407fa?w=1600&q=85&auto=format&fit=crop', l_ar:'مضيق البوسفور', l_en:'Bosphorus'}]},
   {code:'EG', name_ar:'مصر', name_en:'Egypt',
    airports:[
      {code:'CAI', name_ar:'مطار القاهرة الدولي', name_en:'Cairo International Airport', city_ar:'القاهرة', city_en:'Cairo'},
@@ -1414,9 +1472,9 @@ const COUNTRIES = [
      {code:'SSH', name_ar:'مطار شرم الشيخ الدولي', name_en:'Sharm El Sheikh International Airport', city_ar:'شرم الشيخ', city_en:'Sharm El Sheikh'},
      {code:'LXR', name_ar:'مطار الأقصر الدولي', name_en:'Luxor International Airport', city_ar:'الأقصر', city_en:'Luxor'},
    ],
-   imgs:[{u:'https://images.unsplash.com/photo-1568322445389-f64ac9c9ed85?w=300&q=60', l_ar:'أهرامات الجيزة', l_en:'Pyramids of Giza'},
-         {u:'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=300&q=60', l_ar:'قلعة صلاح الدين', l_en:'Cairo Citadel'},
-         {u:'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=300&q=60', l_ar:'الأقصر', l_en:'Luxor'}]},
+   imgs:[{u:'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1600&q=85&auto=format&fit=crop', l_ar:'أهرامات الجيزة', l_en:'Pyramids of Giza'},
+         {u:'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1600&q=85&auto=format&fit=crop', l_ar:'قلعة صلاح الدين', l_en:'Cairo Citadel'},
+         {u:'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1600&q=85&auto=format&fit=crop', l_ar:'الأقصر', l_en:'Luxor'}]},
   {code:'FR', name_ar:'فرنسا', name_en:'France',
    airports:[
      {code:'CDG', name_ar:'مطار شارل ديغول', name_en:'Charles de Gaulle Airport', city_ar:'باريس', city_en:'Paris'},
@@ -1424,9 +1482,9 @@ const COUNTRIES = [
      {code:'NCE', name_ar:'مطار نيس كوت دازور', name_en:'Nice Cote d Azur Airport', city_ar:'نيس', city_en:'Nice'},
      {code:'LYS', name_ar:'مطار ليون سانت إكزوبيري', name_en:'Lyon–Saint Exupéry Airport', city_ar:'ليون', city_en:'Lyon'},
    ],
-   imgs:[{u:'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=300&q=60', l_ar:'برج إيفل', l_en:'Eiffel Tower'},
-         {u:'https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?w=300&q=60', l_ar:'متحف اللوفر', l_en:'Louvre'},
-         {u:'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=300&q=60', l_ar:'شارع الشانزليزيه', l_en:'Champs-Élysées'}]},
+   imgs:[{u:'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=85&auto=format&fit=crop', l_ar:'برج إيفل', l_en:'Eiffel Tower'},
+         {u:'https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?w=1600&q=85&auto=format&fit=crop', l_ar:'متحف اللوفر', l_en:'Louvre'},
+         {u:'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1600&q=85&auto=format&fit=crop', l_ar:'شارع الشانزليزيه', l_en:'Champs-Élysées'}]},
   {code:'GB', name_ar:'بريطانيا', name_en:'UK',
    airports:[
      {code:'LHR', name_ar:'مطار هيثرو', name_en:'Heathrow Airport', city_ar:'لندن', city_en:'London'},
@@ -1434,99 +1492,99 @@ const COUNTRIES = [
      {code:'MAN', name_ar:'مطار مانشستر', name_en:'Manchester Airport', city_ar:'مانشستر', city_en:'Manchester'},
      {code:'EDI', name_ar:'مطار إدنبرة', name_en:'Edinburgh Airport', city_ar:'إدنبرة', city_en:'Edinburgh'},
    ],
-   imgs:[{u:'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=300&q=60', l_ar:'برج بيغ بن', l_en:'Big Ben'},
-         {u:'https://images.unsplash.com/photo-1520986606214-8b456906c813?w=300&q=60', l_ar:'جسر البرج', l_en:'Tower Bridge'},
-         {u:'https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=300&q=60', l_ar:'عين لندن', l_en:'London Eye'}]},
+   imgs:[{u:'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=1600&q=85&auto=format&fit=crop', l_ar:'برج بيغ بن', l_en:'Big Ben'},
+         {u:'https://images.unsplash.com/photo-1520986606214-8b456906c813?w=1600&q=85&auto=format&fit=crop', l_ar:'جسر البرج', l_en:'Tower Bridge'},
+         {u:'https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1600&q=85&auto=format&fit=crop', l_ar:'عين لندن', l_en:'London Eye'}]},
   {code:'QA', name_ar:'قطر', name_en:'Qatar', airports:[
      {code:'DOH', name_ar:'مطار حمد الدولي', name_en:'Hamad International Airport', city_ar:'الدوحة', city_en:'Doha'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=60', l_ar:'أبراج الدوحة', l_en:'Doha skyline'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1669815007479-494b3b51c2c3?w=1600&q=85&auto=format&fit=crop', l_ar:'أبراج الدوحة', l_en:'Doha skyline'}]},
   {code:'KW', name_ar:'الكويت', name_en:'Kuwait', airports:[
      {code:'KWI', name_ar:'مطار الكويت الدولي', name_en:'Kuwait International Airport', city_ar:'مدينة الكويت', city_en:'Kuwait City'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=60', l_ar:'أبراج الكويت', l_en:'Kuwait Towers'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1578783951217-ca527085dc12?w=1600&q=85&auto=format&fit=crop', l_ar:'أبراج الكويت', l_en:'Kuwait Towers'}]},
   {code:'BH', name_ar:'البحرين', name_en:'Bahrain', airports:[
      {code:'BAH', name_ar:'مطار البحرين الدولي', name_en:'Bahrain International Airport', city_ar:'المنامة', city_en:'Manama'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&q=60', l_ar:'المنامة', l_en:'Manama skyline'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1611331225468-4d1055df92de?w=1600&q=85&auto=format&fit=crop', l_ar:'المنامة', l_en:'Manama skyline'}]},
   {code:'OM', name_ar:'عُمان', name_en:'Oman', airports:[
      {code:'MCT', name_ar:'مطار مسقط الدولي', name_en:'Muscat International Airport', city_ar:'مسقط', city_en:'Muscat'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&q=60', l_ar:'مسقط القديمة', l_en:'Old Muscat'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=1600&q=85&auto=format&fit=crop', l_ar:'مسقط القديمة', l_en:'Old Muscat'}]},
   {code:'JO', name_ar:'الأردن', name_en:'Jordan', airports:[
      {code:'AMM', name_ar:'مطار الملكة علياء الدولي', name_en:'Queen Alia International Airport', city_ar:'عمّان', city_en:'Amman'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1591298670922-2c65b0b70a48?w=300&q=60', l_ar:'البتراء', l_en:'Petra'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1591298670922-2c65b0b70a48?w=1600&q=85&auto=format&fit=crop', l_ar:'البتراء', l_en:'Petra'}]},
   {code:'LB', name_ar:'لبنان', name_en:'Lebanon', airports:[
      {code:'BEY', name_ar:'مطار بيروت رفيق الحريري الدولي', name_en:'Beirut–Rafic Hariri Intl Airport', city_ar:'بيروت', city_en:'Beirut'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=300&q=60', l_ar:'وسط بيروت', l_en:'Beirut downtown'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=1600&q=85&auto=format&fit=crop', l_ar:'وسط بيروت', l_en:'Beirut downtown'}]},
   {code:'MA', name_ar:'المغرب', name_en:'Morocco', airports:[
      {code:'CMN', name_ar:'مطار محمد الخامس الدولي', name_en:'Mohammed V International Airport', city_ar:'الدار البيضاء', city_en:'Casablanca'},
      {code:'RAK', name_ar:'مطار مراكش المنارة', name_en:'Marrakesh Menara Airport', city_ar:'مراكش', city_en:'Marrakesh'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=300&q=60', l_ar:'أسواق مراكش', l_en:'Marrakesh souks'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=1600&q=85&auto=format&fit=crop', l_ar:'أسواق مراكش', l_en:'Marrakesh souks'}]},
   {code:'TN', name_ar:'تونس', name_en:'Tunisia', airports:[
      {code:'TUN', name_ar:'مطار تونس قرطاج الدولي', name_en:'Tunis–Carthage Intl Airport', city_ar:'تونس', city_en:'Tunis'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=300&q=60', l_ar:'مدينة تونس', l_en:'Tunis medina'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=1600&q=85&auto=format&fit=crop', l_ar:'مدينة تونس', l_en:'Tunis medina'}]},
   {code:'IN', name_ar:'الهند', name_en:'India', airports:[
      {code:'DEL', name_ar:'مطار إنديرا غاندي الدولي', name_en:'Indira Gandhi International Airport', city_ar:'دلهي', city_en:'Delhi'},
      {code:'BOM', name_ar:'مطار تشاتراباتي شيفاجي', name_en:'Chhatrapati Shivaji Intl Airport', city_ar:'مومباي', city_en:'Mumbai'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=300&q=60', l_ar:'تاج محل', l_en:'Taj Mahal'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600&q=85&auto=format&fit=crop', l_ar:'تاج محل', l_en:'Taj Mahal'}]},
   {code:'PK', name_ar:'باكستان', name_en:'Pakistan', airports:[
      {code:'KHI', name_ar:'مطار جناح الدولي', name_en:'Jinnah International Airport', city_ar:'كراتشي', city_en:'Karachi'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=300&q=60', l_ar:'كراتشي', l_en:'Karachi'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1554456464-f2b6d6c8ea21?w=1600&q=85&auto=format&fit=crop', l_ar:'كراتشي', l_en:'Karachi'}]},
   {code:'CN', name_ar:'الصين', name_en:'China', airports:[
      {code:'PEK', name_ar:'مطار بكين العاصمة الدولي', name_en:'Beijing Capital Intl Airport', city_ar:'بكين', city_en:'Beijing'},
      {code:'PVG', name_ar:'مطار شنغهاي بودونغ الدولي', name_en:'Shanghai Pudong Intl Airport', city_ar:'شنغهاي', city_en:'Shanghai'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=300&q=60', l_ar:'سور الصين العظيم', l_en:'Great Wall of China'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1600&q=85&auto=format&fit=crop', l_ar:'سور الصين العظيم', l_en:'Great Wall of China'}]},
   {code:'JP', name_ar:'اليابان', name_en:'Japan', airports:[
      {code:'NRT', name_ar:'مطار ناريتا الدولي', name_en:'Narita International Airport', city_ar:'طوكيو', city_en:'Tokyo'},
      {code:'KIX', name_ar:'مطار كانساي الدولي', name_en:'Kansai International Airport', city_ar:'أوساكا', city_en:'Osaka'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=300&q=60', l_ar:'جبل فوجي', l_en:'Mount Fuji'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1600&q=85&auto=format&fit=crop', l_ar:'جبل فوجي', l_en:'Mount Fuji'}]},
   {code:'KR', name_ar:'كوريا الجنوبية', name_en:'South Korea', airports:[
      {code:'ICN', name_ar:'مطار إنتشون الدولي', name_en:'Incheon International Airport', city_ar:'سول', city_en:'Seoul'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=300&q=60', l_ar:'سول', l_en:'Seoul skyline'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1600&q=85&auto=format&fit=crop', l_ar:'سول', l_en:'Seoul skyline'}]},
   {code:'MY', name_ar:'ماليزيا', name_en:'Malaysia', airports:[
      {code:'KUL', name_ar:'مطار كوالالمبور الدولي', name_en:'Kuala Lumpur International Airport', city_ar:'كوالالمبور', city_en:'Kuala Lumpur'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=300&q=60', l_ar:'برجا بتروناس', l_en:'Petronas Towers'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1600&q=85&auto=format&fit=crop', l_ar:'برجا بتروناس', l_en:'Petronas Towers'}]},
   {code:'TH', name_ar:'تايلاند', name_en:'Thailand', airports:[
      {code:'BKK', name_ar:'مطار سوفارنابومي', name_en:'Suvarnabhumi Airport', city_ar:'بانكوك', city_en:'Bangkok'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=300&q=60', l_ar:'معابد بانكوك', l_en:'Bangkok temples'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1600&q=85&auto=format&fit=crop', l_ar:'معابد بانكوك', l_en:'Bangkok temples'}]},
   {code:'ID', name_ar:'إندونيسيا', name_en:'Indonesia', airports:[
      {code:'CGK', name_ar:'مطار سوكارنو هاتا', name_en:'Soekarno–Hatta Intl Airport', city_ar:'جاكرتا', city_en:'Jakarta'},
      {code:'DPS', name_ar:'مطار نغوراه راي', name_en:'Ngurah Rai International Airport', city_ar:'بالي', city_en:'Bali'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=300&q=60', l_ar:'شواطئ بالي', l_en:'Bali beaches'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1600&q=85&auto=format&fit=crop', l_ar:'شواطئ بالي', l_en:'Bali beaches'}]},
   {code:'SG', name_ar:'سنغافورة', name_en:'Singapore', airports:[
      {code:'SIN', name_ar:'مطار تشانغي', name_en:'Singapore Changi Airport', city_ar:'سنغافورة', city_en:'Singapore'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=300&q=60', l_ar:'حدائق الخليج', l_en:'Gardens by the Bay'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1600&q=85&auto=format&fit=crop', l_ar:'حدائق الخليج', l_en:'Gardens by the Bay'}]},
   {code:'DE', name_ar:'ألمانيا', name_en:'Germany', airports:[
      {code:'FRA', name_ar:'مطار فرانكفورت الدولي', name_en:'Frankfurt Airport', city_ar:'فرانكفورت', city_en:'Frankfurt'},
      {code:'MUC', name_ar:'مطار ميونخ', name_en:'Munich Airport', city_ar:'ميونخ', city_en:'Munich'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=300&q=60', l_ar:'بوابة براندنبورغ', l_en:'Brandenburg Gate'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1600&q=85&auto=format&fit=crop', l_ar:'بوابة براندنبورغ', l_en:'Brandenburg Gate'}]},
   {code:'IT', name_ar:'إيطاليا', name_en:'Italy', airports:[
      {code:'FCO', name_ar:'مطار ليوناردو دا فينشي', name_en:'Leonardo da Vinci–Fiumicino Airport', city_ar:'روما', city_en:'Rome'},
      {code:'MXP', name_ar:'مطار مالبنسا', name_en:'Milan Malpensa Airport', city_ar:'ميلانو', city_en:'Milan'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=300&q=60', l_ar:'الكولوسيوم', l_en:'Colosseum'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1600&q=85&auto=format&fit=crop', l_ar:'الكولوسيوم', l_en:'Colosseum'}]},
   {code:'ES', name_ar:'إسبانيا', name_en:'Spain', airports:[
      {code:'MAD', name_ar:'مطار مدريد باراخاس', name_en:'Adolfo Suárez Madrid–Barajas Airport', city_ar:'مدريد', city_en:'Madrid'},
      {code:'BCN', name_ar:'مطار برشلونة البرات', name_en:'Barcelona–El Prat Airport', city_ar:'برشلونة', city_en:'Barcelona'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=300&q=60', l_ar:'ساغرادا فاميليا', l_en:'Sagrada Família'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=1600&q=85&auto=format&fit=crop', l_ar:'ساغرادا فاميليا', l_en:'Sagrada Família'}]},
   {code:'NL', name_ar:'هولندا', name_en:'Netherlands', airports:[
      {code:'AMS', name_ar:'مطار سخيبول', name_en:'Amsterdam Airport Schiphol', city_ar:'أمستردام', city_en:'Amsterdam'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=300&q=60', l_ar:'قنوات أمستردام', l_en:'Amsterdam canals'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1600&q=85&auto=format&fit=crop', l_ar:'قنوات أمستردام', l_en:'Amsterdam canals'}]},
   {code:'GR', name_ar:'اليونان', name_en:'Greece', airports:[
      {code:'ATH', name_ar:'مطار أثينا الدولي', name_en:'Athens International Airport', city_ar:'أثينا', city_en:'Athens'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1503152394-c571994fd383?w=300&q=60', l_ar:'الأكروبوليس', l_en:'Acropolis'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1503152394-c571994fd383?w=1600&q=85&auto=format&fit=crop', l_ar:'الأكروبوليس', l_en:'Acropolis'}]},
   {code:'US', name_ar:'أمريكا', name_en:'United States', airports:[
      {code:'JFK', name_ar:'مطار جون كينيدي الدولي', name_en:'John F. Kennedy Intl Airport', city_ar:'نيويورك', city_en:'New York'},
      {code:'LAX', name_ar:'مطار لوس أنجلوس الدولي', name_en:'Los Angeles International Airport', city_ar:'لوس أنجلوس', city_en:'Los Angeles'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=300&q=60', l_ar:'أفق نيويورك', l_en:'New York skyline'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=85&auto=format&fit=crop', l_ar:'أفق نيويورك', l_en:'New York skyline'}]},
   {code:'CA', name_ar:'كندا', name_en:'Canada', airports:[
      {code:'YYZ', name_ar:'مطار تورونتو بيرسون', name_en:'Toronto Pearson Airport', city_ar:'تورونتو', city_en:'Toronto'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1517090504586-fde19ea6066f?w=300&q=60', l_ar:'أفق تورونتو', l_en:'Toronto skyline'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1517090504586-fde19ea6066f?w=1600&q=85&auto=format&fit=crop', l_ar:'أفق تورونتو', l_en:'Toronto skyline'}]},
   {code:'AU', name_ar:'أستراليا', name_en:'Australia', airports:[
      {code:'SYD', name_ar:'مطار سيدني كينغسفورد سميث', name_en:'Sydney Kingsford Smith Airport', city_ar:'سيدني', city_en:'Sydney'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=300&q=60', l_ar:'دار أوبرا سيدني', l_en:'Sydney Opera House'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1600&q=85&auto=format&fit=crop', l_ar:'دار أوبرا سيدني', l_en:'Sydney Opera House'}]},
   {code:'ZA', name_ar:'جنوب أفريقيا', name_en:'South Africa', airports:[
      {code:'JNB', name_ar:'مطار أو.آر.تامبو الدولي', name_en:'O.R. Tambo International Airport', city_ar:'جوهانسبرغ', city_en:'Johannesburg'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=300&q=60', l_ar:'كيب تاون', l_en:'Cape Town'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1600&q=85&auto=format&fit=crop', l_ar:'كيب تاون', l_en:'Cape Town'}]},
   {code:'KE', name_ar:'كينيا', name_en:'Kenya', airports:[
      {code:'NBO', name_ar:'مطار جومو كينياتا الدولي', name_en:'Jomo Kenyatta Intl Airport', city_ar:'نيروبي', city_en:'Nairobi'},
-   ], imgs:[{u:'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=300&q=60', l_ar:'سفاري كينيا', l_en:'Kenyan safari'}]},
+   ], imgs:[{u:'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1600&q=85&auto=format&fit=crop', l_ar:'سفاري كينيا', l_en:'Kenyan safari'}]},
   {code:'NG', name_ar:'نيجيريا', name_en:'Nigeria', airports:[
      {code:'LOS', name_ar:'مطار مورتالا محمد الدولي', name_en:'Murtala Muhammed International Airport', city_ar:'لاغوس', city_en:'Lagos'},
      {code:'ABV', name_ar:'مطار نامدي أزيكيوي الدولي', name_en:'Nnamdi Azikiwe International Airport', city_ar:'أبوجا', city_en:'Abuja'},
@@ -2112,7 +2170,7 @@ function genHotels(seed, count, cityLabel){
       id: seed+'-'+i,
       name: `${HOTEL_NAME_PARTS[Math.floor(r1*HOTEL_NAME_PARTS.length)]} ${HOTEL_NAME_SUFFIX[Math.floor(r2*HOTEL_NAME_SUFFIX.length)]} ${cityLabel}`,
       stars, rating, pricePerNight, amenities,
-      img: `https://images.unsplash.com/photo-${['1566073771259-6a8506099945','1520250497591-112f2f40a3f4','1571896349842-33c89424de2d','1445019980597-93fa8acb246c'][i%4]}?w=300&q=60`,
+      img: `https://images.unsplash.com/photo-${['1566073771259-6a8506099945','1520250497591-112f2f40a3f4','1571896349842-33c89424de2d','1445019980597-93fa8acb246c'][i%4]}?w=1200&q=85&auto=format&fit=crop`,
     });
   }
   return out.sort((a,b)=>a.pricePerNight-b.pricePerNight);
@@ -2433,14 +2491,10 @@ function renderCountryImgs(){
   const to = COUNTRIES[toIdx];
   document.getElementById('fromCountryName').textContent = currentLang==='ar'?from.name_ar:from.name_en;
   document.getElementById('toCountryName').textContent = currentLang==='ar'?to.name_ar:to.name_en;
+  const promoDestEl = document.getElementById('promoVideoDest');
+  if(promoDestEl) promoDestEl.textContent = currentLang==='ar'?to.name_ar:to.name_en;
   const CI_GRADIENTS = ['linear-gradient(135deg,#2f6fed,#1a3f7a)','linear-gradient(135deg,#d8a531,#7a5a12)','linear-gradient(135deg,#2ecc71,#0f5c37)'];
-  const CI_ICONS = {'الأهرامات':'🔺','قلعة صلاح الدين':'🏰','الأقصر':'🏛️','برج خليفة':'🏙️','برج العرب':'🌊','دبي مارينا':'⛵',
-    'برج المملكة':'🏙️','حي جدة التاريخي':'🕌','العلا':'🏜️','آيا صوفيا':'🕌','برج غلطة':'🗼','مضيق البوسفور':'🌉',
-    'برج إيفل':'🗼','متحف اللوفر':'🖼️','شارع الشانزليزيه':'🛍️','برج بيغ بن':'🕰️','جسر البرج':'🌉','عين لندن':'🎡',
-    'الكولوسيوم':'🏛️','حي جدة':'🕌','تاج محل':'🕌','سور الصين العظيم':'🧱','جبل فوجي':'🗻','برجا بتروناس':'🏙️',
-    'دار أوبرا سيدني':'🎭','الأكروبوليس':'🏛️','ساغرادا فاميليا':'⛪','قنوات أمستردام':'🚤','حدائق الخليج':'🌳','معابد بانكوك':'🛕',
-    'شواطئ بالي':'🏖️','بوابة براندنبورغ':'🚪','أفق نيويورك':'🌆','أفق تورونتو':'🌆','البتراء':'🏜️','وسط بيروت':'🏙️','أسواق مراكش':'🛍️','مدينة تونس':'🕌','كيب تاون':'⛰️','سفاري كينيا':'🦁'};
-  const cell = (c,i) => `<div class="cell" style="background:${CI_GRADIENTS[i%CI_GRADIENTS.length]}"><span class="ci-icon">${CI_ICONS[c.l_ar]||'🌍'}</span><span>${currentLang==='ar'?c.l_ar:c.l_en}</span></div>`;
+  const cell = (c,i) => `<div class="cell" style="background:${CI_GRADIENTS[i%CI_GRADIENTS.length]}"><span>${currentLang==='ar'?c.l_ar:c.l_en}</span><img src="${c.u}" alt="${currentLang==='ar'?c.l_ar:c.l_en}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'"></div>`;
   document.getElementById('fromImgs').innerHTML = from.imgs.map(cell).join('');
   document.getElementById('toImgs').innerHTML = to.imgs.map(cell).join('');
 }
@@ -3198,21 +3252,28 @@ let currentUser = null;
 let trackingClicks = [];   // {id, partner, price, currency, time, status} — loaded live from Supabase, starts empty/real
 let trackingCommissions = []; // {id, clickId, partner, amount, status, time} — same
 
-// Real data, loaded from Supabase (not seeded/fake). Called when the admin dashboard opens.
+// بيانات حقيقية — تُجلب الآن عبر admin-data (Edge Function) بدل القراءة المباشرة من الجداول،
+// لأن rls_lockdown.sql يمنع مفتاح anon من قراءتها مباشرة أصلًا. تُستدعى بعد نجاح كلمة مرور
+// قسم "العمولات والنقرات" تحديدًا (commissionsToken مطلوب).
 async function loadTrackingFromSupabase(){
+  if(!sessionToken || !commissionsToken){
+    trackingClicks = []; trackingCommissions = [];
+    return;
+  }
   try{
-    const { data: clicks, error: clicksErr } = await sb.from('tracking_clicks').select('*').order('created_at', {ascending:false}).limit(500);
-    if(clicksErr) throw clicksErr;
-    trackingClicks = (clicks||[]).map(c=>({ id:c.id, partner:c.partner_name, price:c.price, currency:c.currency, time:c.created_at, status:c.status }));
+    const rClicks = await callEdgeFunction('admin-data', { table:'tracking_clicks', token: sessionToken, commissionsToken, limit:500 });
+    if(!rClicks.ok) throw new Error(rClicks.error);
+    trackingClicks = (rClicks.data||[]).map(c=>({ id:c.id, partner:c.partner_name, price:c.price, currency:c.currency, time:c.created_at, status:c.status }));
 
-    const { data: comms, error: commsErr } = await sb.from('commissions').select('*').order('created_at', {ascending:false}).limit(500);
-    if(commsErr) throw commsErr;
-    trackingCommissions = (comms||[]).map(c=>({ id:c.id, clickId:c.click_id, partner:c.partner_name, amount:Number(c.amount), status:c.status, time:c.created_at }));
+    const rComms = await callEdgeFunction('admin-data', { table:'commissions', token: sessionToken, commissionsToken, limit:500 });
+    if(!rComms.ok) throw new Error(rComms.error);
+    trackingCommissions = (rComms.data||[]).map(c=>({ id:c.id, clickId:c.click_id, partner:c.partner_name, amount:Number(c.amount), status:c.status, time:c.created_at }));
   }catch(e){
-    console.error('Could not load real tracking data from Supabase (showing 0 until connection works):', e);
+    console.error('Could not load real tracking data via admin-data (showing 0 until connection works):', e);
     trackingClicks = []; trackingCommissions = [];
   }
 }
+
 
 function trackClick(partnerName, price){
   const id = 'CLK-'+Date.now()+'-'+Math.floor(Math.random()*1000);
@@ -3337,28 +3398,53 @@ sb.auth.getSession().then(({data})=>{
   }
 }).catch(()=>{});
 
+/* ===== تسجيل الدخول الحقيقي عبر Edge Function =====
+   لم يعد كود التحقق (password_hash / totp_secret) يصل للمتصفح إطلاقًا — كل التحقق يتم على
+   خادم Supabase داخل admin-login (بمفتاح service_role)، والمتصفح لا يستقبل سوى نجاح/فشل
+   وتوكن جلسة موقّع عند النجاح. راجع ملفي supabase/functions/admin-login و rls_lockdown.sql. */
+const EDGE_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1';
+async function callEdgeFunction(name, body){
+  const res = await fetch(EDGE_FUNCTIONS_URL + '/' + name, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
+
+let sessionToken = null;   // توكن الجلسة بعد نجاح كلمة المرور + TOTP
+let commissionsToken = null; // توكن إضافي بعد نجاح كلمة مرور قسم العمولات تحديدًا
+let pendingLoginPass = null; // يُحفظ مؤقتًا في الذاكرة فقط بين خطوة كلمة المرور وخطوة TOTP
+
 document.getElementById('btnLogin').onclick = async ()=>{
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
   const btn = document.getElementById('btnLogin');
+  const errBox = document.getElementById('loginErr');
+  if(!pass){
+    errBox.textContent = 'أدخل كلمة المرور'; errBox.classList.add('show');
+    return;
+  }
   btn.textContent = '...جاري التحقق'; btn.disabled = true;
   try{
-    const { data, error } = await sb.from('admin_users').select('*').eq('email', email).maybeSingle();
-    if(error) throw error;
-    if(!data){
-      document.getElementById('loginErr').classList.add('show');
+    const r = await callEdgeFunction('admin-login', { step:'password', email, password:pass });
+    if(!r.ok){
+      errBox.textContent = r.error || 'بيانات الدخول غير صحيحة';
+      errBox.classList.add('show');
       btn.textContent = 'تسجيل الدخول'; btn.disabled = false;
       return;
     }
-    document.getElementById('loginErr').classList.remove('show');
-    currentUser = { name:data.name, role:data.role, roleLabel:data.role_label, email:data.email,
-      initials: data.name.split(' ').map(w=>w[0]).slice(0,2).join('') };
+    errBox.classList.remove('show');
+    pendingLoginPass = pass; // يلزم إرساله مرة أخرى مع رمز TOTP لأن الخادم عديم الحالة (stateless)
+    currentUser = { email }; // يكتمل بباقي البيانات (الاسم/الدور) بعد نجاح TOTP
     document.getElementById('screenLogin').style.display = 'none';
     document.getElementById('screenTotp').style.display = 'flex';
+    document.querySelectorAll('.totpDigit').forEach(i=>i.value='');
     document.querySelectorAll('.totpDigit')[0].focus();
   }catch(e){
-    console.error('Supabase login error:', e);
-    document.getElementById('loginErr').textContent = 'تعذّر الاتصال بقاعدة البيانات — تحقق من الإنترنت وحاول مجددًا';
-    document.getElementById('loginErr').classList.add('show');
+    console.error('Edge function admin-login error:', e);
+    errBox.textContent = 'تعذّر الاتصال بالخادم — تحقق من الإنترنت وحاول مجددًا';
+    errBox.classList.add('show');
   }
   btn.textContent = 'تسجيل الدخول'; btn.disabled = false;
 };
@@ -3367,16 +3453,71 @@ document.querySelectorAll('.totpDigit').forEach((inp,i,arr)=>{
   inp.oninput = ()=>{ if(inp.value && arr[i+1]) arr[i+1].focus(); };
 });
 
-document.getElementById('btnVerifyTotp').onclick = ()=>{
+document.getElementById('btnVerifyTotp').onclick = async ()=>{
   const code = [...document.querySelectorAll('.totpDigit')].map(i=>i.value).join('');
+  const btn = document.getElementById('btnVerifyTotp');
+  const errBox = document.getElementById('totpErr');
   if(code.length !== 6){
-    document.getElementById('totpErr').classList.add('show');
+    errBox.textContent = 'الرمز غير صحيح، حاول مرة أخرى';
+    errBox.classList.add('show');
     return;
   }
-  document.getElementById('totpErr').classList.remove('show');
-  document.getElementById('screenTotp').style.display = 'none';
-  enterDashboard();
+  btn.disabled = true;
+  try{
+    const r = await callEdgeFunction('admin-login', { step:'totp', email: currentUser.email, password: pendingLoginPass, code });
+    btn.disabled = false;
+    if(!r.ok){
+      errBox.textContent = r.error || 'الرمز غير صحيح، حاول مرة أخرى';
+      errBox.classList.add('show');
+      return;
+    }
+    errBox.classList.remove('show');
+    sessionToken = r.token;
+    pendingLoginPass = null; // لم نعد بحاجته، لا داعي لإبقائه بالذاكرة
+    currentUser = { name:r.user.name, role:r.user.role, roleLabel:r.user.roleLabel, email:r.user.email,
+      initials: r.user.name.split(' ').map(w=>w[0]).slice(0,2).join('') };
+    document.getElementById('screenTotp').style.display = 'none';
+    enterDashboard();
+  }catch(e){
+    btn.disabled = false;
+    console.error('Edge function admin-login (totp) error:', e);
+    errBox.textContent = 'تعذّر الاتصال بالخادم — تحقق من الإنترنت وحاول مجددًا';
+    errBox.classList.add('show');
+  }
 };
+
+/* ===== بوابة كلمة مرور ثانية ومستقلة تحديدًا لقسم "العمولات والنقرات" =====
+   نفس المبدأ: التحقق من كلمة مرور القسم يتم بالكامل على الخادم (admin-login بخطوة
+   'commissions')، ولا يُرسل commission_pass_hash للمتصفح أبدًا. عند النجاح نحصل على
+   commissionsToken منفصل صالح لساعتين، وهو ما تتطلبه admin-data لقراءة الجداول الحساسة. */
+let commissionsUnlockedThisSession = false;
+function openCommissionsPasswordModal(onSuccess){
+  const modal = document.getElementById('commPassModal');
+  const input = document.getElementById('commPassInput');
+  const err = document.getElementById('commPassErr');
+  input.value=''; err.classList.remove('show');
+  modal.classList.add('open');
+  setTimeout(()=>input.focus(), 50);
+  document.getElementById('commPassSubmit').onclick = async ()=>{
+    const val = input.value;
+    if(!val){ err.textContent='أدخل كلمة المرور'; err.classList.add('show'); return; }
+    try{
+      const r = await callEdgeFunction('admin-login', { step:'commissions', token: sessionToken, password: val });
+      if(!r.ok){
+        err.textContent = r.error || 'كلمة المرور غير صحيحة'; err.classList.add('show');
+        return;
+      }
+      commissionsToken = r.commissionsToken;
+      modal.classList.remove('open');
+      commissionsUnlockedThisSession = true;
+      onSuccess();
+    }catch(e){
+      console.error('Edge function admin-login (commissions) error:', e);
+      err.textContent = 'تعذّر الاتصال بالخادم'; err.classList.add('show');
+    }
+  };
+  document.getElementById('commPassCancel').onclick = ()=> modal.classList.remove('open');
+}
 
 function enterDashboard(){
   document.getElementById('shell').classList.add('open');
@@ -3386,9 +3527,8 @@ function enterDashboard(){
   document.querySelectorAll('[id^="roleBadge"]').forEach(b=>b.textContent = currentUser.roleLabel);
   applyRoleGuards();
   renderAdminAll(); // render immediately with whatever's in memory so the UI isn't blank
-  loadTrackingFromSupabase().then(()=>{
-    if(currentCommSubtab) renderCommSubtab(currentCommSubtab); // refresh with real numbers once they arrive
-  });
+  // ملاحظة: لا نجلب بيانات العمولات/النقرات هنا — هي محمية بـ commissionsToken الذي لا
+  // يُصدر إلا بعد فتح كلمة مرور قسم "العمولات والنقرات" تحديدًا (انظر openCommissionsPasswordModal)
 }
 
 function applyRoleGuards(){
@@ -3410,14 +3550,27 @@ function applyRoleGuards(){
 document.querySelectorAll('.nav-item[data-panel]').forEach(item=>{
   item.onclick = ()=>{
     if(item.classList.contains('locked')){ showToast('غير مسموح لدورك بالدخول لهذا القسم'); return; }
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    item.classList.add('active');
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    document.getElementById('panel-'+item.getAttribute('data-panel')).classList.add('active');
+    const openPanel = ()=>{
+      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+      item.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      document.getElementById('panel-'+item.getAttribute('data-panel')).classList.add('active');
+    };
+    if(item.getAttribute('data-panel')==='commissions' && !commissionsUnlockedThisSession){
+      openCommissionsPasswordModal(()=>{
+        openPanel();
+        loadTrackingFromSupabase().then(()=>{ if(currentCommSubtab) renderCommSubtab(currentCommSubtab); });
+      });
+    } else {
+      openPanel();
+    }
   };
 });
 
 document.getElementById('btnLogout').onclick = ()=>{
+  commissionsUnlockedThisSession = false;
+  sessionToken = null; commissionsToken = null;
+  trackingClicks = []; trackingCommissions = [];
   document.getElementById('shell').classList.remove('open');
   document.getElementById('screenLogin').style.display = 'flex';
   document.querySelectorAll('.totpDigit').forEach(i=>i.value='');
