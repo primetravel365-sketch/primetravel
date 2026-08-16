@@ -74,6 +74,32 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .logo .mark{width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; color:var(--gold);}
 @media(max-width:900px){.logo .logo-tag{display:none;}}
 .nav-row{display:flex; align-items:center; gap:4px; flex-wrap:wrap; font-size:13px;}
+/* ---------- mobile header (Android/iOS phones) ----------
+   Previously topbar-inner had no wrap rule of its own, so on narrow phones the nav links,
+   the currency/language selects and the login/signup buttons all fought for one line and
+   the browser wrapped them unpredictably — pills overlapping the logo, "تسجيل" clipped at
+   the screen edge, exactly what showed in the reported screenshot. This gives the header a
+   deliberate, always-legible 2-row layout on phones instead of relying on wrap. */
+@media(max-width:760px){
+  .topbar-inner{flex-wrap:wrap; padding:10px 14px; gap:8px 10px; row-gap:10px;}
+  .logo{order:1;}
+  .logo .mark{width:26px; height:26px; font-size:19px;}
+  .logo .logo-name{font-size:16.5px;}
+  .auth-row{order:2; margin-inline-start:auto;}
+  .auth-row .btn{padding:7px 11px; font-size:12px;}
+  .nav-row{order:3; width:100%; flex-wrap:nowrap; overflow-x:auto; gap:6px; padding-bottom:2px; -webkit-overflow-scrolling:touch; scrollbar-width:none;}
+  .nav-row::-webkit-scrollbar{display:none;}
+  .nav-row a, .nav-row button.navlink{padding:6px 10px; font-size:12px; flex-shrink:0;}
+  .nav-row select{flex-shrink:0; padding:6px 8px !important; font-size:11.5px !important;}
+  /* let the ticker sit in normal flow right under the now-taller header instead of a hardcoded
+     top:58px (which only matched the old single-row desktop height and hid part of row 2) */
+  .ticker-bar{position:static; top:auto;}
+  .page-spacer{height:150px;}
+}
+@media(max-width:420px){
+  .logo .logo-name{font-size:15px;}
+  .auth-row .btn{padding:6px 9px; font-size:11.5px;}
+}
 .nav-row a, .nav-row button.navlink{
   padding:7px 12px; border-radius:8px; color:var(--dim); background:transparent; font-size:13px; white-space:nowrap;
 }
@@ -195,6 +221,23 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .flag-dd .fo-empty{padding:14px; text-align:center; color:var(--dim); font-size:12.5px;}
 .search-btn{flex:0 0 150px; background:linear-gradient(135deg,var(--blue-l),var(--blue)); border-radius:10px; color:#fff; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;}
 @media(max-width:900px){.search-row{flex-direction:column;} .search-btn{flex:1;} .field{flex:none; width:100%; min-width:0;}}
+/* Taller, more comfortable touch targets for the flight/hotel search card on phones — the card was
+   visually cramped on Android/iOS (fields felt squeezed together and the button looked clipped at the
+   bottom of the viewport). This only changes sizing on small screens; desktop is untouched. */
+@media(max-width:600px){
+  .hero-search-shell{padding:18px 16px 20px; border-radius:20px;}
+  .hero-search-tabs{margin-bottom:14px;}
+  .hs-tab{padding:12px 8px; font-size:13.5px;}
+  .search-block{padding:16px;}
+  .search-toprow{margin-bottom:18px;}
+  .search-row{gap:14px;}
+  .field{padding:14px 14px; min-height:58px; border-radius:12px;}
+  .field label{font-size:11.5px; margin-bottom:5px;}
+  .field select, .field input{font-size:15px;}
+  .flag-field-display, .flag-field-input{font-size:15px;}
+  .flag-field-display img{width:22px;}
+  .search-btn{padding:16px; font-size:15px; min-height:54px; margin-top:2px;}
+}
 
 /* ---------- country image panels ---------- */
 .country-panels{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;}
