@@ -60,7 +60,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 /* ---------- fixed header + ticker ---------- */
 .topbar{
   position:fixed; top:0; left:0; right:0; z-index:200;
-  background:rgba(10,37,64,.92); backdrop-filter:blur(10px);
+  background:rgba(10,37,64,.97);
   border-bottom:1px solid var(--border);
 }
 .topbar-inner{
@@ -925,7 +925,10 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 <div class="container">
   <div class="results-head">
     <div class="results-head-top">
-      <button class="back-link" id="backHome">→ <span data-i18n="back_home">عودة للبحث</span></button>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <button class="back-link" id="backHome">→ <span data-i18n="back_home">عودة للبحث</span></button>
+        <button class="back-link home-link" id="btnHomeFromResults" style="background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.15); color:#1c232c; box-shadow:none;">🏠 <span data-i18n="back_to_home">العودة للصفحة الرئيسية</span></button>
+      </div>
       <div class="results-quicknav">
         <button class="rqn-btn active" data-i18n="nav_flights">رحلات الطيران</button>
         <button class="rqn-btn" onclick="goHome(); document.querySelector('.search-card')?.scrollIntoView({behavior:'smooth'});" data-i18n="rqn_hotels">فنادق ومناسبات</button>
@@ -1003,7 +1006,10 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 <div class="trip-details-page" id="tripDetailsPage">
 <div class="container">
   <div class="tdp-head">
-    <button class="back-link" id="backToResults">→ <span data-i18n="back_results">عودة للنتائج</span></button>
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <button class="back-link" id="backToResults">→ <span data-i18n="back_results">عودة للنتائج</span></button>
+      <button class="back-link home-link" id="btnHomeFromTrip" style="background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.15); color:#1c232c; box-shadow:none;">🏠 <span data-i18n="back_to_home">العودة للصفحة الرئيسية</span></button>
+    </div>
     <h2 data-i18n="tdp_title">تفاصيل الرحلة</h2>
   </div>
   <div class="tdp-boxes">
@@ -1290,7 +1296,7 @@ const I18N = {
   from:"من", to:"إلى", depart:"تاريخ المغادرة", return:"تاريخ العودة", search_btn:"بحث عن رحلات الطيران",
   from_country:"معالم بلد المغادرة", to_country:"معالم بلد الوصول",
   compare_head:"قارن أسعار أيام الحجز", compare_sub:"أقل سعر يوميًا من بين المصادر الموثوقة فقط",
-  deals_head:"عروض السفر المميزة", back_home:"عودة للبحث", results_note:"نتائج مرتبة من الأقل سعرًا، مجمعة من مكاتب حجز وشركات طيران متعددة",
+  deals_head:"عروض السفر المميزة", back_home:"عودة للبحث", back_to_home:"العودة للصفحة الرئيسية", results_note:"نتائج مرتبة من الأقل سعرًا، مجمعة من مكاتب حجز وشركات طيران متعددة",
   filters_title:"تصفية النتائج", f_stops:"التوقفات", f_direct:"مباشرة", f_1stop:"توقف واحد", f_2stop:"توقفان أو أكثر",
   f_time:"وقت الرحلة", f_morning:"صباحية", f_night:"ليلية", f_airlines:"شركات الطيران", f_duration:"مدة الرحلة",
   f_price:"نطاق السعر", f_experience:"تجربة الرحلة", f_no_overnight:"بدون توقف ليلي", f_same_airline:"إتمام الرحلة بنفس الشركة فقط",
@@ -1333,7 +1339,7 @@ const I18N = {
   from:"From", to:"To", depart:"Departure date", return:"Return date", search_btn:"Search flights",
   from_country:"Departure country highlights", to_country:"Arrival country highlights",
   compare_head:"Compare booking-day prices", compare_sub:"Lowest daily price from trusted sources only",
-  deals_head:"Featured travel deals", back_home:"Back to search", results_note:"Results sorted by lowest price, aggregated from multiple agencies and airlines",
+  deals_head:"Featured travel deals", back_home:"Back to search", back_to_home:"Back to Home Page", results_note:"Results sorted by lowest price, aggregated from multiple agencies and airlines",
   filters_title:"Filter results", f_stops:"Stops", f_direct:"Direct", f_1stop:"1 stop", f_2stop:"2+ stops",
   f_time:"Time of day", f_morning:"Morning", f_night:"Night", f_airlines:"Airlines", f_duration:"Duration",
   f_price:"Price range", f_experience:"Flight experience", f_no_overnight:"No overnight stops", f_same_airline:"Complete trip on same airline",
@@ -3150,6 +3156,8 @@ document.getElementById('closeCorpModal').onclick = ()=>document.getElementById(
 
 document.getElementById('searchBtn').onclick = goResults;
 document.getElementById('backHome').onclick = goHome;
+document.getElementById('btnHomeFromResults').onclick = goHome;
+document.getElementById('btnHomeFromTrip').onclick = goHome;
 document.getElementById('openAdmin').onclick = openAdminApp;
 document.getElementById('continueBtn').onclick = openTripDetails;
 document.getElementById('backToResults').onclick = closeTripDetails;
