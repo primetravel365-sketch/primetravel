@@ -726,7 +726,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
-  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/WhatsApp%20Video%202026-08-16%20at%207.27.22%20PM.mp4" type="video/mp4">
+  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/Video.Mp4.mp4" type="video/mp4">
 </video>
 <script>
 // Diagnostics for the fixed background video: the file itself loads fine (confirmed reachable,
@@ -822,7 +822,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:5px;" id="authPassLabel">كلمة المرور</label>
       <div style="position:relative;">
         <input type="password" id="authPass" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 38px 10px 12px; color:var(--text); font-size:13.5px;">
-        <button type="button" id="authPassEye" aria-label="toggle password visibility" style="position:absolute; top:50%; transform:translateY(-50%); inset-inline-end:10px; background:transparent; border:none; color:var(--dim); font-size:15px; cursor:pointer; padding:2px;">👁️</button>
+        <button type="button" id="authPassEye" aria-label="toggle password visibility" style="position:absolute; top:50%; transform:translateY(-50%); inset-inline-end:10px; background:transparent; border:none; color:var(--dim); font-size:15px; cursor:pointer; padding:2px;"><i class="fa-solid fa-eye-slash"></i></button>
       </div>
       <!-- password-strength meter: only shown/updated on the signup tab, via authTabSignup click and the input listener below -->
       <div id="authPassStrengthWrap" style="display:none; margin-top:7px;">
@@ -3598,7 +3598,7 @@ document.getElementById('authPassEye').onclick = ()=>{
   const eye = document.getElementById('authPassEye');
   const showing = inp.type === 'text';
   inp.type = showing ? 'password' : 'text';
-  eye.textContent = showing ? '👁️' : '🙈';
+  eye.innerHTML = showing ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
 };
 function passwordStrength(pw){
   if(!pw) return {score:0, label:''};
