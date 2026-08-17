@@ -29,8 +29,21 @@
 </style>
 <script>
 (function(){
+  // ============================================================
+  // لوحة الأخطاء الحمراء أصبحت الآن "لوضع التشخيص فقط" — تظهر فقط لك (الأدمن) عند فتح الرابط
+  // بإضافة ?debug=1 أو بعد تفعيلها يدويًا من الكونسول عبر localStorage، وليس لكل زائر عادي.
+  // السبب: كانت تظهر لأي عميل عادي عند أي خطأ بسيط (حتى لو غير مؤثر)، فيراها "انهيارًا" مخيفًا
+  // ويضغط تحديث الصفحة (F5) بدافع الذعر — وهذا بالضبط ما تسبب في شكوى "يخرجون تلقائيًا بعد
+  // التحديث". الآن: العميل العادي لا يرى شيئًا إطلاقًا، والخطأ يُسجَّل بصمت في console فقط.
+  // ============================================================
+  var DEBUG_MODE = false;
+  try{
+    DEBUG_MODE = (window.location.search.indexOf('debug=1') !== -1) || (localStorage.getItem('pt_debug') === '1');
+  }catch(e){ /* لو localStorage غير متاح لا نكسر شيئًا */ }
+
   var banner = null;
   function showError(msg){
+    if(!DEBUG_MODE){ return; } // عميل عادي: لا نعرض شيئًا على الشاشة إطلاقًا
     if(!banner){
       banner = document.createElement('div');
       banner.id = 'onScreenErrorBanner';
@@ -50,9 +63,11 @@
     banner.style.display = 'block';
   }
   window.addEventListener('error', function(e){
+    console.error('[PrimeTravel] JS error:', e.message, e.filename, e.lineno);
     showError('خطأ JS: ' + e.message + ' — الملف: ' + (e.filename||'?') + ' — السطر: ' + (e.lineno||'?'));
   });
   window.addEventListener('unhandledrejection', function(e){
+    console.error('[PrimeTravel] Unhandled promise rejection:', e.reason);
     showError('خطأ في طلب/وعد (Promise): ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
   });
 })();
@@ -1473,7 +1488,46 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
    ============================================================ */
 const SUPABASE_URL = 'https://pvspphmdonxvsgicmylp.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_IlLQB1I3LYfgtacPMrc9_w_7pC6m_ej';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ============================================================
+   إصلاح مشكلة "الخروج التلقائي بعد التحديث":
+   السبب الحقيقي — مكتبة Supabase (unpkg CDN) أحيانًا تفشل في التحميل عند بعض العملاء
+   (شبكة بطيئة/جدار حماية شركة/انقطاع مؤقت بالـ CDN). سابقًا كان هذا السطر ينفّذ مباشرة
+   window.supabase.createClient(...) بدون أي تحقق، فإذا لم تُحمَّل المكتبة كان هذا السطر
+   يتسبب في *انهيار كامل الكود البرمجي* الذي يليه في الصفحة (كل شيء بعده يتوقف فورًا،
+   بما فيه استعادة جلسة الدخول نفسها) — فيظهر للعميل خطأ مخيف، يضغط تحديث الصفحة، ولأن
+   تسجيل الدخول لم يكتمل أصلًا بسبب الانهيار، يعود لشاشة الدخول من جديد وكأنه "خرج تلقائيًا".
+
+   الحل: (1) محاولة تحميل المكتبة من مصدر بديل تلقائيًا إن فشل المصدر الأول،
+         (2) عدم السماح لفشل التحميل بإيقاف باقي كود الصفحة — الموقع يستمر بالعمل
+             (تصفح، بحث، عرض الرحلات...) حتى لو تعطّلت خدمة الحسابات مؤقتًا،
+         (3) تفعيل صريح لحفظ الجلسة (persistSession) حتى تبقى بيانات الدخول محفوظة
+             فعليًا في متصفح العميل ولا تُفقد بمجرد تحديث الصفحة.
+   ============================================================ */
+if (typeof window.supabase === 'undefined') {
+  try{
+    var _sbFallback = new XMLHttpRequest();
+    // مصدر بديل (jsdelivr) يُجرَّب فورًا وبشكل متزامن فقط إذا فشل المصدر الأساسي (unpkg) في الأعلى
+    _sbFallback.open('GET', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js', false);
+    _sbFallback.send(null);
+    if (_sbFallback.status === 200 && _sbFallback.responseText) {
+      (0, eval)(_sbFallback.responseText);
+    }
+  }catch(_sbFallbackErr){
+    console.error('[PrimeTravel] فشل تحميل مكتبة Supabase من كل المصادر:', _sbFallbackErr);
+  }
+}
+
+let sb = null;
+let sbLoadFailed = false;
+if (window.supabase && typeof window.supabase.createClient === 'function') {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+} else {
+  sbLoadFailed = true;
+  console.error('[PrimeTravel] تعذّر تحميل مكتبة الاتصال بخدمة الحسابات (Supabase) من أي مصدر — ميزات الحساب/الدخول ستكون معطّلة مؤقتًا حتى تحديث الصفحة بشبكة أفضل.');
+}
 </script>
 
 <script>
@@ -3696,6 +3750,7 @@ document.getElementById('authSubmit').onclick = async ()=>{
   const btn = document.getElementById('authSubmit');
   if(!email || !pass){ errBox.textContent = currentLang==='ar'?'أدخل البريد وكلمة المرور':'Enter email and password'; errBox.style.display='block'; return; }
   if(authMode==='signup' && pass.length < 6){ errBox.textContent = currentLang==='ar'?'كلمة المرور 6 أحرف على الأقل':'Password must be at least 6 characters'; errBox.style.display='block'; return; }
+  if(!sb){ errBox.textContent = currentLang==='ar'?'تعذّر الاتصال بخدمة الحسابات، يرجى تحديث الصفحة وإعادة المحاولة':'Could not reach the account service, please refresh and try again'; errBox.style.display='block'; return; }
   btn.disabled = true; errBox.style.display = 'none';
   try{
     if(authMode==='signup'){
@@ -3726,12 +3781,29 @@ document.getElementById('btnTravelerLogout').onclick = async ()=>{
 };
 
 // restore session on page load (e.g. after a refresh) so the visitor doesn't have to log in again every time
-sb.auth.getSession().then(({data})=>{
-  if(data.session && data.session.user){
-    currentTraveler = data.session.user;
-    updateTravelerUI();
-  }
-}).catch(()=>{});
+// محمي الآن بشرط sb — لو فشلت مكتبة Supabase في التحميل (انظر أعلاه)، هذا السطر كان قبل التعديل
+// يوقف تنفيذ كل الكود الذي يليه في الصفحة فورًا لأنه استدعاء مباشر (sb.auth) وليس داخل try/catch
+if (sb) {
+  sb.auth.getSession().then(({data})=>{
+    if(data.session && data.session.user){
+      currentTraveler = data.session.user;
+      updateTravelerUI();
+    }
+  }).catch(()=>{});
+}
+
+// لو فشل تحميل مكتبة الحسابات فعليًا، نعرض شريطًا صغيرًا وهادئًا (وليس رسالة خطأ مخيفة)
+// يوضّح للعميل أن ميزة الحساب تحتاج تحديث الصفحة، بينما باقي الموقع (بحث/تصفح) يعمل طبيعيًا
+if (sbLoadFailed) {
+  document.addEventListener('DOMContentLoaded', function(){
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;bottom:14px;inset-inline-end:14px;z-index:99998;background:#132e4a;color:#eaf0fb;padding:10px 14px;border-radius:10px;border:1px solid #2a4766;font-size:12.5px;box-shadow:0 4px 14px rgba(0,0,0,.35);max-width:280px;';
+    box.innerHTML = (currentLang==='ar'
+      ? 'تعذّر الاتصال بخدمة الحسابات مؤقتًا. تصفّح الموقع يعمل طبيعيًا — <a href="javascript:location.reload()" style="color:#4fa3ff; text-decoration:underline;">حدّث الصفحة</a> لتفعيل تسجيل الدخول.'
+      : 'Account service temporarily unavailable. Browsing still works — <a href="javascript:location.reload()" style="color:#4fa3ff; text-decoration:underline;">refresh</a> to enable login.');
+    document.documentElement.appendChild(box);
+  });
+}
 
 // Supabase sometimes redirects back with a leftover error (e.g. #error=access_denied&error_code=otp_expired)
 // in the URL — usually from an old/already-used confirmation link. If the visitor is actually logged in
