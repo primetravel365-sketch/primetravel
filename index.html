@@ -741,25 +741,41 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
-  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/Video.Mp4.mp4" type="video/mp4">
+  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4.mp4" type="video/mp4">
 </video>
 <script>
-// Diagnostics for the fixed background video: the file itself loads fine (confirmed reachable,
-// correct video/mp4 type), so if it's not visible the browser is silently failing to *decode* it.
-// The #1 cause with videos exported from WhatsApp on iPhone is the HEVC/H.265 codec, which Safari
-// plays but Chrome/Firefox/Edge on desktop and most Android devices do NOT support — the <video>
-// tag then just shows nothing (no error banner) and the static background image behind it stays
-// visible, which matches exactly what's being reported. This listener logs the real reason to the
-// browser console (F12 → Console) so it can be confirmed instead of guessed.
+// تشخيص فيديو الخلفية — الملف نفسه يصل بنجاح (video/mp4 صحيح)، فلو ما ظهر فالمتصفح
+// يفشل في *فك ترميزه (decode)* بصمت. السبب الأشهر مع فيديوهات مُصدَّرة من واتساب/آيفون
+// هو ترميز HEVC/H.265 الذي يشتغل على Safari فقط، بينما Chrome/Firefox/Edge على أغلب
+// أجهزة الويندوز والأندرويد لا تدعمه — فيظهر فقط الخلفية الثابتة بدون أي خطأ واضح.
+// بما إنك لا تملك وصول F12/Console، هذا الشريط يظهر السبب مباشرة على الشاشة، لكن فقط
+// في وضع التشخيص (رابط الموقع + ?debug=1) حتى لا يظهر لأي عميل عادي.
 (function(){
   const v = document.getElementById('bgVideo');
   if(!v) return;
+  var DEBUG_MODE = false;
+  try{ DEBUG_MODE = (window.location.search.indexOf('debug=1') !== -1) || (localStorage.getItem('pt_debug') === '1'); }catch(e){}
+
+  function showVideoDebug(msg, ok){
+    if(!DEBUG_MODE) return;
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed; top:70px; inset-inline-start:14px; z-index:99997; background:'+(ok?'#0d3a1f':'#4a0d0d')+'; color:#fff; padding:8px 12px; border-radius:8px; font-size:12px; font-family:monospace; direction:ltr; text-align:left; max-width:320px; box-shadow:0 4px 12px rgba(0,0,0,.4);';
+    box.textContent = '[bgVideo] ' + msg;
+    document.documentElement.appendChild(box);
+  }
+
   v.addEventListener('error', () => {
     const err = v.error;
-    console.warn('[bgVideo] failed to load/decode. code:', err && err.code, '— 1=aborted, 2=network, 3=decode(often unsupported codec like HEVC/H.265), 4=source not supported.');
+    const code = err && err.code;
+    const meaning = {1:'aborted', 2:'network error', 3:'decode error — الترميز غير مدعوم على الأغلب (HEVC/H.265)', 4:'source not supported'}[code] || 'unknown';
+    console.warn('[bgVideo] failed to load/decode. code:', code, '—', meaning);
+    showVideoDebug('فشل التشغيل — code ' + code + ': ' + meaning, false);
   });
-  v.addEventListener('loadeddata', () => console.info('[bgVideo] loaded and ready to play.'));
-  const tryPlay = () => v.play().catch(e => console.warn('[bgVideo] play() blocked/failed:', e.message));
+  v.addEventListener('loadeddata', () => {
+    console.info('[bgVideo] loaded and ready to play.');
+    showVideoDebug('تم التحميل بنجاح ✓ (video/' + (v.videoWidth||'?') + 'x' + (v.videoHeight||'?') + ')', true);
+  });
+  const tryPlay = () => v.play().catch(e => { console.warn('[bgVideo] play() blocked/failed:', e.message); showVideoDebug('play() فشل: ' + e.message, false); });
   document.addEventListener('DOMContentLoaded', tryPlay);
   tryPlay();
 })();
