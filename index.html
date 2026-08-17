@@ -51,7 +51,7 @@
 </head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PrimeTravel | اكتشف العالم</title>
+<title>PrimeTravel365 | اكتشف العالم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -107,7 +107,11 @@ button{font-family:inherit; cursor:pointer; border:none;}
 
 /* ---------- fixed header + ticker ---------- */
 .topbar{
-  position:fixed; top:0; left:0; right:0; z-index:200;
+  /* switched from position:fixed to position:sticky — the header + ticker now scroll together as one
+     block that always sits flush under the browser toolbar, with zero risk of the ticker (or anything
+     else) ever overlapping/hiding the nav links, on ANY screen size or device (Huawei/iPhone/Samsung
+     all render the same way since there's no more hardcoded pixel math to get wrong). */
+  position:sticky; top:0; left:0; right:0; z-index:200;
   background:rgba(10,37,64,.97);
   border-bottom:1px solid var(--border);
 }
@@ -119,7 +123,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .logo .logo-text{display:flex; flex-direction:column; line-height:1.15;}
 .logo .logo-name{font-family:'Cairo',sans-serif; font-weight:800; font-size:20px; color:var(--gold-l);}
 .logo .logo-tag{font-size:9.5px; color:var(--dim); font-weight:600; white-space:nowrap;}
-.logo .mark{width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; color:var(--gold);}
+.logo .mark{width:42px; height:42px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; color:var(--gold);}
 @media(max-width:900px){.logo .logo-tag{display:none;}}
 .nav-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px;}
 .nav-links{display:flex; align-items:center; gap:4px; flex-wrap:wrap;}
@@ -133,19 +137,16 @@ button{font-family:inherit; cursor:pointer; border:none;}
 @media(max-width:760px){
   .topbar-inner{flex-wrap:wrap; padding:10px 14px; gap:8px 10px; row-gap:10px;}
   .logo{order:1;}
-  .logo .mark{width:26px; height:26px; font-size:19px;}
+  .logo .mark{width:34px; height:34px; font-size:19px;}
   .logo .logo-name{font-size:16.5px;}
   .auth-row{order:2; margin-inline-start:auto;}
   .auth-row .btn{padding:7px 11px; font-size:12px;}
+  #btnFlightTracker{order:2; font-size:11.5px; padding:7px 10px; white-space:nowrap;}
   .nav-row{order:3; width:100%; flex-direction:column; align-items:flex-start; gap:8px; min-height:32px; display:flex !important; visibility:visible !important; opacity:1 !important;}
   .nav-links{width:100%; display:flex !important; flex-wrap:wrap; gap:6px; visibility:visible !important; opacity:1 !important;}
   .nav-tools{width:100%; display:flex !important; flex-wrap:wrap; gap:6px;}
   .nav-row a, .nav-row button.navlink{padding:6px 10px !important; font-size:12px !important; display:inline-flex !important; align-items:center !important; color:#c3d2e8 !important; background:rgba(255,255,255,.06) !important; flex:0 0 auto !important; flex-shrink:0 !important; white-space:nowrap !important; opacity:1 !important; visibility:visible !important;}
   .nav-row select{padding:6px 8px !important; font-size:11.5px !important;}
-  /* let the ticker sit in normal flow right under the now-taller header instead of a hardcoded
-     top:58px (which only matched the old single-row desktop height and hid part of row 2) */
-  .ticker-bar{position:static; top:auto;}
-  .page-spacer{height:190px;}
 }
 @media(max-width:420px){
   .logo .logo-name{font-size:15px;}
@@ -164,7 +165,9 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .icon-btn:hover{color:var(--text);}
 
 .ticker-bar{
-  position:fixed; top:58px; left:0; right:0; z-index:190;
+  /* no longer position:fixed with a guessed top offset — it now sits in normal flow directly under
+     topbar-inner, inside the same sticky .topbar, so it can never cover the nav links again. */
+  position:static; left:0; right:0; z-index:190;
   background:var(--bg2); border-bottom:1px solid var(--border);
   overflow:hidden; height:34px; display:flex; align-items:center;
 }
@@ -175,7 +178,9 @@ button{font-family:inherit; cursor:pointer; border:none;}
 @keyframes tickerMove{from{transform:translateX(0);} to{transform:translateX(-50%);}}
 [dir="ltr"] .ticker-track{animation-direction:reverse;}
 
-.page-spacer{height:100px;}
+/* header is now position:sticky (flows in-page), so no manual spacer is needed to push content
+   below it anymore — kept at 0 instead of removed so nothing else that references it breaks. */
+.page-spacer{height:0;}
 
 /* ---------- hero ---------- */
 .hero{padding:36px 0 20px; text-align:center;}
@@ -183,8 +188,23 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .hero h1{font-size:clamp(26px,4vw,42px); margin-bottom:10px; color:#0a2c50; text-shadow:0 1px 4px rgba(255,255,255,.3);}
 .hero p{color:#123a5e; font-size:18px; max-width:640px; margin:0 auto; font-weight:600; text-shadow:0 1px 3px rgba(255,255,255,.25);}
 
-/* ---------- video panel: centered rectangle (assistant moved to a floating bubble — see .ai-bubble) ---------- */
+/* ---------- video panel: centered rectangle box under the search form, with the two cross-fading
+   clips (plane takeoff / airport lounge) — reverted back to this boxed layout per request; the earlier
+   "full-page video background" attempt is removed entirely (handled separately, outside this build). ---------- */
 .top-panels{display:flex; justify-content:center; margin:28px 0;}
+.video-panel{
+  background:transparent; border:none;
+  display:flex; align-items:center; justify-content:center; padding:0;
+  width:100%; max-width:760px;
+}
+.video-circle{
+  width:100%; height:340px; border-radius:16px; overflow:hidden; position:relative;
+  border:3px solid var(--blue); box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
+}
+.video-circle video{width:100%; height:100%; object-fit:cover;}
+.video-circle .dashed{position:absolute; inset:-6px; border:1.5px dashed rgba(216,165,49,.5); border-radius:18px;}
+@media(max-width:640px){.video-circle{height:220px;}}
+.video-caption{text-align:center; margin-top:8px;}
 
 /* ============ Unified hero search box — white card, real functional forms (moved from lower
    on the page, not duplicated), reusing the CSS-variable scoping trick already proven on the
@@ -198,18 +218,6 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .hero-search-tabs{display:flex; gap:8px; margin-bottom:10px;}
 .hs-tab{flex:1; padding:8px; font-size:13px; font-weight:800; color:#7a828e; background:#f7f8fa; border-radius:9px;}
 .hs-tab.active{color:#111318; background:#fff; border:2px solid var(--gold);}
-.video-panel{
-  background:transparent; border:none;
-  display:flex; align-items:center; justify-content:center; padding:0;
-  width:100%; max-width:760px;
-}
-.video-circle{
-  width:100%; height:340px; border-radius:16px; overflow:hidden; position:relative;
-  border:3px solid var(--blue); box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
-}
-.video-circle video{width:100%; height:100%; object-fit:cover;}
-.video-circle .dashed{position:absolute; inset:-6px; border:1.5px dashed rgba(216,165,49,.5); border-radius:18px;}
-@media(max-width:640px){.video-circle{height:220px;}}
 
 /* ---------- AI assistant: small floating bubble, fixed in place, stays visible while scrolling ---------- */
 .ai-bubble{position:fixed; bottom:22px; inset-inline-end:22px; width:58px; height:58px; border-radius:50%;
@@ -230,7 +238,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .assist-head .who{display:flex; align-items:center; gap:10px; font-weight:700; font-size:14px;}
 .assist-head .avatar{width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--green),#0f9d63); display:flex; align-items:center; justify-content:center; font-size:17px;}
 .assist-head .status{font-size:11px; color:var(--green);}
-.assist-body{flex:1; display:flex; align-items:flex-start;}
+.assist-body{flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:2px;}
 .bubble{background:var(--blue); color:#fff; padding:12px 16px; border-radius:14px 14px 14px 2px; font-size:13.5px; max-width:90%;}
 [dir="ltr"] .bubble{border-radius:14px 14px 2px 14px;}
 .assist-input{display:flex; gap:8px;}
@@ -248,16 +256,20 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .pref-selects select{background:var(--card2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 10px; font-size:12.5px; font-family:inherit;}
 
 .search-row{display:flex; gap:10px; flex-wrap:wrap;}
-.field{flex:1 1 150px; min-width:130px; background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:8px 12px; position:relative;}
-/* native <input type="date"> renders its displayed text using the phone's OS locale (which is why it showed
-   "Aug 2026 15" instead of a normal day/month/year order) — that format can't be controlled via CSS/JS on the
-   native input itself. Fix: hide the native text (keep the tappable native picker/icon working underneath)
-   and draw our own always-dd/mm/yyyy text on top via this overlay span. */
-.field input[type="date"]{color:transparent;}
-.field input[type="date"]::-webkit-calendar-picker-indicator{margin-top:7px; padding:2px; cursor:pointer;}
-.date-display{position:absolute; inset:0; display:flex; align-items:flex-end; pointer-events:none; font-size:13.5px; font-weight:700; color:var(--text); font-family:inherit; padding:0 14px 8px; line-height:1.2;}
-@media(max-width:760px){.date-display{font-size:14px; padding:0 14px 8px;}}
-.field label{display:block; font-size:10.5px; color:var(--dim); margin-bottom:3px;}
+.field{flex:1 1 150px; min-width:130px; background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:9px 12px 10px; position:relative;}
+/* native <input type="date"> renders its own text using the phone/browser's own styling — on many
+   mobile browsers (and especially iOS Safari, which draws it as a locked native OS control) NO amount
+   of color/text-fill CSS trick can hide that text; it always paints through regardless, which is
+   exactly the overlapping-digits bug that kept reappearing. The only fix that works identically on
+   every browser/OS is opacity:0 on the whole input — that hides its rendering completely at the
+   compositing level (not just its text color), while it stays fully tappable/functional underneath.
+   Since the native calendar icon disappears along with it, a small 📅 is added to .date-display instead
+   so the field still visually reads as a date picker. */
+.field input[type="date"]{opacity:0; cursor:pointer;}
+.date-display{position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:space-between; pointer-events:none; font-size:13.5px; font-weight:700; color:var(--text); font-family:inherit; padding:0 14px 9px; line-height:1.2;}
+.date-display::after{content:'📅'; font-size:13px; opacity:.75;}
+@media(max-width:760px){.date-display{font-size:14px; padding:0 14px 10px;}}
+.field label{display:block; font-size:10.5px; color:var(--dim); margin-bottom:5px;}
 .field select, .field input{width:100%; background:transparent; border:none; color:var(--text); font-size:13.5px; font-weight:700; font-family:inherit;}
 .field select:focus, .field input:focus{outline:none;}
 .flag-field-display{display:flex; align-items:center; gap:7px; font-size:13.5px; font-weight:700; color:var(--text);}
@@ -279,7 +291,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .flag-dd .flag-opt .fo-sub{color:var(--dim); font-size:11px; font-weight:700; margin-inline-start:auto;}
 .flag-dd .fo-empty{padding:14px; text-align:center; color:var(--dim); font-size:12.5px;}
 .search-btn{flex:0 0 150px; background:linear-gradient(135deg,var(--blue-l),var(--blue)); border-radius:10px; color:#fff; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;}
-@media(max-width:900px){.search-row{flex-direction:column;} .search-btn{flex:1;} .field{flex:none; width:100%; min-width:0;}}
+@media(max-width:900px){.search-row{flex-direction:column;} .search-btn{flex:0 0 auto; width:100%; max-width:280px; align-self:center;} .field{flex:none; width:100%; min-width:0;}}
 /* حجم حقول البحث (رحلات/فنادق) على الموبايل — مقاس مضغوط بما يكفي ليبقى سهل اللمس، لكنه
    مختصر عمدًا (بدل النسخة الأطول سابقًا) حتى يظهر صف التنقل العلوي بدون تمرير إضافي على
    الشاشات القصيرة. هذا التعديل يخص المقاسات الصغيرة فقط؛ سطح المكتب لم يتأثر. */
@@ -293,8 +305,8 @@ button{font-family:inherit; cursor:pointer; border:none;}
   /* حقول من/إلى/تاريخ المغادرة/تاريخ العودة: بقيت مريحة للمس لكنها أقصر بوضوح من قبل،
      حتى تأخذ بطاقة البحث مساحة رأسية أقل، ويظهر صف التنقل العلوي (الرئيسية/رحلات الطيران/
      فنادق ومناسبات) بدون الحاجة لتمرير إضافي على شاشات الموبايل القصيرة. */
-  .field{padding:8px 14px 9px; min-height:52px; border-radius:11px;}
-  .field label{font-size:10.5px; margin-bottom:3px; display:block;}
+  .field{padding:9px 14px 10px; min-height:52px; border-radius:11px;}
+  .field label{font-size:10.5px; margin-bottom:5px; display:block;}
   .field select, .field input{font-size:14px;}
   .flag-field-display, .flag-field-input{font-size:14px;}
   .flag-field-display img{width:20px;}
@@ -311,25 +323,19 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .country-imgs{display:grid; grid-template-columns:repeat(3,1fr); gap:2px;}
 .country-imgs .cell{position:relative; aspect-ratio:1/1; overflow:hidden; display:flex; align-items:center; justify-content:center; transition:transform .3s;}
 .country-imgs .cell:hover{transform:scale(1.04);}
-.country-imgs .cell span{position:absolute; bottom:6px; inset-inline:6px; font-size:10.5px; background:rgba(0,0,0,.55); padding:2px 6px; border-radius:5px; text-align:center; z-index:2;}
+.country-imgs .cell span{position:absolute; bottom:6px; inset-inline:6px; font-size:10.5px; font-weight:700; background:rgba(0,0,0,.7); padding:3px 7px; border-radius:5px; text-align:center; z-index:2; text-shadow:0 1px 2px rgba(0,0,0,.6);}
 .country-imgs .cell img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .35s; z-index:1;}
 .country-imgs .cell img.loaded{opacity:1;}
 
 /* ---------- compare by day ---------- */
 .section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
-.section-head h2{font-size:19px;}
-.section-head .sub{font-size:12px; color:var(--dim);}
+.section-head h2{font-size:19px; text-shadow:0 1px 4px rgba(0,0,0,.5);}
+.section-head .sub{font-size:12px; color:var(--dim); text-shadow:0 1px 4px rgba(0,0,0,.6);}
 .compare-strip{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; margin-bottom:32px;}
-/* ---------- فيديو ترويجي للوجهة (بين مقارنة الأسعار والعروض) ---------- */
-.promo-video-box{position:relative; width:100%; height:220px; border-radius:var(--radius); overflow:hidden; margin-bottom:32px; border:1px solid var(--border); background:#0b1626;}
-.promo-video-box video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:promoKenBurns 22s ease-in-out infinite alternate;}
-@keyframes promoKenBurns{from{transform:scale(1);} to{transform:scale(1.09);}}
-.promo-video-overlay{position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; gap:6px; padding:16px 20px; background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 55%, rgba(0,0,0,0) 100%);}
-.promo-video-badge{align-self:flex-start; font-size:10.5px; font-weight:800; color:#fff; background:rgba(216,165,49,.9); padding:3px 10px; border-radius:20px;}
-.promo-video-title{font-size:17px; font-weight:800; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.5);}
-@media(max-width:640px){.promo-video-box{height:170px;}}
+/* ---------- (promo-video-box removed per request — the broken destination promo video that showed
+   a garbled/wood-grain texture instead of the intended clip has been deleted from the page) ---------- */
 .day-card{flex:0 0 108px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 8px; text-align:center;}
-.day-card.best{border-color:var(--gold); background:linear-gradient(180deg,rgba(216,165,49,.12),transparent);}
+.day-card.best{border-color:var(--gold); background:linear-gradient(180deg,rgba(216,165,49,.14),var(--card) 65%);}
 .day-card .dow{font-size:11.5px; color:var(--dim);}
 .day-card .dom{font-size:13px; font-weight:700; margin-bottom:6px;}
 .day-card .price{font-size:15px; font-weight:800; color:var(--green);}
@@ -732,16 +738,34 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <div class="topbar">
   <div class="topbar-inner">
-    <div class="logo"><span class="mark"><i class="fa-solid fa-globe"></i></span><span class="logo-text"><span class="logo-name" data-i18n="brand">PrimeTravel</span><span class="logo-tag" data-i18n="logo_tag">منصة البحث الذكي للسفر والفنادق وقاعات الأعمال والمناسبات</span></span></div>
+    <div class="logo" id="logoMark" style="cursor:pointer;"><span class="mark">
+        <!-- "Orbit Wing" mark: a gold-to-blue gradient globe ring with a bold paper-plane crossing it —
+             simplified/thickened from the first pass so it stays crisp and legible at header size. -->
+        <svg width="42" height="42" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="ptLogoGrad" x1="4" y1="6" x2="44" y2="42" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#f3cf6e"/>
+              <stop offset=".55" stop-color="#d8a531"/>
+              <stop offset="1" stop-color="#2f6fed"/>
+            </linearGradient>
+          </defs>
+          <circle cx="24" cy="24" r="20" fill="none" stroke="url(#ptLogoGrad)" stroke-width="3.2"/>
+          <path d="M41 11 L28.5 17.5 L34 24.5 L30 26.5 L23 21.5 L17 24.5 L18.3 28.8 L14.8 30.5 L10.5 22.5 L41 11 Z" fill="url(#ptLogoGrad)"/>
+        </svg>
+      </span><span class="logo-text"><span class="logo-name" data-i18n="brand">PrimeTravel365</span><span class="logo-tag" data-i18n="logo_tag">منصة البحث الذكي للسفر والفنادق وقاعات الأعمال والمناسبات</span></span></div>
     <div class="nav-row">
       <div class="nav-links">
         <a href="#" class="active" data-i18n="nav_home" onclick="goHome(); document.querySelectorAll('.nav-row a').forEach(a=>a.classList.remove('active')); this.classList.add('active'); return false;">الرئيسية</a>
         <a href="#" data-i18n="nav_flights" onclick="goHome(); document.querySelectorAll('.nav-row a').forEach(a=>a.classList.remove('active')); this.classList.add('active'); document.querySelector('.search-card')?.scrollIntoView({behavior:'smooth'}); return false;">رحلات الطيران</a>
         <a href="#corpSection" id="navHotels" data-i18n="nav_hotels">فنادق ومناسبات</a>
-        <button class="navlink" id="openAdmin" data-i18n="nav_admin">لوحة التحكم</button>
+        <!-- "لوحة التحكم" only shows for accounts flagged is_admin:true in Supabase (see
+             updateTravelerUI()) — same login box as everyone else, extra options appear only for
+             admin accounts once logged in, same pattern as any real site. Hidden by default here. -->
+        <button class="navlink" id="openAdmin" data-i18n="nav_admin" style="display:none;">لوحة التحكم</button>
       </div>
       <div class="nav-tools">
         <select id="currencySel" style="background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:7px; padding:6px 8px; font-size:12px;"></select>
+        <span id="fxHint" style="font-size:10.5px; color:var(--dim); white-space:nowrap;"></span>
         <select id="langSel" style="background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:7px; padding:6px 8px; font-size:12px;"></select>
       </div>
     </div>
@@ -753,6 +777,10 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       <span id="travelerGreeting" style="font-size:13px; font-weight:700;"></span>
       <button class="btn btn-ghost" id="btnTravelerLogout" data-i18n="logout">تسجيل الخروج</button>
     </div>
+    <!-- Live flight tracker — sits after the auth buttons so in RTL it lands at the far LEFT edge of the
+         header as requested. Real deep-link to Flightradar24's public tracking page (no fabricated data
+         — same honest deep-link pattern already used for the OTA/hotel provider redirects elsewhere). -->
+    <button class="btn btn-ghost" id="btnFlightTracker" style="flex-shrink:0; display:flex; align-items:center; gap:6px;" data-i18n="flight_tracker_btn">📡 تتبع الطيران المباشر</button>
   </div>
   <div class="ticker-bar">
     <div class="ticker-track" id="tickerTrack"></div>
@@ -778,10 +806,36 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     </div>
     <div class="field" style="margin-bottom:14px;">
       <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:5px;" id="authPassLabel">كلمة المرور</label>
-      <input type="password" id="authPass" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; color:var(--text); font-size:13.5px;">
+      <div style="position:relative;">
+        <input type="password" id="authPass" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 38px 10px 12px; color:var(--text); font-size:13.5px;">
+        <button type="button" id="authPassEye" aria-label="toggle password visibility" style="position:absolute; top:50%; transform:translateY(-50%); inset-inline-end:10px; background:transparent; border:none; color:var(--dim); font-size:15px; cursor:pointer; padding:2px;">👁️</button>
+      </div>
+      <!-- password-strength meter: only shown/updated on the signup tab, via authTabSignup click and the input listener below -->
+      <div id="authPassStrengthWrap" style="display:none; margin-top:7px;">
+        <div style="height:4px; border-radius:3px; background:var(--card2); overflow:hidden;">
+          <div id="authPassStrengthBar" style="height:100%; width:0%; border-radius:3px; transition:width .2s, background .2s;"></div>
+        </div>
+        <span id="authPassStrengthLabel" style="font-size:10.5px; color:var(--dim); display:block; margin-top:3px;"></span>
+      </div>
     </div>
     <button class="btn btn-primary" id="authSubmit" style="width:100%; padding:11px;">تسجيل الدخول</button>
     <p style="font-size:11px; color:var(--dim); text-align:center; margin-top:12px;" id="authNote">حساب حقيقي محفوظ بأمان عبر Supabase Auth</p>
+  </div>
+</div>
+
+<!-- ============ LIVE FLIGHT TRACKER — real deep-link to Flightradar24's public live tracking page for
+     the flight number entered (no fabricated positions/ETA drawn on our own site — this hands the
+     traveler off to an actual live-tracking source, same honest pattern as the OTA/hotel redirects). ============ -->
+<div class="overlay" id="trackerModal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head"><h3 data-i18n="tracker_title">تتبع الطيران المباشر</h3><button class="close-x" id="closeTrackerModal">✕</button></div>
+    <p style="font-size:12px; color:var(--dim); margin-bottom:14px;" data-i18n="tracker_sub">أدخل رقم الرحلة (مثال: TK1، EK203) لمتابعة موقعها المباشر فورًا.</p>
+    <div class="field" style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:5px;" data-i18n="tracker_flight_no">رقم الرحلة</label>
+      <input type="text" id="trackerFlightNo" placeholder="TK1" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; color:var(--text); font-size:13.5px; direction:ltr; text-align:center; font-weight:800; letter-spacing:1px;">
+    </div>
+    <button class="btn btn-primary" id="trackerGoBtn" style="width:100%; padding:11px;" data-i18n="tracker_go">تتبع الآن</button>
+    <p style="font-size:10.5px; color:var(--dim); text-align:center; margin-top:12px;" data-i18n="tracker_note">بيانات مباشرة حقيقية عبر Flightradar24 — يفتح في نافذة جديدة</p>
   </div>
 </div>
 
@@ -792,7 +846,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
   <section class="hero">
     <div class="eyebrow" data-i18n="eyebrow">المستشار الذكي لسفرك</div>
-    <h1><span data-i18n="brand">PrimeTravel</span> <span data-i18n="hero_h1">اكتشف العالم معنا</span></h1>
+    <h1><span data-i18n="brand">PrimeTravel365</span> <span data-i18n="hero_h1">اكتشف العالم معنا</span></h1>
     <p data-i18n="hero_p">أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.</p>
   </section>
 
@@ -814,7 +868,42 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
             <button data-i18n="trip_multi">وجهات متعددة</button>
           </div>
           <div class="pref-selects">
-            <select id="paxSel"><option data-i18n="pax1">1 مسافر</option><option data-i18n="pax2">2 مسافرين</option><option data-i18n="pax4">4 مسافرين</option></select>
+            <div class="pax-picker" id="paxPickerWrap" style="position:relative;">
+              <button type="button" id="paxPickerBtn" style="background:var(--card2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap;">
+                <span>👤</span><span id="paxPickerLabel"></span><span style="font-size:10px; color:var(--dim);">▾</span>
+              </button>
+              <div class="popover" id="paxPickerPop" style="width:260px; z-index:60; top:calc(100% + 6px); bottom:auto; text-align:start;">
+                <!-- Adults / Children / Infants — the traveler now types the exact count for each
+                     age band instead of picking a fixed "1/2/4 travelers" bundle, and infants (under 2)
+                     are tracked separately from children (2–11) per airline requirements. -->
+                <div class="pax-row" data-pax="adults" style="display:flex; align-items:center; justify-content:space-between; padding:8px 2px;">
+                  <div><b style="font-size:13px;" data-i18n="pax_adults">بالغون</b><div style="font-size:10.5px; color:var(--dim);" data-i18n="pax_adults_sub">12 سنة فأكثر</div></div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="pax-btn" data-act="dec" data-key="adults" style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text);">−</button>
+                    <input type="number" id="paxAdultsInput" data-key="adults" min="1" max="9" value="1" style="width:32px; text-align:center; background:transparent; border:none; color:var(--text); font-weight:700; font-size:13.5px;">
+                    <button type="button" class="pax-btn" data-act="inc" data-key="adults" style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text);">+</button>
+                  </div>
+                </div>
+                <div class="pax-row" data-pax="children" style="display:flex; align-items:center; justify-content:space-between; padding:8px 2px;">
+                  <div><b style="font-size:13px;" data-i18n="pax_children">أطفال</b><div style="font-size:10.5px; color:var(--dim);" data-i18n="pax_children_sub">من سنتين حتى أقل من 12 سنة</div></div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="pax-btn" data-act="dec" data-key="children" style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text);">−</button>
+                    <input type="number" id="paxChildrenInput" data-key="children" min="0" max="8" value="0" style="width:32px; text-align:center; background:transparent; border:none; color:var(--text); font-weight:700; font-size:13.5px;">
+                    <button type="button" class="pax-btn" data-act="inc" data-key="children" style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text);">+</button>
+                  </div>
+                </div>
+                <div class="pax-row" data-pax="infants" style="display:flex; align-items:center; justify-content:space-between; padding:8px 2px;">
+                  <div><b style="font-size:13px;" data-i18n="pax_infants">رضّع</b><div style="font-size:10.5px; color:var(--dim);" data-i18n="pax_infants_sub">أقل من سنتين</div></div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="pax-btn" data-act="dec" data-key="infants" style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text);">−</button>
+                    <input type="number" id="paxInfantsInput" data-key="infants" min="0" max="9" value="0" style="width:32px; text-align:center; background:transparent; border:none; color:var(--text); font-weight:700; font-size:13.5px;">
+                    <button type="button" class="pax-btn" data-act="inc" data-key="infants" style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text);">+</button>
+                  </div>
+                </div>
+                <div style="font-size:10.5px; color:var(--dim); padding:6px 2px 2px;" data-i18n="pax_infant_note">لا يزيد عدد الرضّع عن عدد البالغين (رضيع واحد لكل بالغ)</div>
+                <button type="button" id="paxPickerDone" class="btn btn-primary" style="width:100%; margin-top:10px; padding:9px;" data-i18n="pax_done">تم</button>
+              </div>
+            </div>
             <select id="classSel"><option data-i18n="cls_eco">اقتصادية</option><option data-i18n="cls_biz">رجال أعمال</option><option data-i18n="cls_first">الدرجة الأولى</option></select>
           </div>
         </div>
@@ -839,7 +928,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
             <label data-i18n="depart">تاريخ المغادرة</label>
             <input type="date" id="depDate" value="2026-08-15"><span class="date-display" id="depDateDisplay"></span>
           </div>
-          <div class="field">
+          <div class="field" id="retDateField">
             <label data-i18n="return">تاريخ العودة</label>
             <input type="date" id="retDate" value="2026-08-22"><span class="date-display" id="retDateDisplay"></span>
           </div>
@@ -924,17 +1013,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <span class="sub" data-i18n="compare_sub">أقل سعر يوميًا من بين المصادر الموثوقة فقط</span>
   </div>
   <div class="compare-strip" id="compareStrip"></div>
-
-  <div class="promo-video-box" id="promoVideoBox">
-    <video id="promoVideo" autoplay muted loop playsinline preload="metadata"
-      poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600&q=80&auto=format&fit=crop">
-      <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sunset_beach_web.mp4" type="video/mp4">
-    </video>
-    <div class="promo-video-overlay">
-      <span class="promo-video-badge" data-i18n="promo_video_badge">فيديو ترويجي</span>
-      <div class="promo-video-title"><span data-i18n="promo_video_dest_prefix">اكتشف </span><span id="promoVideoDest"></span></div>
-    </div>
-  </div>
 
   <div class="section-head">
     <h2 data-i18n="deals_head">عروض السفر المميزة</h2>
@@ -1119,23 +1197,26 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <footer class="site-footer">
   <div class="container">
-    <div class="footer-grid">
+    <div class="footer-grid" style="grid-template-columns:1.4fr 1fr 1fr;">
       <div>
-        <div class="footer-brand"><span class="mark" style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--gold);"><i class="fa-solid fa-globe"></i></span> <span style="color:var(--gold-l);">PrimeTravel</span></div>
-        <p class="footer-brand-desc" data-i18n="footer_desc">منصة عالمية للبحث الذكي عن رحلات الطيران والفنادق وقاعات الأعمال والمناسبات. نحن وسيط بسيط ولا نستلم أموال الحجوزات.</p>
-        <div class="footer-social">
-          <a href="#" aria-label="email">✉</a>
-          <a href="#" aria-label="twitter">🐦</a>
-          <a href="#" aria-label="instagram">📷</a>
-          <a href="#" aria-label="whatsapp">💬</a>
+        <div class="footer-brand">
+          <span class="mark" style="width:34px; height:34px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="34" height="34" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="ptLogoGradFooter" x1="4" y1="6" x2="44" y2="42" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#f3cf6e"/><stop offset=".55" stop-color="#d8a531"/><stop offset="1" stop-color="#2f6fed"/>
+                </linearGradient>
+              </defs>
+              <circle cx="24" cy="24" r="20" fill="none" stroke="url(#ptLogoGradFooter)" stroke-width="3.2"/>
+              <path d="M41 11 L28.5 17.5 L34 24.5 L30 26.5 L23 21.5 L17 24.5 L18.3 28.8 L14.8 30.5 L10.5 22.5 L41 11 Z" fill="url(#ptLogoGradFooter)"/>
+            </svg>
+          </span>
+          <span style="color:var(--gold-l);">PrimeTravel365</span>
         </div>
-      </div>
-      <div class="footer-col">
-        <h4 data-i18n="footer_contact">تواصل معنا</h4>
-        <span class="flink">💬 <span data-i18n="footer_whatsapp">واتساب</span></span>
-        <span class="flink">📷 <span data-i18n="footer_instagram">إنستغرام</span></span>
-        <span class="flink" dir="ltr">📞 920000000</span>
-        <span class="flink" dir="ltr">✉ support@primetravel.com</span>
+        <p class="footer-brand-desc" data-i18n="footer_desc">منصة عالمية للبحث الذكي عن رحلات الطيران والفنادق وقاعات الأعمال والمناسبات. نحن وسيط بسيط ولا نستلم أموال الحجوزات.</p>
+        <!-- Contact methods (WhatsApp/social/phone/email) intentionally removed for now, per request,
+             until the required legal/compliance steps for publishing official contact channels are
+             finished. Re-add the "تواصل معنا" column once that's cleared. -->
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_routes">الوجهات الشائعة</h4>
@@ -1152,7 +1233,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
         <span class="flink" data-i18n="footer_privacy">سياسة الخصوصية</span>
       </div>
     </div>
-    <div class="footer-bottom" data-i18n="footer">© 2026 PrimeTravel — جميع الحقوق محفوظة</div>
+    <div class="footer-bottom" data-i18n="footer">© 2026 PrimeTravel365 — جميع الحقوق محفوظة</div>
   </div>
 </footer>
 
@@ -1188,7 +1269,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 <!-- ============ LOGIN SCREEN ============ -->
 <div class="center-screen" id="screenLogin">
   <div class="login-card">
-    <div class="brand"><span class="mark">✈</span> PrimeTravel Admin</div>
+    <div class="brand"><span class="mark">✈</span> PrimeTravel365 Admin</div>
     <div class="subtitle">لوحة تحكم منفصلة تمامًا عن حسابات المسافرين — الدخول هنا للفريق الإداري فقط</div>
     <div class="err-msg" id="loginErr">بيانات الدخول غير صحيحة</div>
     <div class="field"><label>البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="name@primetravel365.com" value="ahmed@primetravel365.com"></div>
@@ -1216,7 +1297,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 <!-- ============ DASHBOARD SHELL ============ -->
 <div class="shell" id="shell">
   <aside class="sidebar">
-    <div class="brand"><span class="mark">✈</span> PrimeTravel</div>
+    <div class="brand"><span class="mark">✈</span> PrimeTravel365</div>
     <div class="env-tag">admin.primetravel.com</div>
     <div class="nav-item active" data-panel="overview"><span class="ic">▦</span> نظرة عامة</div>
     <div class="nav-item" data-panel="media"><span class="ic">🖼</span> الصور والفيديوهات</div>
@@ -1282,6 +1363,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       <div class="toolbar" style="margin-bottom:16px;">
         <div class="comm-subtabs" id="commSubtabs">
           <button class="comm-subtab active" data-ctab="overview">▦ نظرة عامة</button>
+          <button class="comm-subtab" data-ctab="usage">👤 الحسابات والاستخدام</button>
           <button class="comm-subtab" data-ctab="clicks">🖱 النقرات</button>
           <button class="comm-subtab" data-ctab="bookings">🎫 الحجوزات</button>
           <button class="comm-subtab" data-ctab="commissions">💰 العمولات</button>
@@ -1382,23 +1464,36 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 <script>
 const AED = v => v;
-const RATES = {AED:1, SAR:1.02, USD:0.272, EUR:0.25, EGP:13.4, TRY:9.4, KWD:0.0835, QAR:0.99, GBP:0.215, INR:23.1};
-const SYM = {AED:'د.إ', SAR:'ر.س', USD:'$', EUR:'€', EGP:'ج.م', TRY:'₺', KWD:'د.ك', QAR:'ر.ق', GBP:'£', INR:'₹'};
+// Expanded currency list to cover most GCC/MENA/South-Asian/Western travelers, not just 10 currencies.
+// NOTE: these are placeholder static rates for the demo/preview build — once travelpayouts.com (or
+// another live FX source) is connected, these should be swapped for a real, auto-refreshing rate feed.
+const RATES = {
+  AED:1, SAR:1.02, USD:0.272, EUR:0.25, EGP:13.4, TRY:9.4, KWD:0.0835, QAR:0.99, GBP:0.215, INR:23.1,
+  OMR:0.105, BHD:0.1025, JOD:0.193, KRW:365, JPY:40.6, CNY:1.97, AUD:0.415, CAD:0.375, CHF:0.238,
+  RUB:26.6, PKR:76.5, BDT:33.2, PHP:15.7, IDR:4320, MYR:1.24, THB:9.8, ZAR:5.0, NGN:430, SGP:0.365
+};
+const SYM = {
+  AED:'د.إ', SAR:'ر.س', USD:'$', EUR:'€', EGP:'ج.م', TRY:'₺', KWD:'د.ك', QAR:'ر.ق', GBP:'£', INR:'₹',
+  OMR:'ر.ع', BHD:'د.ب', JOD:'د.أ', KRW:'₩', JPY:'¥', CNY:'¥', AUD:'A$', CAD:'C$', CHF:'CHF',
+  RUB:'₽', PKR:'₨', BDT:'৳', PHP:'₱', IDR:'Rp', MYR:'RM', THB:'฿', ZAR:'R', NGN:'₦', SGP:'S$'
+};
 let currentCurrency = 'AED';
 let currentLang = 'ar';
 
 const I18N = {
-  ar:{brand:"PrimeTravel", logo_tag:"منصة البحث الذكي للسفر والفنادق وقاعات الأعمال والمناسبات", nav_home:"الرئيسية", nav_flights:"✈️ رحلات الطيران", nav_hotels:"فنادق ومناسبات", nav_admin:"لوحة التحكم", rqn_hotels:"🏨 فنادق ومناسبات", rqn_events:"🏛️ قاعات وفعاليات", rqn_wedding:"💍 أفراح ومناسبات", rqn_leisure:"🌴 رحلات ترفيهية",
+  ar:{brand:"PrimeTravel365", logo_tag:"منصة البحث الذكي للسفر والفنادق وقاعات الأعمال والمناسبات", nav_home:"الرئيسية", nav_flights:"✈️ رحلات الطيران", nav_hotels:"فنادق ومناسبات", nav_admin:"لوحة التحكم", rqn_hotels:"🏨 فنادق ومناسبات", rqn_events:"🏛️ قاعات وفعاليات", rqn_wedding:"💍 أفراح ومناسبات", rqn_leisure:"🌴 رحلات ترفيهية",
   login:"تسجيل الدخول", signup:"إنشاء حساب", logout:"تسجيل الخروج", eyebrow:"المستشار الذكي لسفرك", hero_h1:"اكتشف العالم معنا",
   hero_p:"أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.",
   vid_now:"الآن يعرض:", vid1_label:"إقلاع الطائرات", vid2_label:"صالات المطار",
   assistant:"المستشار الذكي", online:"متصل الآن", assist_greet:"مرحباً! أنا مساعدك الذكي في السفر، كيف يمكنني مساعدتك اليوم؟", assist_ph:"اسألني عن وجهتك...",
   trip_round:"ذهاب وعودة", trip_one:"ذهاب فقط", trip_multi:"وجهات متعددة",
   pax1:"1 مسافر", pax2:"2 مسافرين", pax4:"4 مسافرين", cls_eco:"اقتصادية", cls_biz:"رجال أعمال", cls_first:"الدرجة الأولى",
+  pax_adults:"بالغون", pax_adults_sub:"12 سنة فأكثر", pax_children:"أطفال", pax_children_sub:"من سنتين حتى أقل من 12 سنة",
+  pax_infants:"رضّع", pax_infants_sub:"أقل من سنتين", pax_infant_note:"لا يزيد عدد الرضّع عن عدد البالغين (رضيع واحد لكل بالغ)", pax_done:"تم",
+  pax_summary_traveler:"مسافر", pax_summary_travelers:"مسافرين",
   from:"من", to:"إلى", depart:"تاريخ المغادرة", return:"تاريخ العودة", search_btn:"بحث عن رحلات الطيران",
   from_country:"معالم بلد المغادرة", to_country:"معالم بلد الوصول",
   compare_head:"قارن أسعار أيام الحجز", compare_sub:"أقل سعر يوميًا من بين المصادر الموثوقة فقط",
-  promo_video_badge:"فيديو ترويجي", promo_video_dest_prefix:"اكتشف ",
   deals_head:"عروض السفر المميزة", back_home:"عودة للبحث", back_to_home:"العودة للصفحة الرئيسية", results_note:"نتائج مرتبة من الأقل سعرًا، مجمعة من مكاتب حجز وشركات طيران متعددة",
   filters_title:"تصفية النتائج", f_stops:"التوقفات", f_direct:"مباشرة", f_1stop:"توقف واحد", f_2stop:"توقفان أو أكثر",
   f_time:"وقت الرحلة", f_morning:"صباحية", f_night:"ليلية", f_airlines:"شركات الطيران", f_duration:"مدة الرحلة",
@@ -1406,7 +1501,11 @@ const I18N = {
   sort_recommended:"الموصى بها", sort_cheapest:"الأرخص", sort_fastest:"الأسرع",
   outbound:"رحلة الذهاب", inbound:"رحلة العودة", book_now:"احجز الآن", baggage:"سياسة الحقائب", cancel_policy:"سياسة الحجز والتذاكر", book_leg:"احجز هذه الرحلة", leg_selected:"محجوزة",
   alert_email:"تنبيه عبر البريد الإلكتروني", alert_wa:"تنبيه عبر واتساب", price_drop:"تنبيه انخفاض السعر",
-  footer:"© 2026 PrimeTravel — جميع الحقوق محفوظة",
+  footer:"© 2026 PrimeTravel365 — جميع الحقوق محفوظة",
+  flight_tracker_btn:"📡 تتبع الطيران المباشر", tracker_title:"تتبع الطيران المباشر",
+  tracker_sub:"أدخل رقم الرحلة (مثال: TK1، EK203) لمتابعة موقعها المباشر فورًا.",
+  tracker_flight_no:"رقم الرحلة", tracker_go:"تتبع الآن",
+  tracker_note:"بيانات مباشرة حقيقية عبر Flightradar24 — يفتح في نافذة جديدة",
   admin_title:"لوحة تحكم الإدارة — العمولات والتتبع", admin_clicks:"نقرات هذا الشهر", admin_bookings:"حجوزات مؤكدة", admin_commission:"إجمالي العمولات",
   admin_partner:"مكتب الحجز / شركة الطيران", admin_click2:"نقرات", admin_book2:"حجوزات", admin_earn:"العمولة",
   admin_note:"هذه بيانات توضيحية — عند الربط الفعلي بشركاء الحجز سيتم سحب هذه الأرقام تلقائيًا من واجهات API الخاصة بهم.",
@@ -1432,17 +1531,19 @@ const I18N = {
   footer_contact:"تواصل معنا", footer_whatsapp:"واتساب", footer_instagram:"إنستغرام",
   footer_routes:"الوجهات الشائعة", footer_support:"الدعم", footer_help:"مركز المساعدة",
   footer_cancel:"سياسة الإلغاء", footer_terms:"الشروط والأحكام", footer_privacy:"سياسة الخصوصية"},
-  en:{brand:"PrimeTravel", logo_tag:"Smart flight, hotel & event venue search platform", nav_home:"Home", nav_flights:"✈️ Flights", nav_hotels:"Hotels & Deals", nav_admin:"Admin panel", rqn_hotels:"🏨 Hotels & Deals", rqn_events:"🏛️ Halls & Events", rqn_wedding:"💍 Weddings & Events", rqn_leisure:"🌴 Recreational Trips",
+  en:{brand:"PrimeTravel365", logo_tag:"Smart flight, hotel & event venue search platform", nav_home:"Home", nav_flights:"✈️ Flights", nav_hotels:"Hotels & Deals", nav_admin:"Admin panel", rqn_hotels:"🏨 Hotels & Deals", rqn_events:"🏛️ Halls & Events", rqn_wedding:"💍 Weddings & Events", rqn_leisure:"🌴 Recreational Trips",
   login:"Log in", signup:"Sign up", logout:"Log out", eyebrow:"Your smart travel advisor", hero_h1:"Discover the world with us",
   hero_p:"The best flight and hotel prices, compared instantly across dozens of trusted sources.",
   vid_now:"Now showing:", vid1_label:"Take-off", vid2_label:"Airport terminals",
   assistant:"Smart advisor", online:"Online now", assist_greet:"Hi! I'm your smart travel assistant, how can I help today?", assist_ph:"Ask me about your destination...",
   trip_round:"Round trip", trip_one:"One way", trip_multi:"Multi-city",
   pax1:"1 traveler", pax2:"2 travelers", pax4:"4 travelers", cls_eco:"Economy", cls_biz:"Business", cls_first:"First class",
+  pax_adults:"Adults", pax_adults_sub:"Age 12+", pax_children:"Children", pax_children_sub:"Age 2 to under 12",
+  pax_infants:"Infants", pax_infants_sub:"Under 2", pax_infant_note:"Infants can't exceed the number of adults (1 per adult)", pax_done:"Done",
+  pax_summary_traveler:"traveler", pax_summary_travelers:"travelers",
   from:"From", to:"To", depart:"Departure date", return:"Return date", search_btn:"Search flights",
   from_country:"Departure country highlights", to_country:"Arrival country highlights",
   compare_head:"Compare booking-day prices", compare_sub:"Lowest daily price from trusted sources only",
-  promo_video_badge:"Promo video", promo_video_dest_prefix:"Discover ",
   deals_head:"Featured travel deals", back_home:"Back to search", back_to_home:"Back to Home Page", results_note:"Results sorted by lowest price, aggregated from multiple agencies and airlines",
   filters_title:"Filter results", f_stops:"Stops", f_direct:"Direct", f_1stop:"1 stop", f_2stop:"2+ stops",
   f_time:"Time of day", f_morning:"Morning", f_night:"Night", f_airlines:"Airlines", f_duration:"Duration",
@@ -1450,7 +1551,11 @@ const I18N = {
   sort_recommended:"Recommended", sort_cheapest:"Cheapest", sort_fastest:"Fastest",
   outbound:"Outbound", inbound:"Return", book_now:"Book now", baggage:"Baggage policy", cancel_policy:"Booking & ticket policy", book_leg:"Book this flight", leg_selected:"Selected",
   alert_email:"Alert by email", alert_wa:"Alert by WhatsApp", price_drop:"Price drop alert",
-  footer:"© 2026 PrimeTravel — All rights reserved",
+  footer:"© 2026 PrimeTravel365 — All rights reserved",
+  flight_tracker_btn:"📡 Live flight tracker", tracker_title:"Live flight tracker",
+  tracker_sub:"Enter the flight number (e.g. TK1, EK203) to follow its live position right now.",
+  tracker_flight_no:"Flight number", tracker_go:"Track now",
+  tracker_note:"Real live data via Flightradar24 — opens in a new tab",
   admin_title:"Admin panel — commissions and tracking", admin_clicks:"Clicks this month", admin_bookings:"Confirmed bookings", admin_commission:"Total commission",
   admin_partner:"Agency / airline", admin_click2:"Clicks", admin_book2:"Bookings", admin_earn:"Commission",
   admin_note:"Sample data shown here — once connected to real booking partners, these figures will be pulled live from their APIs.",
@@ -2139,6 +2244,7 @@ function t(key){ return (I18N[currentLang] && I18N[currentLang][key]) || key; }
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent = t(el.getAttribute('data-i18n'));});
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));});
+  if(typeof renderPaxPicker === 'function') renderPaxPicker();
 }
 function fmtPrice(aedVal){
   const rate = RATES[currentCurrency] || 1;
@@ -2146,10 +2252,19 @@ function fmtPrice(aedVal){
   return val.toLocaleString(currentLang==='ar'?'ar-EG':'en-US') + ' ' + SYM[currentCurrency];
 }
 
+function updateFxHint(){
+  const hint = document.getElementById('fxHint');
+  if(!hint) return;
+  if(currentCurrency==='AED'){ hint.textContent=''; return; }
+  const rate = RATES[currentCurrency] || 1;
+  // e.g. "1 AED = 0.27 USD" — lets the traveler see the AED→chosen-currency rate at a glance
+  hint.textContent = `1 AED = ${rate.toFixed(rate<1?3:2)} ${currentCurrency}`;
+}
 function buildCurrencySelect(){
   const sel = document.getElementById('currencySel');
   sel.innerHTML = Object.keys(RATES).map(c=>`<option value="${c}" ${c===currentCurrency?'selected':''}>${c}</option>`).join('');
-  sel.onchange = ()=>{ currentCurrency = sel.value; renderAll(); };
+  sel.onchange = ()=>{ currentCurrency = sel.value; updateFxHint(); renderAll(); };
+  updateFxHint();
 }
 function buildLangSelect(){
   const sel = document.getElementById('langSel');
@@ -2537,8 +2652,6 @@ function renderCountryImgs(){
   const to = COUNTRIES[toIdx];
   document.getElementById('fromCountryName').textContent = currentLang==='ar'?from.name_ar:from.name_en;
   document.getElementById('toCountryName').textContent = currentLang==='ar'?to.name_ar:to.name_en;
-  const promoDestEl = document.getElementById('promoVideoDest');
-  if(promoDestEl) promoDestEl.textContent = currentLang==='ar'?to.name_ar:to.name_en;
   const CI_GRADIENTS = ['linear-gradient(135deg,#2f6fed,#1a3f7a)','linear-gradient(135deg,#d8a531,#7a5a12)','linear-gradient(135deg,#2ecc71,#0f5c37)'];
   const cell = (c,i) => `<div class="cell" style="background:${CI_GRADIENTS[i%CI_GRADIENTS.length]}"><span>${currentLang==='ar'?c.l_ar:c.l_en}</span><img src="${c.u}" alt="${currentLang==='ar'?c.l_ar:c.l_en}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'"></div>`;
   document.getElementById('fromImgs').innerHTML = from.imgs.map(cell).join('');
@@ -2813,7 +2926,8 @@ function wegoRowHTML(f, group){
   </div>`;
 }
 function wegoCardHTML(fOut, fIn, idx){
-  const price = (fOut?fOut.price:0) + (fIn?fIn.price:0);
+  const oneWay = tripType==='one';
+  const price = (fOut?fOut.price:0) + (oneWay?0:(fIn?fIn.price:0));
   const isCheapest = idx===0;
   const isBest = idx===1; // second-cheapest with (usually) better routing shown as "best value", mirroring the reference layout
   const sites = 8 + ((fOut?fOut.id.length:0)+(fIn?fIn.id.length:0))%16;
@@ -2822,7 +2936,7 @@ function wegoCardHTML(fOut, fIn, idx){
     <div class="wego-num">${idx+1}</div>
     <div class="wego-rows">
       ${wegoRowHTML(fOut,'out')}
-      ${wegoRowHTML(fIn,'in')}
+      ${oneWay ? '' : wegoRowHTML(fIn,'in')}
     </div>
     <div class="wego-price">
       <div class="wego-badge-row">
@@ -2831,7 +2945,7 @@ function wegoCardHTML(fOut, fIn, idx){
       </div>
       <div class="wego-price-note">${currentLang==='ar'?'من '+sites+' مواقع':'from '+sites+' websites'}</div>
       <b>${fmtPrice(price)}</b>
-      <span>${currentLang==='ar'?'للشخص (ذهاب وعودة)':'per traveler (round trip)'}</span>
+      <span>${oneWay ? (currentLang==='ar'?'للشخص (ذهاب فقط)':'per traveler (one way)') : (currentLang==='ar'?'للشخص (ذهاب وعودة)':'per traveler (round trip)')}</span>
       <div class="wego-price-note interest">${currentLang==='ar'?'دفع بدون فوائد':'Interest-free payments'}</div>
     </div>
   </div>`;
@@ -2888,16 +3002,18 @@ function renderFlightLists(){
 }
 function updateSelectionBar(){
   const bar = document.getElementById('selectionBar');
+  const oneWay = tripType==='one';
   const fOut = selectedOut ? findFlight(selectedOut) : null;
   const fIn = selectedIn ? findFlight(selectedIn) : null;
   if(!fOut && !fIn){ bar.classList.remove('show'); return; }
   bar.classList.add('show');
   document.getElementById('selOutLabel').textContent = fOut ? `${fOut.airline} · ${fOut.dep}` : '—';
-  document.getElementById('selInLabel').textContent = fIn ? `${fIn.airline} · ${fIn.dep}` : '—';
-  const total = (fOut?fOut.price:0) + (fIn?fIn.price:0);
-  document.getElementById('selTotal').textContent = (fOut && fIn) ? fmtPrice(total) : '—';
+  document.getElementById('selInLabel').textContent = oneWay ? (currentLang==='ar'?'—(ذهاب فقط)':'—(one way)') : (fIn ? `${fIn.airline} · ${fIn.dep}` : '—');
+  const total = (fOut?fOut.price:0) + (oneWay?0:(fIn?fIn.price:0));
+  const ready = oneWay ? !!fOut : (fOut && fIn);
+  document.getElementById('selTotal').textContent = ready ? fmtPrice(total) : '—';
   const btn = document.getElementById('continueBtn');
-  btn.disabled = !(fOut && fIn);
+  btn.disabled = !ready;
 }
 function attachFlightEvents(){
   document.querySelectorAll('[data-pop]').forEach(btn=>{
@@ -3120,12 +3236,13 @@ function goResults(){
   const retVal = document.getElementById('retDate').value;
   // regenerate flights based on the actual route + dates searched, so results genuinely change per search
   outbound = genFlights('out-'+fromIdx+'-'+fromApIdx+'-'+toIdx+'-'+toApIdx+'-'+depVal, 8);
-  inbound = genFlights('in-'+toIdx+'-'+toApIdx+'-'+fromIdx+'-'+fromApIdx+'-'+retVal, 8);
+  // one-way ("ذهاب فقط"): don't generate/show any return-leg flights at all
+  inbound = (tripType==='one') ? [] : genFlights('in-'+toIdx+'-'+toApIdx+'-'+fromIdx+'-'+fromApIdx+'-'+retVal, 8);
   selectedOut = null; selectedIn = null;
   const fromCity = currentLang==='ar' ? fromAp.city_ar : fromAp.city_en;
   const toCity = currentLang==='ar' ? toAp.city_ar : toAp.city_en;
   document.getElementById('resRoute').innerHTML = `<img src="${flagImgUrl(from.code)}" style="width:18px;vertical-align:middle;border-radius:2px;margin-inline-end:3px;">${fromCity} (${fromAp.code}) → <img src="${flagImgUrl(to.code)}" style="width:18px;vertical-align:middle;border-radius:2px;margin-inline-end:3px;">${toCity} (${toAp.code})`;
-  document.getElementById('resMeta').textContent = `${depVal} — ${retVal} · ${document.getElementById('paxSel').selectedOptions[0].textContent}`;
+  document.getElementById('resMeta').textContent = (tripType==='one' ? depVal : `${depVal} — ${retVal}`) + ' · ' + paxSummaryLabel();
   document.getElementById('homePage').classList.add('hidden');
   document.getElementById('resultsPage').classList.add('open');
   window.scrollTo({top:0});
@@ -3266,10 +3383,70 @@ document.getElementById('backHome').onclick = goHome;
 document.getElementById('btnHomeFromResults').onclick = goHome;
 document.getElementById('btnHomeFromTrip').onclick = goHome;
 document.getElementById('openAdmin').onclick = openAdminApp;
+// "لوحة التحكم" is no longer a hidden gesture (no more 5-tap-on-logo) — it now works the same way
+// every real site does it: everyone signs in through the exact same login box, and the button only
+// appears for the specific account(s) flagged as admin in Supabase (user_metadata.is_admin === true),
+// as part of updateTravelerUI() below. A regular traveler account never sees it, no matter what they
+// click. Clicking it still requires the separate password + TOTP step as a second security layer —
+// being an admin account gets you the button, not automatic entry into the dashboard.
+document.getElementById('logoMark').onclick = goHome;
 document.getElementById('continueBtn').onclick = openTripDetails;
 document.getElementById('backToResults').onclick = closeTripDetails;
 document.getElementById('navHotels').onclick = (e)=>{ e.preventDefault(); document.getElementById('corpSection').scrollIntoView({behavior:'smooth'}); };
-document.querySelectorAll('.trip-tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.trip-tabs button').forEach(x=>x.classList.remove('active')); b.classList.add('active');});
+let tripType = 'round'; // 'round' | 'one' | 'multi'
+document.querySelectorAll('.trip-tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.trip-tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  const key = b.getAttribute('data-i18n'); // trip_round / trip_one / trip_multi
+  tripType = key==='trip_one' ? 'one' : (key==='trip_multi' ? 'multi' : 'round');
+  // "ذهاب فقط" (one way): hide the return-date field entirely and keep only the departure date.
+  // "ذهاب وعودة": show both. Fixes the bug where the return-date box stayed visible either way.
+  document.getElementById('retDateField').style.display = (tripType==='one') ? 'none' : '';
+});
+
+/* ============ Passenger picker: manual Adults / Children(2-11) / Infants(<2) counts ============ */
+const paxState = { adults:1, children:0, infants:0 };
+function paxSummaryLabel(){
+  const total = paxState.adults + paxState.children + paxState.infants;
+  const word = total===1 ? t('pax_summary_traveler') : t('pax_summary_travelers');
+  return `${total} ${word}`;
+}
+function renderPaxPicker(){
+  document.getElementById('paxAdultsInput').value = paxState.adults;
+  document.getElementById('paxChildrenInput').value = paxState.children;
+  document.getElementById('paxInfantsInput').value = paxState.infants;
+  document.getElementById('paxPickerLabel').textContent = paxSummaryLabel();
+}
+function setPaxValue(key, val){
+  const lims = { adults:[1,9], children:[0,8], infants:[0,9] };
+  val = Math.max(lims[key][0], Math.min(lims[key][1], isNaN(val) ? lims[key][0] : val));
+  paxState[key] = val;
+  if(paxState.infants > paxState.adults) paxState.infants = paxState.adults; // an infant needs an adult's lap
+  renderPaxPicker();
+}
+document.querySelectorAll('.pax-btn').forEach(btn=>{
+  btn.onclick = (e)=>{
+    e.stopPropagation();
+    const key = btn.getAttribute('data-key');
+    const dir = btn.getAttribute('data-act')==='inc' ? 1 : -1;
+    setPaxValue(key, paxState[key] + dir);
+  };
+});
+['paxAdultsInput','paxChildrenInput','paxInfantsInput'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', e=>{
+    setPaxValue(e.target.getAttribute('data-key'), parseInt(e.target.value, 10));
+  });
+});
+document.getElementById('paxPickerBtn').onclick = (e)=>{
+  e.stopPropagation();
+  document.getElementById('paxPickerPop').style.display = document.getElementById('paxPickerPop').style.display==='block' ? 'none' : 'block';
+};
+document.getElementById('paxPickerDone').onclick = (e)=>{ e.stopPropagation(); document.getElementById('paxPickerPop').style.display='none'; };
+document.addEventListener('click', (e)=>{
+  const wrap = document.getElementById('paxPickerWrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('paxPickerPop').style.display='none';
+});
+renderPaxPicker();
 
 applyI18n();
 buildAirlineFilters();
@@ -3278,7 +3455,7 @@ renderAll();
 switchVideo();
 
 /* ============================================================
-   لوحة تحكم الإدارة (PrimeTravel Admin) — مدمجة هنا للمعاينة الحية
+   لوحة تحكم الإدارة (PrimeTravel365 Admin) — مدمجة هنا للمعاينة الحية
    نفس البيانات (dealsData / mediaData) المعرّفة أعلاه تُستخدم هنا مباشرة،
    فأي تعديل من لوحة التحكم ينعكس فورًا على كاروسيل العروض وتسمية الفيديو بالموقع.
    عند اكتمال التعديلات المطلوبة على المنصة سيتم استبدال هذه المصفوفات
@@ -3297,6 +3474,7 @@ let currentUser = null;
    once the site has one. Seeded with realistic starting numbers so the dashboard isn't empty on first load. */
 let trackingClicks = [];   // {id, partner, price, currency, time, status} — loaded live from Supabase, starts empty/real
 let trackingCommissions = []; // {id, clickId, partner, amount, status, time} — same
+let userStats = null; // {total, dau, mau} — loaded live from the "profiles" table (see loadUserStatsFromSupabase)
 
 // بيانات حقيقية — تُجلب الآن عبر admin-data (Edge Function) بدل القراءة المباشرة من الجداول،
 // لأن rls_lockdown.sql يمنع مفتاح anon من قراءتها مباشرة أصلًا. تُستدعى بعد نجاح كلمة مرور
@@ -3317,6 +3495,28 @@ async function loadTrackingFromSupabase(){
   }catch(e){
     console.error('Could not load real tracking data via admin-data (showing 0 until connection works):', e);
     trackingClicks = []; trackingCommissions = [];
+  }
+}
+
+// عدد الحسابات المسجّلة + المستخدمون النشطون يوميًا/شهريًا — تُقرأ من جدول "profiles" (وليس auth.users
+// مباشرة، فمفتاح anon لا يستطيع قراءة auth.users أصلًا لأسباب أمنية). هذا الجدول يُنشأ مرة واحدة عبر
+// SQL Editor (راجع سكربت "profiles_and_activity.sql" المرفق)، ويتحدّث تلقائيًا عند كل تسجيل حساب
+// جديد أو دخول، عبر trigger على auth.users. يتطلب أيضًا إضافة 'profiles' لقائمة الجداول المسموحة
+// داخل نفس admin-data Edge Function الحالية (سطر واحد إضافي هناك).
+async function loadUserStatsFromSupabase(){
+  if(!sessionToken || !commissionsToken){ userStats = null; return; }
+  try{
+    const r = await callEdgeFunction('admin-data', { table:'profiles', token: sessionToken, commissionsToken, limit:5000 });
+    if(!r.ok) throw new Error(r.error);
+    const rows = r.data || [];
+    const now = Date.now();
+    const oneDay = 24*60*60*1000, oneMonth = 30*oneDay;
+    const dau = rows.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) <= oneDay).length;
+    const mau = rows.filter(u => u.last_sign_in_at && (now - new Date(u.last_sign_in_at).getTime()) <= oneMonth).length;
+    userStats = { total: rows.length, dau, mau };
+  }catch(e){
+    console.error('Could not load user stats via admin-data (showing 0 until "profiles" table + edge function whitelist are set up):', e);
+    userStats = null;
   }
 }
 
@@ -3373,7 +3573,42 @@ function setAuthMode(mode){
   document.getElementById('authSubmit').textContent = mode==='login' ? t('login') : t('signup');
   document.getElementById('authErr').classList.remove('show');
   document.getElementById('authErr').style.display = 'none';
+  // strength meter only makes sense while creating a new password, not while logging into an existing one
+  document.getElementById('authPassStrengthWrap').style.display = mode==='signup' ? 'block' : 'none';
+  if(mode==='signup') updatePassStrength();
 }
+
+/* ============ Password show/hide + strength meter (signup only) ============ */
+document.getElementById('authPassEye').onclick = ()=>{
+  const inp = document.getElementById('authPass');
+  const eye = document.getElementById('authPassEye');
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  eye.textContent = showing ? '👁️' : '🙈';
+};
+function passwordStrength(pw){
+  if(!pw) return {score:0, label:''};
+  let score = 0;
+  if(pw.length >= 6) score++;
+  if(pw.length >= 10) score++;
+  if(/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^A-Za-z0-9]/.test(pw)) score++;
+  if(score <= 1) return {score:1, label: currentLang==='ar'?'ضعيفة':'Weak', color:'var(--red)'};
+  if(score <= 3) return {score:2, label: currentLang==='ar'?'متوسطة':'Medium', color:'var(--gold)'};
+  return {score:3, label: currentLang==='ar'?'قوية':'Strong', color:'var(--green)'};
+}
+function updatePassStrength(){
+  const pw = document.getElementById('authPass').value;
+  const {score, label, color} = passwordStrength(pw);
+  const bar = document.getElementById('authPassStrengthBar');
+  bar.style.width = (score/3*100) + '%';
+  bar.style.background = color || 'transparent';
+  document.getElementById('authPassStrengthLabel').textContent = label;
+}
+document.getElementById('authPass').addEventListener('input', ()=>{
+  if(authMode==='signup') updatePassStrength();
+});
 
 function openAuthModal(mode){
   setAuthMode(mode);
@@ -3389,6 +3624,33 @@ document.getElementById('authModal').addEventListener('click', e=>{ if(e.target.
 document.getElementById('authTabLogin').onclick = ()=> setAuthMode('login');
 document.getElementById('authTabSignup').onclick = ()=> setAuthMode('signup');
 
+/* ============ Live flight tracker (Flightradar24 deep-link) — members-only per request: a logged-out
+   visitor gets sent to the normal sign-in box instead of the tracker, so this stays a perk exclusively
+   for registered accounts (useful later if a paid/commission model is added on top of it). ============ */
+document.getElementById('btnFlightTracker').onclick = ()=>{
+  if(!currentTraveler){
+    showToast(currentLang==='ar' ? 'سجّل الدخول أولًا لاستخدام تتبع الطيران المباشر' : 'Sign in first to use the live flight tracker');
+    openAuthModal('login');
+    return;
+  }
+  document.getElementById('trackerModal').classList.add('open');
+  document.getElementById('trackerFlightNo').focus();
+};
+document.getElementById('closeTrackerModal').onclick = ()=> document.getElementById('trackerModal').classList.remove('open');
+document.getElementById('trackerModal').addEventListener('click', e=>{ if(e.target.id==='trackerModal') document.getElementById('trackerModal').classList.remove('open'); });
+function goTrackFlight(){
+  const raw = document.getElementById('trackerFlightNo').value.trim();
+  if(!raw) return;
+  // real Flightradar24 public flight-tracking deep link — genuine live position/ETA data, not
+  // fabricated on our own site (same honest redirect pattern used for the OTA/hotel provider links)
+  const code = raw.replace(/\s+/g, '').toLowerCase();
+  window.open(`https://www.flightradar24.com/data/flights/${encodeURIComponent(code)}`, '_blank', 'noopener');
+  document.getElementById('trackerModal').classList.remove('open');
+  document.getElementById('trackerFlightNo').value = '';
+}
+document.getElementById('trackerGoBtn').onclick = goTrackFlight;
+document.getElementById('trackerFlightNo').addEventListener('keydown', e=>{ if(e.key==='Enter') goTrackFlight(); });
+
 function updateTravelerUI(){
   const loggedIn = !!currentTraveler;
   document.getElementById('authRowLoggedOut').style.display = loggedIn ? 'none' : 'flex';
@@ -3397,6 +3659,12 @@ function updateTravelerUI(){
     const name = currentTraveler.user_metadata?.name || currentTraveler.email.split('@')[0];
     document.getElementById('travelerGreeting').textContent = (currentLang==='ar'?'مرحبًا، ':'Hi, ') + name;
   }
+  // "لوحة التحكم" shows ONLY for the specific account(s) marked as admin in Supabase — set this once
+  // per admin account via: Supabase dashboard → Authentication → Users → (select the account) → edit
+  // "Raw user meta data" → add {"is_admin": true}. Every other traveler account, and every logged-out
+  // visitor, never sees this button, exactly like the visibility model on other real platforms.
+  const isAdminAccount = loggedIn && currentTraveler.user_metadata?.is_admin === true;
+  document.getElementById('openAdmin').style.display = isAdminAccount ? '' : 'none';
 }
 
 document.getElementById('authSubmit').onclick = async ()=>{
@@ -3619,7 +3887,7 @@ document.querySelectorAll('.nav-item[data-panel]').forEach(item=>{
     if(item.getAttribute('data-panel')==='commissions' && !commissionsUnlockedThisSession){
       openCommissionsPasswordModal(()=>{
         openPanel();
-        loadTrackingFromSupabase().then(()=>{ if(currentCommSubtab) renderCommSubtab(currentCommSubtab); });
+        Promise.all([loadTrackingFromSupabase(), loadUserStatsFromSupabase()]).then(()=>{ if(currentCommSubtab) renderCommSubtab(currentCommSubtab); });
       });
     } else {
       openPanel();
@@ -3647,14 +3915,68 @@ document.addEventListener('click', e=>{
   currentCommSubtab = btn.getAttribute('data-ctab');
   renderCommSubtab(currentCommSubtab);
 });
+// زر "احسب" داخل تبويب الحسابات والاستخدام — مُفوَّض عبر document لأن innerHTML يعيد بناء الزر في كل مرة
+document.addEventListener('click', e=>{
+  if(e.target.id !== 'apiCostSaveBtn') return;
+  const val = Number(document.getElementById('apiCostInput').value) || 0;
+  try{ localStorage.setItem('pt_api_monthly_cost_aed', String(val)); }catch(err){}
+  renderCommSubtab('usage');
+});
 function renderCommSubtab(tab){
   const el = document.getElementById('commSubContent');
   if(!el) return;
   if(tab==='overview') el.innerHTML = commOverviewHTML();
+  else if(tab==='usage') el.innerHTML = commUsageHTML();
   else if(tab==='clicks') el.innerHTML = commClicksHTML();
   else if(tab==='bookings') el.innerHTML = commBookingsHTML();
   else if(tab==='commissions') el.innerHTML = commCommissionsHTML();
   else if(tab==='partners') el.innerHTML = commPartnersHTML();
+}
+// "API_MONTHLY_COST" هو المبلغ الذي تكتبه أنت يدويًا (مثلاً 9 أو 20 دولارًا لاشتراك Flightradar24/
+// FlightAware) لمقارنته تلقائيًا بعمولات الحجوزات الفعلية — يُحفظ في المتصفح فقط (localStorage)،
+// وليس رقمًا حقيقيًا يجلبه النظام من أي API فوترة.
+function commUsageHTML(){
+  const totalComm = trackingCommissions.reduce((a,b)=>a+b.amount,0);
+  const confirmedComm = trackingCommissions.filter(c=>c.status==='confirmed').reduce((a,b)=>a+b.amount,0);
+  const bookings = trackingClicks.filter(c=>c.status==='confirmed').length;
+  let apiCost = 0;
+  try{ apiCost = Number(localStorage.getItem('pt_api_monthly_cost_aed')) || 0; }catch(e){}
+  const covered = apiCost>0 ? Math.min(100, Math.round(confirmedComm/apiCost*100)) : null;
+  if(!userStats){
+    return `<div class="stat-card" style="max-width:520px;">
+      <div class="lbl">بيانات الحسابات غير متاحة بعد</div>
+      <p style="font-size:12px; color:var(--dim); margin-top:8px; line-height:1.9;">
+        هذا القسم يحتاج جدول "profiles" في قاعدة البيانات (يُنشأ مرة واحدة عبر سكربت SQL جاهز)،
+        بالإضافة لإضافة سطر واحد في admin-data Edge Function للسماح بقراءته. أخبرني إن لم يكن هذا معدًّا بعد وسأعطيك الملفات الجاهزة.
+      </p>
+    </div>`;
+  }
+  return `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="lbl">إجمالي الحسابات المسجّلة</div><div class="val">${userStats.total.toLocaleString()}</div><div class="change">كل من أنشأ حسابًا على المنصة</div></div>
+      <div class="stat-card"><div class="lbl">نشطون خلال 24 ساعة</div><div class="val green">${userStats.dau.toLocaleString()}</div><div class="change">DAU — سجّلوا دخولًا آخر يوم</div></div>
+      <div class="stat-card"><div class="lbl">نشطون خلال 30 يومًا</div><div class="val">${userStats.mau.toLocaleString()}</div><div class="change">MAU — سجّلوا دخولًا آخر شهر</div></div>
+      <div class="stat-card"><div class="lbl">الحجوزات المؤكدة</div><div class="val gold">${bookings.toLocaleString()}</div><div class="change">إجمالي العمولات: AED ${totalComm.toLocaleString()}</div></div>
+    </div>
+    <h3 style="font-size:14.5px; margin:22px 0 10px;">هل تغطي العمولة تكلفة اشتراك API تتبع الطيران؟</h3>
+    <div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:16px; max-width:520px;">
+      <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:6px;">تكلفة الاشتراك الشهري (بالدرهم، قدّرها بنفسك)</label>
+      <div style="display:flex; gap:8px;">
+        <input type="number" id="apiCostInput" value="${apiCost||''}" placeholder="مثال: 33" style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:9px; padding:9px 12px; color:var(--text); font-size:13.5px;">
+        <button class="btn btn-primary" id="apiCostSaveBtn" style="padding:9px 16px;">احسب</button>
+      </div>
+      ${apiCost>0 ? `
+        <div style="margin-top:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;">
+            <span>العمولة المؤكدة هذا الشهر: <b style="color:var(--green);">AED ${confirmedComm.toLocaleString()}</b></span>
+            <span>${covered}%</span>
+          </div>
+          <div class="trust-bar-mini" style="width:100%;"><div class="trust-fill-mini" style="width:${covered}%; background:${covered>=100?'var(--green)':'var(--gold)'};"></div></div>
+          <p style="font-size:11.5px; color:var(--dim); margin-top:10px;">
+            ${covered>=100 ? 'العمولة المؤكدة تغطي تكلفة الاشتراك بالكامل هذا الشهر ✅' : `العمولة المؤكدة تغطي ${covered}% فقط من تكلفة الاشتراك — قد يكون مبكرًا للاشتراك في API مدفوع بعد.`}
+          </p>
+        </div>` : ''}
+    </div>`;
 }
 function commOverviewHTML(){
   const totalClicks = trackingClicks.length;
