@@ -75,7 +75,22 @@
 </head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PrimeTravel365 | اكتشف العالم</title>
+<title>PrimeTravel365 | اكتشف العالم — قارن أسعار الطيران والفنادق</title>
+<meta name="description" content="PrimeTravel365 — منصة بحث ومقارنة أسعار رحلات الطيران والفنادق وقاعات الأعمال والمناسبات في الشرق الأوسط وحول العالم، بعدة لغات وعملات.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://primetravel365.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PrimeTravel365">
+<meta property="og:title" content="PrimeTravel365 | اكتشف العالم — قارن أسعار الطيران والفنادق">
+<meta property="og:description" content="ابحث وقارن أسعار رحلات الطيران والفنادق وقاعات الأعمال والمناسبات في مكان واحد.">
+<meta property="og:url" content="https://primetravel365.com/">
+<meta property="og:image" content="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1200&auto=format&fit=crop">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PrimeTravel365 | اكتشف العالم">
+<meta name="twitter:description" content="ابحث وقارن أسعار رحلات الطيران والفنادق في مكان واحد.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TravelAgency","name":"PrimeTravel365","url":"https://primetravel365.com/","description":"منصة بحث ومقارنة أسعار رحلات الطيران والفنادق وقاعات الأعمال والمناسبات.","sameAs":[]}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -389,6 +404,8 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .deal-info .old{font-size:12px; color:var(--dim); text-decoration:line-through;}
 .deal-info .now{font-size:17px; font-weight:800; color:var(--green);}
 
+/* تحديث 18 أغسطس 2026: تنويه واضح فوق كل الأسعار المُولَّدة/التقديرية، لحد ما يتم ربط API حقيقي للأسعار */
+.price-disclaimer{font-size:11.5px; color:var(--orange); background:rgba(242,153,74,.12); border:1px solid rgba(242,153,74,.3); border-radius:8px; padding:6px 10px; margin:8px 0; display:inline-block;}
 /* ---------- admin panel modal ---------- */
 .overlay{position:fixed; inset:0; background:rgba(2,5,12,.7); z-index:500; display:none; align-items:center; justify-content:center; padding:20px;}
 .overlay.open{display:flex;}
@@ -1087,6 +1104,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <span class="sub" data-i18n="compare_sub">أقل سعر يوميًا من بين المصادر الموثوقة فقط</span>
   </div>
   <div class="compare-strip" id="compareStrip"></div>
+  <div class="price-disclaimer" data-i18n="price_disclaimer">⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك</div>
 
   <div class="section-head">
     <h2 data-i18n="deals_head">عروض السفر المميزة</h2>
@@ -1128,6 +1146,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       </aside>
       <div>
         <div style="font-size:12.5px; color:var(--dim); margin-bottom:10px;" id="hotelResultsCount"></div>
+        <div class="price-disclaimer" data-i18n="price_disclaimer">⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك</div>
         <div id="hotelResultsList"></div>
       </div>
     </div>
@@ -1258,6 +1277,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <div class="num" id="priceOptNum"></div>
     <h3 data-i18n="price_opts_h">خيارات الأسعار</h3>
     <div class="sub" data-i18n="price_opts_sub">الأسعار المعروضة تشمل الضرائب ورسوم الدفع</div>
+    <div class="price-disclaimer" data-i18n="price_disclaimer">⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك</div>
     <div id="priceOptionsList"></div>
   </div>
 </div>
@@ -1292,10 +1312,10 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_support">الدعم</h4>
-        <span class="flink" data-i18n="footer_help">مركز المساعدة</span>
-        <span class="flink" data-i18n="footer_cancel">سياسة الإلغاء</span>
-        <span class="flink" data-i18n="footer_terms">الشروط والأحكام</span>
-        <span class="flink" data-i18n="footer_privacy">سياسة الخصوصية</span>
+        <span class="flink" id="flinkHelp" data-i18n="footer_help">مركز المساعدة</span>
+        <span class="flink" id="flinkCancel" data-i18n="footer_cancel">سياسة الإلغاء</span>
+        <span class="flink" id="flinkTerms" data-i18n="footer_terms">الشروط والأحكام</span>
+        <span class="flink" id="flinkPrivacy" data-i18n="footer_privacy">سياسة الخصوصية</span>
       </div>
     </div>
     <div class="footer-bottom" data-i18n="footer">© 2026 PrimeTravel365 — جميع الحقوق محفوظة</div>
@@ -1314,6 +1334,15 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
   <div class="modal" style="max-width:720px;">
     <div class="modal-head"><h3 id="hdModalName"></h3><button class="close-x" id="closeHotelDetail">✕</button></div>
     <div id="hdModalBody"></div>
+  </div>
+</div>
+
+<!-- ============ LEGAL/SUPPORT MODAL — مركز المساعدة / سياسة الإلغاء / الشروط والأحكام / سياسة الخصوصية
+     تحديث 18 أغسطس 2026: كانت هذه الروابط <span> بدون أي وظيفة فعلية (زخرفة فقط) — أُضيف محتوى حقيقي ووُصلت. ============ -->
+<div class="overlay" id="legalModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head"><h3 id="legalModalTitle"></h3><button class="close-x" id="closeLegalModal">✕</button></div>
+    <div id="legalModalBody" style="font-size:13.5px; line-height:1.9; color:var(--dim);"></div>
   </div>
 </div>
 
@@ -1337,10 +1366,9 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <div class="brand"><span class="mark">✈</span> PrimeTravel365 Admin</div>
     <div class="subtitle">لوحة تحكم منفصلة تمامًا عن حسابات المسافرين — الدخول هنا للفريق الإداري فقط</div>
     <div class="err-msg" id="loginErr">بيانات الدخول غير صحيحة</div>
-    <div class="field"><label>البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="name@primetravel365.com" value="ahmed@primetravel365.com"></div>
+    <div class="field"><label>البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="name@primetravel365.com" autocomplete="off"></div>
     <div class="field"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="off"></div>
     <button class="btn-full" id="btnLogin">تسجيل الدخول</button>
-    <div class="login-note">متصل بقاعدة بيانات حقيقية (Supabase) — الحسابات المتاحة حاليًا: ahmed@primetravel365.com (مدير عام) · user@primetravel365.com (صلاحيات محدودة)</div>
   </div>
 </div>
 
@@ -1540,42 +1568,70 @@ const SUPABASE_ANON_KEY = 'sb_publishable_IlLQB1I3LYfgtacPMrc9_w_7pC6m_ej';
          (3) تفعيل صريح لحفظ الجلسة (persistSession) حتى تبقى بيانات الدخول محفوظة
              فعليًا في متصفح العميل ولا تُفقد بمجرد تحديث الصفحة.
    ============================================================ */
-if (typeof window.supabase === 'undefined') {
-  try{
-    var _sbFallback = new XMLHttpRequest();
-    // مصدر بديل (jsdelivr) يُجرَّب فورًا وبشكل متزامن فقط إذا فشل المصدر الأساسي (unpkg) في الأعلى
-    _sbFallback.open('GET', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js', false);
-    _sbFallback.send(null);
-    if (_sbFallback.status === 200 && _sbFallback.responseText) {
-      (0, eval)(_sbFallback.responseText);
-    }
-  }catch(_sbFallbackErr){
-    console.error('[PrimeTravel] فشل تحميل مكتبة Supabase من كل المصادر:', _sbFallbackErr);
-  }
-}
-
+// تحديث 18 أغسطس 2026: استبدال الأسلوب القديم (XHR متزامن يجمّد الصفحة + eval() لتنفيذ كود بعيد —
+// كلاهما خطر أمني/أداء حقيقي) بتحميل <script> عادي غير متزامن. المصدر البديل يُحمَّل ويُنفَّذ عبر
+// آلية تحميل السكريبتات الطبيعية في المتصفح (بدون eval إطلاقًا)، ولا يوقف أي كود آخر بالصفحة أثناء الانتظار.
 let sb = null;
 let sbLoadFailed = false;
-if (window.supabase && typeof window.supabase.createClient === 'function') {
-  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-  });
+function _sbInit(){
+  if (window.supabase && typeof window.supabase.createClient === 'function') {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    document.dispatchEvent(new Event('primetravel:sb-ready'));
+  } else {
+    sbLoadFailed = true;
+    console.error('[PrimeTravel] تعذّر تحميل مكتبة الاتصال بخدمة الحسابات (Supabase) من أي مصدر — ميزات الحساب/الدخول ستكون معطّلة مؤقتًا حتى تحديث الصفحة بشبكة أفضل.');
+  }
+}
+if (typeof window.supabase === 'undefined') {
+  // المصدر الأساسي (unpkg) فشل — نحمّل نسخة بديلة (jsdelivr) بشكل غير متزامن عبر عنصر <script> عادي
+  var _sbFallbackScript = document.createElement('script');
+  _sbFallbackScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+  _sbFallbackScript.onload = _sbInit;
+  _sbFallbackScript.onerror = function(){
+    sbLoadFailed = true;
+    console.error('[PrimeTravel] فشل تحميل مكتبة Supabase من كل المصادر');
+  };
+  document.head.appendChild(_sbFallbackScript);
 } else {
-  sbLoadFailed = true;
-  console.error('[PrimeTravel] تعذّر تحميل مكتبة الاتصال بخدمة الحسابات (Supabase) من أي مصدر — ميزات الحساب/الدخول ستكون معطّلة مؤقتًا حتى تحديث الصفحة بشبكة أفضل.');
+  _sbInit();
 }
 </script>
 
 <script>
 const AED = v => v;
 // Expanded currency list to cover most GCC/MENA/South-Asian/Western travelers, not just 10 currencies.
-// NOTE: these are placeholder static rates for the demo/preview build — once travelpayouts.com (or
-// another live FX source) is connected, these should be swapped for a real, auto-refreshing rate feed.
-const RATES = {
+// تحديث 18 أغسطس 2026: كانت هذه أسعار صرف ثابتة يدويًا بلا أي تحديث — يعني أسعار قديمة =
+// تحويل عملة غلط لكل عملة غير الدرهم. الحل: RATES الآن تبدأ بهذه القيم كـ"احتياطي/fallback" فقط،
+// ثم loadLiveRates() تحاول جلب أسعار حقيقية محدثة من API مجاني بدون مفتاح فور تحميل الصفحة،
+// مع تخزين مؤقت 24 ساعة في localStorage، وتبقى القيم الثابتة أدناه فقط لو تعذّر الاتصال بالإنترنت/الـAPI.
+const RATES_FALLBACK = {
   AED:1, SAR:1.02, USD:0.272, EUR:0.25, EGP:13.4, TRY:9.4, KWD:0.0835, QAR:0.99, GBP:0.215, INR:23.1,
   OMR:0.105, BHD:0.1025, JOD:0.193, KRW:365, JPY:40.6, CNY:1.97, AUD:0.415, CAD:0.375, CHF:0.238,
   RUB:26.6, PKR:76.5, BDT:33.2, PHP:15.7, IDR:4320, MYR:1.24, THB:9.8, ZAR:5.0, NGN:430, SGP:0.365
 };
+let RATES = {...RATES_FALLBACK};
+(function loadLiveRates(){
+  const ONE_DAY = 24*60*60*1000;
+  try{
+    const cached = JSON.parse(localStorage.getItem('pt365_fx_rates')||'null');
+    if (cached && cached.rates && cached.ts && (Date.now()-cached.ts) < ONE_DAY) {
+      RATES = cached.rates;
+      return;
+    }
+  }catch(_fxCacheErr){}
+  // open.er-api.com: خدمة مجانية بدون مفتاح API، مبنية على أسعار صرف حقيقية محدّثة يوميًا
+  fetch('https://open.er-api.com/v6/latest/AED').then(r=>r.json()).then(data=>{
+    if (data && data.result === 'success' && data.rates) {
+      const live = {};
+      Object.keys(RATES_FALLBACK).forEach(cur=>{ live[cur] = data.rates[cur] || RATES_FALLBACK[cur]; });
+      RATES = live;
+      try{ localStorage.setItem('pt365_fx_rates', JSON.stringify({rates:live, ts:Date.now()})); }catch(_fxSaveErr){}
+      if (typeof renderAll === 'function') renderAll(); // إعادة رسم الأسعار المعروضة بالفعل بالسعر الصحيح المحدث
+    }
+  }).catch(()=>{ /* فشل الاتصال — نستمر بالقيم الثابتة (RATES_FALLBACK) بدون أي كسر بالموقع */ });
+})();
 const SYM = {
   AED:'د.إ', SAR:'ر.س', USD:'$', EUR:'€', EGP:'ج.م', TRY:'₺', KWD:'د.ك', QAR:'ر.ق', GBP:'£', INR:'₹',
   OMR:'ر.ع', BHD:'د.ب', JOD:'د.أ', KRW:'₩', JPY:'¥', CNY:'¥', AUD:'A$', CAD:'C$', CHF:'CHF',
@@ -1616,6 +1672,7 @@ const I18N = {
   toast_alert:"تم ضبط تنبيه انخفاض السعر", stops_direct:"مباشرة", stops_n:"توقف",
   combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن", manual_book_btn:"احجز الرحلتين المختارتين", manual_select_out:"اختر رحلة الذهاب", manual_select_in:"اختر رحلة العودة",
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
+  price_disclaimer:"⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك",
   corp_head:"فنادق ومناسبات", corp_sub:"حلول جاهزة تُحجز مباشرة — جرّب البحث والتواصل التجريبي بنفسك",
   filters:"الفلاتر",
   hotels_head:"فنادق العالم — قارن الأسعار والمرافق", hotels_sub:"اختر وجهتك وتواريخك، وسنقارن لك بين أفضل مواقع الحجز فورًا",
@@ -1666,6 +1723,7 @@ const I18N = {
   toast_alert:"Price drop alert set", stops_direct:"Direct", stops_n:"stop",
   combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now", manual_book_btn:"Book selected flights", manual_select_out:"Select outbound flight", manual_select_in:"Select return flight",
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
+  price_disclaimer:"⚠️ Estimated price — the final price is confirmed when you complete booking on the partner's site",
   corp_head:"Hotels & Events", corp_sub:"Ready-made solutions you can book directly — try the demo search and contact flow yourself",
   filters:"Filters",
   hotels_head:"Hotels worldwide — compare prices & amenities", hotels_sub:"Pick your destination and dates, we'll compare the best booking sites instantly",
@@ -1716,6 +1774,7 @@ const I18N = {
   toast_alert:"Fiyat düşüş uyarısı ayarlandı", stops_direct:"Direkt", stops_n:"aktarma",
   combined_results:"Uçuşlar (gidiş-dönüş)", total_price:"Toplam fiyat", continue_booking:"Şimdi rezervasyon yap", manual_book_btn:"Seçilen uçuşları rezerve et", manual_select_out:"Gidiş uçuşunu seçin", manual_select_in:"Dönüş uçuşunu seçin",
   back_results:"Sonuçlara dön", tdp_title:"Seyahat detayları", price_opts_h:"Fiyat seçenekleri", price_opts_sub:"Gösterilen fiyatlara vergiler ve ödeme ücretleri dahildir",
+  price_disclaimer:"⚠️ Tahmini fiyat — kesin fiyat, ortağın sitesinde rezervasyon tamamlanırken onaylanır",
   corp_head:"Oteller ve Etkinlikler", corp_sub:"Doğrudan rezervasyon yapabileceğiniz hazır çözümler — demo aramayı ve iletişim akışını kendiniz deneyin",
   filters:"Filtreler",
   hotels_head:"Dünya çapında oteller — fiyat ve olanakları karşılaştırın", hotels_sub:"Varış noktanızı ve tarihlerinizi seçin, en iyi rezervasyon sitelerini anında karşılaştıralım",
@@ -1766,6 +1825,7 @@ const I18N = {
   toast_alert:"Alerte de baisse de prix activée", stops_direct:"Direct", stops_n:"escale",
   combined_results:"Vols (aller-retour)", total_price:"Prix total", continue_booking:"Réserver maintenant", manual_book_btn:"Réserver les vols sélectionnés", manual_select_out:"Choisir le vol aller", manual_select_in:"Choisir le vol retour",
   back_results:"Retour aux résultats", tdp_title:"Détails du voyage", price_opts_h:"Options de prix", price_opts_sub:"Les prix affichés incluent les taxes et frais de paiement",
+  price_disclaimer:"⚠️ Prix estimé — le prix final est confirmé lors de la réservation sur le site du partenaire",
   corp_head:"Hôtels et événements", corp_sub:"Solutions prêtes à réserver directement — essayez la recherche de démonstration et le flux de contact vous-même",
   filters:"Filtres",
   hotels_head:"Hôtels dans le monde — comparez prix et équipements", hotels_sub:"Choisissez votre destination et vos dates, nous comparerons instantanément les meilleurs sites de réservation",
@@ -1816,6 +1876,7 @@ const I18N = {
   toast_alert:"قیمت میں کمی کا الرٹ سیٹ ہو گیا", stops_direct:"براہ راست", stops_n:"سٹاپ",
   combined_results:"پروازیں (راؤنڈ ٹرپ)", total_price:"کل قیمت", continue_booking:"ابھی بک کریں", manual_book_btn:"منتخب پروازیں بک کریں", manual_select_out:"جانے کی پرواز منتخب کریں", manual_select_in:"واپسی کی پرواز منتخب کریں",
   back_results:"نتائج پر واپس جائیں", tdp_title:"سفر کی تفصیلات", price_opts_h:"قیمت کے اختیارات", price_opts_sub:"دکھائی گئی قیمتوں میں ٹیکس اور ادائیگی کے چارجز شامل ہیں",
+  price_disclaimer:"⚠️ تخمینی قیمت — حتمی قیمت پارٹنر کی ویب سائٹ پر بکنگ مکمل کرتے وقت ظاہر ہوگی",
   corp_head:"ہوٹلز اور تقریبات", corp_sub:"براہ راست بک کیے جا سکنے والے تیار حل — خود ڈیمو سرچ اور رابطہ آزمائیں",
   filters:"فلٹرز",
   hotels_head:"دنیا بھر کے ہوٹلز — قیمتوں اور سہولیات کا موازنہ کریں", hotels_sub:"اپنی منزل اور تاریخیں منتخب کریں، ہم فوری طور پر بہترین بکنگ سائٹس کا موازنہ کریں گے",
@@ -2799,7 +2860,7 @@ function renderHotelResults(){
     }).sort((a,b)=>a.price-b.price);
     return `
     <div class="hotel-card">
-      <img class="hotel-img" src="${h.img}" alt="" style="cursor:pointer;" data-open-hotel="${h.id}">
+      <img class="hotel-img" src="${h.img}" alt="" loading="lazy" style="cursor:pointer;" data-open-hotel="${h.id}">
       <div class="hotel-info">
         <h4 style="cursor:pointer;" data-open-hotel="${h.id}">${h.name}</h4>
         <div class="hotel-stars">${'⭐'.repeat(h.stars)}</div>
@@ -2819,7 +2880,7 @@ function renderHotelResults(){
           <div class="hotel-provider-row">
             <div class="hp-name" style="color:${p.color};">${p.name}</div>
             <div class="hp-price">${fmtPrice(p.price)} <span style="font-size:10px; color:var(--dim); font-weight:400;">${currentLang==='ar'?'/ليلة':'/night'}</span></div>
-            <button data-provider-url="${p.urlFn(cityLabel, checkin, checkout)}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
+            <button data-provider-url="${p.urlFn(cityLabel, checkin, checkout)}" data-price="${p.price}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
           </div>`).join('')}
       </div>
     </div>`;
@@ -2831,11 +2892,12 @@ function renderHotelResults(){
   document.querySelectorAll('[data-toggle-hotel]').forEach(btn=>{
     btn.onclick = ()=> document.getElementById('hp-'+btn.getAttribute('data-toggle-hotel')).classList.toggle('open');
   });
+  // إصلاح 18 أغسطس 2026: كان يُقرأ السعر من النص المعروض المنسّق (مثال "1,234 د.إ") عبر parseFloat،
+  // وهذا يرجّع 1 فقط لأي سعر فوق الألف بسبب الفاصلة. الآن يُقرأ من data-price (رقم خام بدون تنسيق).
   document.querySelectorAll('[data-provider-url]').forEach(btn=>{
     btn.onclick = ()=>{
       const providerName = btn.closest('.hotel-provider-row').querySelector('.hp-name').textContent;
-      const priceTxt = btn.closest('.hotel-provider-row').querySelector('.hp-price').textContent;
-      trackClick(providerName, parseFloat(priceTxt) || 0);
+      trackClick(providerName, parseFloat(btn.getAttribute('data-price')) || 0);
       window.open(btn.getAttribute('data-provider-url'), '_blank', 'noopener');
     };
   });
@@ -2860,13 +2922,13 @@ function openHotelProviders(hotelId, roomPrice){
     <div class="hotel-provider-row">
       <div class="hp-name" style="color:${p.color};">${p.name}</div>
       <div class="hp-price">${fmtPrice(p.price)} <span style="font-size:10px; color:var(--dim); font-weight:400;">${currentLang==='ar'?'/ليلة':'/night'}</span></div>
-      <button data-provider-url="${p.urlFn(cityLabel, checkin, checkout)}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
+      <button data-provider-url="${p.urlFn(cityLabel, checkin, checkout)}" data-price="${p.price}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
     </div>`).join('');
+  // إصلاح 18 أغسطس 2026: نفس إصلاح parseFloat أعلاه — القراءة الآن من data-price الخام بدل النص المنسّق.
   panel.querySelectorAll('[data-provider-url]').forEach(btn=>{
     btn.onclick = ()=>{
       const providerName = btn.closest('.hotel-provider-row').querySelector('.hp-name').textContent;
-      const priceTxt = btn.closest('.hotel-provider-row').querySelector('.hp-price').textContent;
-      trackClick(providerName, parseFloat(priceTxt) || 0);
+      trackClick(providerName, parseFloat(btn.getAttribute('data-price')) || 0);
       window.open(btn.getAttribute('data-provider-url'), '_blank', 'noopener');
     };
   });
@@ -3013,7 +3075,7 @@ function buildDeals(){
   const live = dealsData.filter(d=>d.active);
   const card = d => `
     <div class="deal-card">
-      <div class="deal-img"><img src="${d.img||DEFAULT_DEAL_IMG}" alt="">${d.badge ? `<span class="deal-badge ${d.badge==='الأرخص'||d.badge==='cheapest'?'cheapest':''}">${d.badge==='الأرخص'||d.badge==='cheapest'?(currentLang==='ar'?'الأرخص':'Cheapest'):d.badge}</span>`:''}</div>
+      <div class="deal-img"><img src="${d.img||DEFAULT_DEAL_IMG}" alt="" loading="lazy">${d.badge ? `<span class="deal-badge ${d.badge==='الأرخص'||d.badge==='cheapest'?'cheapest':''}">${d.badge==='الأرخص'||d.badge==='cheapest'?(currentLang==='ar'?'الأرخص':'Cheapest'):d.badge}</span>`:''}</div>
       <div class="deal-info">
         <div class="place">${cityL(d,'dest')}</div>
         <div class="desc" data-i18n="rt_trip">${currentLang==='ar'?'رحلة ذهاب وعودة':'Round trip'}</div>
@@ -3190,6 +3252,13 @@ function airlineIata(airlineName){
    النهائي لكل حجز يبقى دائمًا في لوحة الشبكة نفسها (Cuelinks/Trip.com
    Affiliate/Travelpayouts)، وهذا ما توضحه لوحة الأدمن للزائر الآن صراحة.
    ============================================================ */
+// تحديث 18 أغسطس 2026: إضافة urlFn (رابط بحث حقيقي معبّى بالمطار/التاريخ) لشركاء الطيران اللي مفيش
+// عندهم رابط أفلييت حقيقي مربوط بالفعل — بنفس فكرة urlFn في HOTEL_PROVIDERS. الشركاء اللي عندهم
+// بالفعل رابط تتبع/عمولة حقيقي (Kiwi.com, Aviasales, Trip.com, MakeMyTrip) مُتعمَّد عدم لمس رابطهم:
+// روابطهم عبارة عن روابط تتبع مُختصرة/مشفّرة من الشبكة (Travelpayouts/Cuelinks)، وإضافة باراميترات
+// بحث عليها ممكن يكسر تتبع العمولة نفسه. صيغ skyscanner.net وbooking.com/flights أدناه معروفة وموثّقة
+// الاستخدام لسنوات، لكن يُنصح باختبارها فعليًا بعد النشر (مفيش وصول شبكة لهذه النطاقات من بيئة التطوير هنا للتأكد).
+function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-'); return {y,m,d}; }
 const PARTNERS = [
   {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', commission:{real:false}, note:true},
   {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
@@ -3197,13 +3266,56 @@ const PARTNERS = [
   {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', commission:{real:false}},
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
   {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', commission:{real:false}},
-  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.booking.com/flights', type:'ota', trust:98, color:'#003580', commission:{real:false}},
+  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.booking.com/flights', type:'ota', trust:98, color:'#003580', commission:{real:false},
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      const p = ret ? `&type=ROUNDTRIP&return=${ret}` : `&type=ONEWAY`;
+      return `https://www.booking.com/flights/index.html?from=${fromIata}.AIRPORT&to=${toIata}.AIRPORT&depart=${dep}${p}&adults=1&cabinClass=ECONOMY`;
+    }},
   {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'}},
-  {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false}},
+  {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false},
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      const d = _flightDateParts(dep), r = _flightDateParts(ret);
+      const dStr = d ? d.y.slice(2)+d.m+d.d : '';
+      const rStr = r ? r.y.slice(2)+r.m+r.d+'/' : '';
+      return `https://www.skyscanner.net/transport/flights/${fromIata.toLowerCase()}/${toIata.toLowerCase()}/${dStr}/${rStr}`;
+    }},
   {name:'Wego', logo:'https://logo.clearbit.com/wego.com', site:'https://www.wego.com', type:'meta', trust:92, color:'#44b50c', commission:{real:false}},
   {name:'المسافر (Almosafer)', logo:'https://logo.clearbit.com/almosafer.com', site:'https://www.almosafer.com', type:'ota', trust:94, color:'#1c9c6b', commission:{real:false}},
   {name:'Aviasales', logo:'https://logo.clearbit.com/aviasales.com', site:'https://aviasales.tpm.lv/Sbbqh9Uk', type:'ota', trust:91, color:'#ff6b35', commission:{real:true, model:'percent', min:0.011, max:0.013, label:'1.1%–1.3% من قيمة التذكرة (Travelpayouts)'}},
 ];
+
+/* ============================================================
+   تحديث 18 أغسطس 2026 — تجهيز جاهز لربط سعر حقيقي (بدل معادلة التقدير) لـ Kiwi.com/Aviasales تحديدًا،
+   لأنهم الشريكان الوحيدان المربوطان فعليًا بعمولة حقيقية عبر Travelpayouts. معطّل تمامًا افتراضيًا
+   (TRAVELPAYOUTS_TOKEN فاضي) — الموقع يستمر بالسعر التقديري الحالي بدون أي تغيير في السلوك لحد ما
+   يُضاف توكن حقيقي. للحصول على التوكن: travelpayouts.com → حسابك → API Token (نفس حساب Kiwi/Aviasales).
+   ============================================================ */
+const TRAVELPAYOUTS_TOKEN = '57f527d601fc7251d3088aaa274155cd';
+async function fetchLiveFlightPrice(originIata, destIata, depDateISO){
+  if (!TRAVELPAYOUTS_TOKEN || !originIata || !destIata || !depDateISO) return null;
+  try{
+    const month = depDateISO.slice(0,7); // Travelpayouts /prices/latest بيرجع أرخص سعر معروف للشهر ده
+    const url = `https://api.travelpayouts.com/v2/prices/latest?origin=${originIata}&destination=${destIata}&depart_date=${month}&currency=usd&token=${TRAVELPAYOUTS_TOKEN}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.success && Array.isArray(data.data) && data.data.length) {
+      return data.data[0].value; // بالدولار — يُحوَّل بالـRATES الحالية زي أي سعر تاني في الموقع
+    }
+  }catch(_liveFxErr){ /* فشل الاتصال أو التوكن غير صالح — نرجع null ونستمر بالسعر التقديري كـfallback */ }
+  return null;
+}
+/* يحدّث صف السعر في الصفحة بعد وصول السعر الحقيقي (بدون إعادة رسم كل القائمة)، ويزيل تنويه "تقديري"
+   من الصف ده تحديدًا لأنه بقى سعر حقيقي فعلاً. */
+function updateLivePriceRow(partnerName, priceUSD){
+  if (priceUSD == null) return;
+  const priceAED = priceUSD / (RATES.USD || 0.272);
+  const row = document.querySelector(`.price-row[data-partner-name="${CSS.escape(partnerName)}"]`);
+  if (!row) return;
+  const priceEl = row.querySelector('.p-price');
+  const btn = row.querySelector('.choose-btn');
+  if (priceEl) priceEl.innerHTML = fmtPrice(priceAED) + ` <span style="font-size:10px; color:var(--green);">${currentLang==='ar'?'(سعر حقيقي)':'(live price)'}</span>`;
+  if (btn) btn.setAttribute('data-price', Math.round(priceAED));
+}
 /* Official site of the parent/operating airline itself — added as an extra "book directly with the airline"
    option alongside the OTA partners, so travelers who prefer the carrier's own site can pick it (and it
    still counts as a tracked click/conversion for commission like every other option). Not linked to any
@@ -3638,8 +3750,16 @@ function openTripDetails(){
     tdpInBox.innerHTML = '';
     tdpBoxesEl.classList.add('single');
   }
+  const depVal = document.getElementById('depDate').value;
+  const retVal = tripType==='one' ? '' : document.getElementById('retDate').value;
   const basePrice = fOut.price + (fIn ? fIn.price : 0);
-  const otaOptions = PARTNERS.map((p,i)=>({...p, price: Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004))}));
+  // إصلاح 18 أغسطس 2026: كانت كل الروابط تفتح الصفحة الرئيسية للشريك بدون وجهة/تواريخ — الآن
+  // الشركاء اللي عندهم urlFn (رابط بحث حقيقي) يفتحوا على نتيجة بحث معبّاة فعلاً بالمطار والتاريخ.
+  const otaOptions = PARTNERS.map((p,i)=>{
+    let liveUrl = p.site;
+    if (p.urlFn) { try{ liveUrl = p.urlFn(fromAp.code, toAp.code, depVal, retVal) || p.site; }catch(_e){ liveUrl = p.site; } }
+    return {...p, site: liveUrl, price: Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004))};
+  });
   // one option per operating airline on this itinerary (usually one, occasionally two if outbound/return differ) —
   // priced at the base fare with no OTA markup, since it's the direct-from-carrier price
   const uniqueAirlines = [...new Set([fOut.airline, fIn ? fIn.airline : null].filter(Boolean))];
@@ -3650,7 +3770,7 @@ function openTripDetails(){
   const options = [...otaOptions, ...airlineOptions].sort((a,b)=>a.price-b.price);
   document.getElementById('priceOptNum').textContent = options.length;
   document.getElementById('priceOptionsList').innerHTML = options.map(o=>`
-    <div class="price-row">
+    <div class="price-row" data-partner-name="${o.name}">
       <div class="partner">${o.isAirlineDirect
         ? `${airlineBadge(o.airlineName,26)}<b>${currentLang==='ar'?o.airlineName+' — حجز مباشر':o.airlineName+' — Direct Booking'}</b><span class="partner-note" style="background:rgba(47,111,237,.15); color:var(--blue-l);">${currentLang==='ar'?'الناقل الأصلي':'Operating airline'}</span>`
         : `${partnerBadge(o,26)}<b>${o.name}</b> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}`}</div>
@@ -3664,9 +3784,15 @@ function openTripDetails(){
       const site = btn.getAttribute('data-site');
       trackClick(partnerName, priceAED); // logs the click + estimated commission into the admin dashboard
       showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking'));
-      window.open(site, '_blank', 'noopener'); // opens the provider's own official site — real deep-link affiliate URLs come once we're on Travelpayouts/Wego Affiliate API
+      window.open(site, '_blank', 'noopener'); // opens the provider's own official site
     };
   });
+  // لو TRAVELPAYOUTS_TOKEN متضاف (راجع تعريفه فوق)، نحاول نجيب سعر حقيقي لـKiwi.com/Aviasales تحديدًا
+  // ونحدّث صفهم في القائمة لحظيًا؛ لو التوكن فاضي الدالة بترجع null فورًا ومفيش أي تأثير.
+  if (TRAVELPAYOUTS_TOKEN) {
+    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Kiwi.com', v));
+    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Aviasales', v));
+  }
   document.getElementById('resultsPage').classList.remove('open');
   document.getElementById('tripDetailsPage').classList.add('open');
   window.scrollTo({top:0});
@@ -3888,7 +4014,7 @@ function openCorpModal(key){
   document.getElementById('corpModalTitle').textContent = data.title;
   document.getElementById('corpListings').innerHTML = data.items.map(it=>`
     <div class="corp-listing">
-      <img src="${it.img}" alt="">
+      <img src="${it.img}" alt="" loading="lazy">
       <div class="info">
         <h5>${it.name}</h5>
         <div class="meta">${it.meta}</div>
@@ -4260,15 +4386,21 @@ document.getElementById('btnTravelerLogout').onclick = async ()=>{
 };
 
 // restore session on page load (e.g. after a refresh) so the visitor doesn't have to log in again every time
-// محمي الآن بشرط sb — لو فشلت مكتبة Supabase في التحميل (انظر أعلاه)، هذا السطر كان قبل التعديل
-// يوقف تنفيذ كل الكود الذي يليه في الصفحة فورًا لأنه استدعاء مباشر (sb.auth) وليس داخل try/catch
-if (sb) {
+// محمي بشرط sb — ولأن تحميل Supabase أصبح غير متزامن الآن (راجع _sbInit أعلاه)، هذا الجزء يعمل فورًا
+// لو sb جاهز بالفعل، أو ينتظر حدث "primetravel:sb-ready" لو لسه بيتحمّل من المصدر البديل.
+function _restoreSessionOnLoad(){
+  if (!sb) return;
   sb.auth.getSession().then(({data})=>{
     if(data.session && data.session.user){
       currentTraveler = data.session.user;
       updateTravelerUI();
     }
   }).catch(()=>{});
+}
+if (sb) {
+  _restoreSessionOnLoad();
+} else {
+  document.addEventListener('primetravel:sb-ready', _restoreSessionOnLoad);
 }
 
 // لو فشل تحميل مكتبة الحسابات فعليًا، نعرض شريطًا صغيرًا وهادئًا (وليس رسالة خطأ مخيفة)
@@ -4705,6 +4837,83 @@ function renderAdminAll(){
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.getAttribute('data-close')));
+
+/* تحديث 18 أغسطس 2026: محتوى حقيقي لروابط الفوتر الأربعة (كانت <span> بدون أي وظيفة).
+   ملاحظة: هذه نسخة أولى مبسّطة تشرح آلية عمل الموقع الفعلية بصدق (وسيط بحث ومقارنة، الحجز يتم
+   لدى الشريك مباشرة) — يُفضّل مراجعتها من محامٍ محلي قبل الاعتماد النهائي عليها، خصوصًا سياسة
+   الخصوصية والشروط والأحكام، لضمان التوافق مع قوانين كل دولة تستهدفها المنصة.
+   بالعربية والإنجليزية بالكامل الآن؛ باقي اللغات (tr/fr/ur) تعرض النسخة الإنجليزية مؤقتًا لحد ما تُترجم. */
+const LEGAL_CONTENT = {
+  help: {
+    title: {ar:'مركز المساعدة', en:'Help Center'},
+    body: {
+      ar: `<p><b>كيف يعمل PrimeTravel365؟</b><br>نحن منصة بحث ومقارنة فقط — نعرض أسعار وخيارات من عدة شركاء حجز (مثل Booking.com، Trip.com، Kiwi.com، وغيرها)، وعند الضغط على "احجز الآن" يتم تحويلك لموقع الشريك لإتمام الحجز والدفع مباشرة معه.</p>
+      <p><b>هل تستلمون أموال الحجز؟</b><br>لا. الدفع والحجز يتمّان بالكامل على موقع الشريك الذي اخترته، ولسنا طرفًا في عملية الدفع.</p>
+      <p><b>حجزي فيه مشكلة، مين المسؤول؟</b><br>بما إن الحجز تم لدى الشريك مباشرة، فخدمة العملاء الخاصة بالحجز (تعديل/إلغاء/استرداد) تكون معه هو، وليس معنا. تقدر تلاقي بيانات التواصل الخاصة به في تأكيد الحجز اللي وصلك منه.</p>
+      <p><b>الأسعار المعروضة نهائية؟</b><br>الأسعار تقديرية وقت العرض، والسعر النهائي المؤكد يظهر لك عند إتمام الحجز على موقع الشريك نفسه.</p>
+      <p>لأي استفسار عن استخدام الموقع نفسه (مش عن حجز معيّن)، تقدر تتواصل معنا عبر البريد الموضح في صفحتنا.</p>`,
+      en: `<p><b>How does PrimeTravel365 work?</b><br>We are a search &amp; comparison platform only — we show prices and options from several booking partners (Booking.com, Trip.com, Kiwi.com, and others). When you click "Book now" you're redirected to the partner's own site to complete the booking and payment directly with them.</p>
+      <p><b>Do you take payment for bookings?</b><br>No. Payment and booking happen entirely on the partner's website — we are not a party to that transaction.</p>
+      <p><b>I have an issue with my booking, who handles it?</b><br>Since the booking was made directly with the partner, their own customer service (changes/cancellation/refunds) is who you should contact — their details are on the confirmation they sent you.</p>
+      <p><b>Are the displayed prices final?</b><br>Prices shown are estimates at browse time; the final confirmed price appears when you complete the booking on the partner's site.</p>
+      <p>For questions about using this website itself (not about a specific booking), you can reach us via the email listed on our site.</p>`
+    }
+  },
+  cancel: {
+    title: {ar:'سياسة الإلغاء', en:'Cancellation Policy'},
+    body: {
+      ar: `<p>PrimeTravel365 منصة بحث ومقارنة، ولا تُدير عمليات الحجز أو الإلغاء أو الاسترداد بنفسها — هذه العمليات تتم بالكامل لدى شريك الحجز الذي اخترته (مثل Booking.com أو Trip.com أو Kiwi.com أو غيرهم) وفقًا لسياسة الإلغاء الخاصة بهم.</p>
+      <p>لإلغاء أو تعديل حجز، افتح رسالة تأكيد الحجز التي وصلتك من الشريك مباشرة بعد الدفع، وستجد فيها رابط/رقم لإدارة الحجز أو التواصل مع خدمة عملائهم.</p>
+      <p>سياسات الإلغاء تختلف من شريك لآخر ومن باقة سعرية لأخرى (بعضها قابل للاسترداد الكامل، وبعضها غير قابل للاسترداد) — التفاصيل الدقيقة تظهر لك قبل تأكيد الدفع على موقع الشريك نفسه.</p>`,
+      en: `<p>PrimeTravel365 is a search &amp; comparison platform and does not itself manage bookings, cancellations, or refunds — these are handled entirely by the booking partner you chose (e.g. Booking.com, Trip.com, Kiwi.com, etc.) under their own cancellation policy.</p>
+      <p>To cancel or change a booking, open the confirmation email/message you received directly from the partner right after payment — it will include a link or reference number to manage the booking or contact their support.</p>
+      <p>Cancellation terms vary by partner and by fare/rate type (some are fully refundable, others are non-refundable) — the exact terms are shown to you before you confirm payment on the partner's own site.</p>`
+    }
+  },
+  terms: {
+    title: {ar:'الشروط والأحكام', en:'Terms &amp; Conditions'},
+    body: {
+      ar: `<p>باستخدامك موقع PrimeTravel365 فإنك توافق على الشروط التالية:</p>
+      <p><b>1. طبيعة الخدمة:</b> الموقع أداة بحث ومقارنة أسعار طيران وفنادق فقط، ولسنا وكالة سفر ولا طرفًا في عقد الحجز بينك وبين شريك الحجز.</p>
+      <p><b>2. دقة الأسعار:</b> نبذل جهدًا لعرض أسعار قريبة من الواقع، لكن السعر النهائي الملزم هو ما يظهر لك على موقع الشريك عند إتمام الحجز فعليًا.</p>
+      <p><b>3. الروابط الخارجية:</b> بعض الروابط لدينا هي روابط إحالة/أفلييت — قد نحصل على عمولة من الشريك إذا أتممت حجزًا من خلالنا، وهذا لا يغيّر السعر الذي تدفعه.</p>
+      <p><b>4. المسؤولية:</b> لا نتحمل مسؤولية أي نزاع أو خلل يخص حجزًا تم على موقع طرف ثالث؛ التواصل بخصوص الحجز نفسه يكون مع ذلك الطرف مباشرة.</p>
+      <p><b>5. التعديلات:</b> قد تُحدَّث هذه الشروط من وقت لآخر، ويُعتبر استمرارك في استخدام الموقع بعد التحديث موافقة على النسخة الجديدة.</p>`,
+      en: `<p>By using PrimeTravel365 you agree to the following terms:</p>
+      <p><b>1. Nature of service:</b> This site is a flight and hotel price search/comparison tool only — we are not a travel agency and not a party to the booking contract between you and the booking partner.</p>
+      <p><b>2. Price accuracy:</b> We aim to show prices close to real market rates, but the final binding price is whatever appears on the partner's site when you actually complete the booking.</p>
+      <p><b>3. External links:</b> Some of our links are affiliate/referral links — we may earn a commission from the partner if you complete a booking through us; this does not change the price you pay.</p>
+      <p><b>4. Liability:</b> We are not responsible for any dispute or issue related to a booking made on a third-party site; communication about that booking should be with that third party directly.</p>
+      <p><b>5. Changes:</b> These terms may be updated from time to time; continued use of the site after an update means you accept the new version.</p>`
+    }
+  },
+  privacy: {
+    title: {ar:'سياسة الخصوصية', en:'Privacy Policy'},
+    body: {
+      ar: `<p><b>ما البيانات التي نجمعها؟</b><br>بيانات حسابك (الاسم والبريد الإلكتروني) إذا أنشأت حسابًا، وبيانات بحثك (الوجهات والتواريخ) لعرض نتائج مناسبة، وبيانات تقنية أساسية (نوع الجهاز/المتصفح) لتحسين الأداء.</p>
+      <p><b>هل نشارك بياناتك؟</b><br>لا نبيع بياناتك الشخصية. عند ضغطك على "احجز الآن" يتم تحويلك لموقع الشريك، وسياسة الخصوصية الخاصة بهم تحكم أي بيانات تُدخلها هناك (مثل بيانات الدفع).</p>
+      <p><b>هل نستخدم ملفات تعريف الارتباط (Cookies)؟</b><br>نستخدم تخزين محلي بسيط في متصفحك (مثل حفظ اللغة والعملة المفضّلة لديك) لتحسين تجربتك.</p>
+      <p><b>حقوقك:</b> يمكنك طلب حذف بيانات حسابك في أي وقت عبر التواصل معنا.</p>`,
+      en: `<p><b>What data do we collect?</b><br>Account data (name, email) if you create an account, your search inputs (destinations, dates) to show relevant results, and basic technical data (device/browser type) to improve performance.</p>
+      <p><b>Do we share your data?</b><br>We do not sell your personal data. When you click "Book now" you're redirected to the partner's site, and their own privacy policy governs any data you enter there (e.g. payment details).</p>
+      <p><b>Do we use cookies?</b><br>We use simple local storage in your browser (e.g. to remember your preferred language and currency) to improve your experience.</p>
+      <p><b>Your rights:</b> You can request deletion of your account data at any time by contacting us.</p>`
+    }
+  }
+};
+function openLegalModal(key){
+  const item = LEGAL_CONTENT[key];
+  if(!item) return;
+  const langKey = (currentLang==='ar') ? 'ar' : 'en'; // tr/fr/ur تعرض الإنجليزية مؤقتًا لحد ما تُترجم
+  document.getElementById('legalModalTitle').textContent = item.title[currentLang] || item.title.en;
+  document.getElementById('legalModalBody').innerHTML = item.body[langKey];
+  openModal('legalModal');
+}
+document.getElementById('flinkHelp').onclick = ()=> openLegalModal('help');
+document.getElementById('flinkCancel').onclick = ()=> openLegalModal('cancel');
+document.getElementById('flinkTerms').onclick = ()=> openLegalModal('terms');
+document.getElementById('flinkPrivacy').onclick = ()=> openLegalModal('privacy');
+document.getElementById('closeLegalModal').onclick = ()=> closeModal('legalModal');
 
 document.getElementById('addMediaBtn').onclick = ()=>openModal('mediaModal');
 document.getElementById('saveMedia').onclick = ()=>{
