@@ -588,8 +588,8 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .wego-price b{font-size:21px; color:var(--green);}
 .wego-price span{font-size:10.5px; color:var(--dim);}
 .wego-num{font-size:13px; font-weight:800; color:var(--dim); flex:0 0 18px; text-align:center;}
-/* مربع اختيار صغير مستقل لكل رحلة، بنفس أسلوب مرجع Wego — بدون أي نص "محجوزة" بجانبه */
-.legChk{flex:0 0 auto; width:20px; height:20px; margin-inline-start:auto; accent-color:var(--gold); cursor:pointer;}
+.wego-price-book-btn{margin-top:8px; width:100%; background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:13px; padding:10px 14px; border-radius:9px; white-space:nowrap;}
+.wego-price-book-btn:hover{filter:brightness(1.06);}
 
 /* ============ HOTEL CARDS ============ */
 .hotel-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap;}
@@ -641,12 +641,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .room-type-card .rt-price button{width:100%; margin-top:8px; background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:11.5px; padding:8px; border-radius:8px;}
 @media(max-width:640px){.room-type-card .rt-price{flex:1 1 100%;}}
 
-.selection-bar{position:sticky; bottom:14px; background:var(--card); border:1px solid var(--gold); border-radius:14px; padding:14px 18px; margin-top:16px; display:none; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; box-shadow:0 8px 28px rgba(0,0,0,.45);}
-.selection-bar.show{display:flex;}
-.selection-bar .sel-info{display:flex; gap:22px; flex-wrap:wrap; font-size:11.5px; color:var(--dim);}
-.selection-bar .sel-info b{color:var(--text); display:block; font-size:13px;}
-.selection-bar .continue-btn{background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:13.5px; padding:11px 26px; border-radius:10px; white-space:nowrap;}
-.selection-bar .continue-btn:disabled{opacity:.35; cursor:not-allowed;}
 
 /* ===== Trip details / price comparison page ===== */
 .trip-details-page{display:none; position:fixed; inset:0; background:var(--bg); z-index:600; overflow-y:auto;}
@@ -1207,15 +1201,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       </div>
       <div class="flight-group-title"><span data-i18n="combined_results" id="flightGroupLabel">الرحلات (ذهاب وعودة)</span><span class="tag" id="pairCount"></span></div>
       <div id="pairedFlights"></div>
-
-      <div class="selection-bar" id="selectionBar">
-        <div class="sel-info">
-          <div><b id="selOutLabel">—</b><span data-i18n="outbound">رحلة الذهاب</span></div>
-          <div><b id="selInLabel">—</b><span data-i18n="inbound">رحلة العودة</span></div>
-          <div><b id="selTotal">—</b><span data-i18n="total_price">السعر الإجمالي</span></div>
-        </div>
-        <button class="continue-btn" id="continueBtn" disabled data-i18n="book_flight_btn">حجز</button>
-      </div>
     </div>
   </div>
 </div>
@@ -1597,7 +1582,7 @@ const I18N = {
   admin_partner:"مكتب الحجز / شركة الطيران", admin_click2:"نقرات", admin_book2:"حجوزات", admin_earn:"العمولة",
   admin_note:"هذه بيانات توضيحية — عند الربط الفعلي بشركاء الحجز سيتم سحب هذه الأرقام تلقائيًا من واجهات API الخاصة بهم.",
   toast_alert:"تم ضبط تنبيه انخفاض السعر", stops_direct:"مباشرة", stops_n:"توقف",
-  combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن", book_flight_btn:"حجز",
+  combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن",
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
   corp_head:"فنادق ومناسبات", corp_sub:"حلول جاهزة تُحجز مباشرة — جرّب البحث والتواصل التجريبي بنفسك",
   filters:"الفلاتر",
@@ -1647,7 +1632,7 @@ const I18N = {
   admin_partner:"Agency / airline", admin_click2:"Clicks", admin_book2:"Bookings", admin_earn:"Commission",
   admin_note:"Sample data shown here — once connected to real booking partners, these figures will be pulled live from their APIs.",
   toast_alert:"Price drop alert set", stops_direct:"Direct", stops_n:"stop",
-  combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now", book_flight_btn:"Book",
+  combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now",
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
   corp_head:"Hotels & Events", corp_sub:"Ready-made solutions you can book directly — try the demo search and contact flow yourself",
   filters:"Filters",
@@ -2893,7 +2878,7 @@ function airlineIata(airlineName){
 /* ============================================================
    حالة روابط الإحالة والعمولة الحقيقية (آخر تحديث: 18 أغسطس 2026):
 
-   ✅ 3 شركات مربوطة فعليًا برابط تتبع حقيقي، والنسب أدناه (commission)
+   ✅ 4 شركات مربوطة فعليًا برابط تتبع حقيقي، والنسب أدناه (commission)
       هي النسب الرسمية المعلنة من كل برنامج (وليست أرقامًا نخترعها):
       - Aviasales: 1.1%–1.3% من قيمة تذكرة الطيران (Travelpayouts، تُدفع فقط
         عند تأكيد الحجز فعليًا).
@@ -2903,9 +2888,11 @@ function airlineIata(airlineName){
         هندية للحجز الواحد (≈4.95 د.إ تقريبًا حسب سعر الصرف وقت الكتابة) —
         هذا رقم ظهر فعليًا في لوحة حسابك، وليس نطاقًا عامًا.
         ملاحظة: حملة الطيران عند MakeMyTrip متوقفة (Paused) حاليًا من طرفهم.
+      - Kiwi.com: 3% ثابتة من قيمة التذكرة (Travelpayouts، نسبة رسمية مؤكدة
+        من صفحة البرنامج نفسها، مدة كوكيز 30 يوم).
 
    ⏳ باقي الشركات (Wingie, Turna.com, Flight Network, MyTrip, Booking.com,
-      Kiwi.com, Skyscanner, Wego, Almosafer) روابط عادية غير مُتتبَّعة بعد —
+      Skyscanner, Wego, Almosafer) روابط عادية غير مُتتبَّعة بعد —
       commission.real = false، فلا تُحتسب لها أي عمولة (لا وهمية ولا حقيقية)
       حتى يتم التسجيل الفعلي في برنامج كل واحدة.
 
@@ -2922,7 +2909,7 @@ const PARTNERS = [
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
   {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', commission:{real:false}},
   {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.booking.com/flights', type:'ota', trust:98, color:'#003580', commission:{real:false}},
-  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://www.kiwi.com', type:'ota', trust:90, color:'#e5384d', commission:{real:false}},
+  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'}},
   {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false}},
   {name:'Wego', logo:'https://logo.clearbit.com/wego.com', site:'https://www.wego.com', type:'meta', trust:92, color:'#44b50c', commission:{real:false}},
   {name:'المسافر (Almosafer)', logo:'https://logo.clearbit.com/almosafer.com', site:'https://www.almosafer.com', type:'ota', trust:94, color:'#1c9c6b', commission:{real:false}},
@@ -3006,15 +2993,11 @@ function stopsLabel(n){
 function findFlight(id){
   return outbound.find(f=>f.id===id) || inbound.find(f=>f.id===id);
 }
-/* مربع اختيار صغير مستقل بجانب كل رحلة (تمامًا كما في مرجع Wego) — يسمح للمسافر باختيار
-   رحلة الذهاب من بطاقة، ورحلة العودة من بطاقة مختلفة تمامًا (حتى لو بشركة طيران أخرى)،
-   دون إجباره على حجز الزوج المعروض سويًا في نفس البطاقة. */
 function wegoRowHTML(f, group){
   if(!f) return `<div class="wego-row"><span style="color:var(--dim); font-size:12px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</span></div>`;
   const arr = arrTime(f.dep, f.dur);
-  const checked = (group==='out'?selectedOut:selectedIn)===f.id;
   return `
-  <div class="wego-row ${checked?'checked':''}" data-id="${f.id}" data-group="${group}">
+  <div class="wego-row" data-id="${f.id}" data-group="${group}">
     <div class="wego-air">${airlineBadge(f.airline, 40)}<div><b style="font-size:14px;">${f.airline}</b><span>${f.code} · ${f.aircraft}</span></div></div>
     <div class="fc-time">
       <div class="t"><b>${f.dep}</b><span>${currentLang==='ar'?'مغادرة':'Depart'}</span></div>
@@ -3038,9 +3021,11 @@ function wegoRowHTML(f, group){
         <p>${t('price_drop')}</p>
       </div>
     </button>
-    <input type="checkbox" class="legChk" data-id="${f.id}" data-group="${group}" ${checked?'checked':''} aria-label="${currentLang==='ar'?'اختر هذه الرحلة':'Select this flight'}">
   </div>`;
 }
+/* بطاقة نتيجة الرحلة: مربع واحد فقط للاختيار — زر "حجز" واحد ينقل المسافر مباشرة
+   إلى صفحة اختيار مكتب الحجز / شركة الطيران الأم، سواء كان البحث ذهاب فقط أو ذهاب وعودة.
+   لا يوجد أي خطوة وسيطة ("محجوزة" / شريط متابعة) قبل ذلك. */
 function wegoCardHTML(fOut, fIn, idx){
   const oneWay = tripType==='one';
   const price = (fOut?fOut.price:0) + (oneWay?0:(fIn?fIn.price:0));
@@ -3063,6 +3048,7 @@ function wegoCardHTML(fOut, fIn, idx){
       <b>${fmtPrice(price)}</b>
       <span>${oneWay ? (currentLang==='ar'?'للشخص (ذهاب فقط)':'per traveler (one way)') : (currentLang==='ar'?'للشخص (ذهاب وعودة)':'per traveler (round trip)')}</span>
       <div class="wego-price-note interest">${currentLang==='ar'?'دفع بدون فوائد':'Interest-free payments'}</div>
+      ${fOut ? `<button class="wego-price-book-btn" data-out="${fOut.id}" data-in="${(!oneWay && fIn) ? fIn.id : ''}">${currentLang==='ar'?'حجز':'Book'}</button>` : ''}
     </div>
   </div>`;
 }
@@ -3117,24 +3103,6 @@ function renderFlightLists(){
     document.getElementById('stPriceFastest').textContent = fmtPrice(fastestPrice);
   }
   attachFlightEvents();
-  updateSelectionBar();
-}
-// شريط "حجز" — يظهر فقط عند اكتمال الاختيار (رحلة ذهاب دائمًا، ورحلة عودة أيضًا إن لم تكن
-// الرحلة ذهاب فقط)، ويعرض ملخص الرحلتين المختارتين (حتى لو من بطاقتين مختلفتين) والسعر
-// الإجمالي، قبل نقل المسافر لصفحة اختيار مكتب الحجز/شركة الطيران الأم.
-function updateSelectionBar(){
-  const bar = document.getElementById('selectionBar');
-  const oneWay = tripType==='one';
-  const fOut = selectedOut ? findFlight(selectedOut) : null;
-  const fIn = selectedIn ? findFlight(selectedIn) : null;
-  if(!fOut && !fIn){ bar.classList.remove('show'); return; }
-  bar.classList.add('show');
-  document.getElementById('selOutLabel').textContent = fOut ? `${fOut.airline} · ${fOut.dep}` : '—';
-  document.getElementById('selInLabel').textContent = oneWay ? (currentLang==='ar'?'—(ذهاب فقط)':'—(one way)') : (fIn ? `${fIn.airline} · ${fIn.dep}` : '—');
-  const total = (fOut?fOut.price:0) + (oneWay?0:(fIn?fIn.price:0));
-  const ready = oneWay ? !!fOut : (fOut && fIn);
-  document.getElementById('selTotal').textContent = ready ? fmtPrice(total) : '—';
-  document.getElementById('continueBtn').disabled = !ready;
 }
 function attachFlightEvents(){
   document.querySelectorAll('[data-pop]').forEach(btn=>{
@@ -3149,15 +3117,15 @@ function attachFlightEvents(){
   document.querySelectorAll('[data-alert]').forEach(row=>{
     row.onclick = (e)=>{ e.stopPropagation(); showToast(t('toast_alert')); document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open')); };
   });
-  // مربع الاختيار المستقل لكل رحلة — يختار رحلة الذهاب أو العودة بشكل مستقل تمامًا عن
-  // أي رحلة أخرى، فيمكن اختيار الذهاب من بطاقة والعودة من بطاقة أخرى بشركة مختلفة.
-  document.querySelectorAll('.legChk').forEach(chk=>{
-    chk.onclick = (e)=>{
+  // زر "حجز" الوحيد على البطاقة — ينقل المسافر مباشرة إلى صفحة اختيار مكتب الحجز/شركة
+  // الطيران الأم، بدون أي خطوة اختيار أو "محجوزة" وسيطة. يعمل لكل من الذهاب فقط والذهاب والعودة.
+  document.querySelectorAll('.wego-price-book-btn').forEach(btn=>{
+    btn.onclick = (e)=>{
       e.stopPropagation();
-      const id = chk.getAttribute('data-id'), group = chk.getAttribute('data-group');
-      if(group==='out') selectedOut = (selectedOut===id) ? null : id;
-      else selectedIn = (selectedIn===id) ? null : id;
-      renderFlightLists();
+      const outId = btn.getAttribute('data-out');
+      const inId = btn.getAttribute('data-in');
+      if(!outId) return;
+      startBooking(outId, inId || null);
     };
   });
   document.addEventListener('click', ()=>document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open')), {once:true});
@@ -3226,6 +3194,13 @@ function tdpBoxHTML(f, label, fromAp, toAp){
         ${airlineTicketHTML(f.airline)}
       </div>
     </div>`;
+}
+// نقطة الدخول الوحيدة لبدء الحجز من نتائج البحث — تُستدعى من زر "حجز" مباشرة (بدون أي
+// اختيار وسيط)، وتعمل بشكل صحيح سواء كانت الرحلة ذهاب فقط (inId فارغ) أو ذهاب وعودة.
+function startBooking(outId, inId){
+  selectedOut = outId || null;
+  selectedIn = inId || null;
+  openTripDetails();
 }
 function openTripDetails(){
   const fOut = findFlight(selectedOut);
@@ -3527,7 +3502,6 @@ document.getElementById('openAdmin').onclick = openAdminApp;
 // click. Clicking it still requires the separate password + TOTP step as a second security layer —
 // being an admin account gets you the button, not automatic entry into the dashboard.
 document.getElementById('logoMark').onclick = goHome;
-document.getElementById('continueBtn').onclick = openTripDetails;
 document.getElementById('backToResults').onclick = closeTripDetails;
 document.getElementById('navHotels').onclick = (e)=>{ e.preventDefault(); document.getElementById('corpSection').scrollIntoView({behavior:'smooth'}); };
 let tripType = 'round'; // 'round' | 'one' | 'multi'
@@ -4236,13 +4210,14 @@ function commCommissionsHTML(){
   const confirmed = trackingCommissions.filter(c=>c.status==='confirmed').reduce((a,b)=>a+b.amount,0);
   return `
     <div class="stat-grid" style="margin-bottom:24px;">
-      <div class="stat-card"><div class="lbl">إجمالي التقدير (3 شركات مربوطة)</div><div class="val gold">AED ${total.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="lbl">إجمالي التقدير (4 شركات مربوطة)</div><div class="val gold">AED ${total.toLocaleString()}</div></div>
       <div class="stat-card"><div class="lbl">مؤكدة</div><div class="val green">AED ${confirmed.toLocaleString()}</div></div>
       <div class="stat-card"><div class="lbl">معلقة</div><div class="val">AED ${(total-confirmed).toLocaleString()}</div></div>
     </div>
     <h3 style="font-size:14.5px; margin-bottom:10px;">آلية الحساب — نسب رسمية حقيقية معلنة (وليست تقديرًا عشوائيًا)</h3>
     <ul style="color:var(--dim); font-size:12.5px; line-height:2; padding-inline-start:20px;">
       <li><b>Aviasales (طيران):</b> 1.1%–1.3% من قيمة التذكرة، تُدفع فقط عند تأكيد الحجز فعليًا (Travelpayouts)</li>
+      <li><b>Kiwi.com (طيران):</b> 3% ثابتة من قيمة التذكرة (Travelpayouts)</li>
       <li><b>Trip.com (فنادق):</b> 4.4%–7% من قيمة الحجز، ترتفع مع زيادة حجم الحجوزات الشهرية</li>
       <li><b>Trip.com (طيران):</b> 0.5%–3% فقط — نسبة منخفضة نسبيًا في هذا القطاع تحديدًا</li>
       <li><b>MakeMyTrip (فنادق فقط):</b> مبلغ ثابت حتى ₹112.50 هندية للحجز (رقم ظهر فعليًا في لوحتك، طيران متوقف حاليًا من طرفهم)</li>
