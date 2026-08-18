@@ -468,6 +468,9 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .fc-time .mid{flex:1; text-align:center; position:relative;}
 .fc-time .mid .line{height:1px; background:var(--border); position:relative; margin:6px 0;}
 .fc-time .mid .line:after{content:"✈"; position:absolute; top:-9px; inset-inline-start:50%; transform:translateX(-50%); font-size:12px; color:var(--dim);}
+/* صف رحلة العودة (data-group="in") يمثّل اتجاه سفر معاكسًا تمامًا لصف الذهاب (data-group="out")
+   داخل نفس بطاقة النتيجة — فيُعكس رمز الطائرة أفقيًا بدل تكرار نفس اتجاه الذهاب. */
+.wego-row[data-group="in"] .fc-time .mid .line:after{transform:translateX(-50%) scaleX(-1);}
 .fc-time .mid span{font-size:10.5px; color:var(--dim);}
 .fc-price{flex:0 0 130px; text-align:end;}
 .fc-price b{font-size:19px; color:var(--green);}
@@ -590,6 +593,20 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .wego-num{font-size:13px; font-weight:800; color:var(--dim); flex:0 0 18px; text-align:center;}
 .wego-price-book-btn{margin-top:8px; width:100%; background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800; font-size:13px; padding:10px 14px; border-radius:9px; white-space:nowrap;}
 .wego-price-book-btn:hover{filter:brightness(1.06);}
+/* موديل ويجو الحقيقي (زي الفيديو المرجعي): لا شيء محدد مسبقًا. زر "حجز" في كل كارت يبقى مقفول
+   افتراضيًا، ولا يتفعّل إلا لو المسافر حدد بنفسه رحلة الذهاب + رحلة العودة (checkbox) في نفس
+   الكارت. لو حدد رحلتين من كارتين مختلفين، تتجمّع الرحلتين في كارت جديد مخصص أعلى النتائج وزرار
+   الحجز بتاعه هو اللي يتفعّل — نفس سلوك ويجو بالظبط. */
+.wego-price-book-btn:disabled{background:var(--card2); color:var(--dim); cursor:not-allowed; opacity:.65; box-shadow:none;}
+.leg-select{flex:0 0 auto; display:flex; align-items:center;}
+.leg-select input{width:19px; height:19px; accent-color:var(--gold); cursor:pointer;}
+#customComboSlot{margin-bottom:14px;}
+.combo-hint{background:var(--card2); border:1px dashed var(--border); border-radius:10px; padding:10px 14px; font-size:12px; color:var(--dim); margin-bottom:14px;}
+/* لون غامق/أسود بدل الذهبي الفاتح، عشان يفضل واضح فوق أي خلفية (صورة الهيرو الفاتحة أو الكارت
+   الغامق) — طلب أحمد بالظبط. الأيقونة نجمة فضلت ذهبية للتمييز، والنص بقى أسود غامق بارز. */
+.custom-combo-label{display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:800; color:#0a0a0a; margin-bottom:8px; text-shadow:0 1px 3px rgba(255,255,255,.55);}
+.custom-combo-label i{font-size:13px; color:var(--gold-l); text-shadow:none;}
+.custom-combo-wrap .wego-card{border:1.5px solid var(--gold); box-shadow:0 0 0 3px rgba(216,165,49,.1);}
 
 /* ============ HOTEL CARDS ============ */
 .hotel-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap;}
@@ -655,7 +672,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .tdp-head h2{font-size:17px;}
 .tdp-boxes{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0;}
 .tdp-boxes.single{grid-template-columns:1fr;}
-.tdp-box{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px;}
+.tdp-box{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; display:flex; flex-direction:column;}
 .tdp-box .date{font-size:11px; color:var(--dim); margin-bottom:10px;}
 .tdp-box .route{display:flex; align-items:center; justify-content:space-between; font-size:16px; font-weight:800; margin-bottom:10px;}
 .tdp-box .airline-line{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--dim); margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border);}
@@ -667,6 +684,9 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .tdp-point span{font-size:11px; color:var(--dim);}
 .tdp-point .ovn-badge{position:absolute; top:-6px; left:-16px; background:var(--green); color:#06341c; font-size:9px; font-weight:800; border-radius:5px; padding:1px 4px; font-style:normal;}
 .tdp-plane{color:var(--dim); font-size:14px; transform:rotate(90deg);}
+/* رحلة العودة تسير جغرافيًا في الاتجاه المعاكس تمامًا لرحلة الذهاب، فيُعكس رمز الطائرة
+   أفقيًا (mirror) بدل تكرار نفس الاتجاه الثابت في الحالتين — كان هذا هو الخطأ المُبلَّغ عنه. */
+.tdp-plane.reverse{transform:rotate(90deg) scaleX(-1);}
 .tdp-timeline{margin-top:14px; padding-inline-start:16px; border-inline-start:2px solid var(--green); position:relative;}
 .tdp-tl-row{display:flex; align-items:flex-start; gap:10px; position:relative; margin-bottom:10px;}
 .tl-dot{position:absolute; inset-inline-start:-21px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px rgba(46,204,113,.2);}
@@ -678,13 +698,23 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .tdp-amenities{margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;}
 .tdp-amenities span{display:inline-flex; align-items:center; gap:5px; background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; font-size:11px; color:var(--dim);}
 .tdp-amenities span i{color:var(--blue-l); font-size:12px;}
-.tdp-policies{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+/* margin-top:auto (مع .tdp-box flex column) يدفع صف السياسات لأسفل الكارت دايمًا، فيبقى على نفس
+   المستوى الأفقي في كارتي الذهاب والعودة مهما اختلف طول خط سير الرحلة فوقه — طلب أحمد بالظبط. */
+.tdp-policies{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:auto; padding-top:12px;}
 @media(max-width:640px){.tdp-policies{grid-template-columns:1fr;}}
 .tdp-policy-box{background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:12px 14px;}
 .tdp-policy-box .tpb-title{display:flex; align-items:center; gap:7px; font-weight:800; font-size:12.5px; color:var(--text); margin-bottom:8px;}
 .tdp-policy-box .tpb-title i{color:var(--gold-l); font-size:13px;}
 .tdp-policy-box{font-size:12px; line-height:1.7; color:var(--dim);}
 .tdp-policy-box b{color:var(--text);}
+/* تفاصيل الترانزيت — رجعنا لخط سير رأسي متصل (زي نموذج أحمد المرجعي بالضبط): نقطة مطار → صندوق
+   رحلة → شريط "مدة التوقف" بلون ذهبي بارز → نقطة المطار التالي... كله في نفس الخط المتصل، بدل
+   محاولة الشبكة المتوازية اللي طلع شكلها سيء. */
+.tl-dot.mid{background:var(--gold-l);}
+.tdp-tl-row.transit b{color:var(--gold-l);}
+.transit-wait-box{background:rgba(230,178,60,.12); border:1px solid var(--gold-l); border-radius:9px; padding:9px 14px; margin:2px 0 12px; font-size:12px; color:var(--text); display:flex; align-items:center; justify-content:center; gap:8px; text-align:center;}
+.transit-wait-box i{color:var(--gold-l); font-size:13px;}
+.transit-wait-box b{color:var(--gold-l);}
 .price-options{margin-top:26px; padding-bottom:40px;}
 .price-options .num{font-size:14px; font-weight:800; color:var(--dim); margin-bottom:4px;}
 .price-options h3{font-size:15px; margin-bottom:4px;}
@@ -1200,6 +1230,9 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
         <button class="sort-tab" data-sort="fastest"><span data-i18n="sort_fastest">الأسرع</span><b class="sort-tab-price" id="stPriceFastest"></b></button>
       </div>
       <div class="flight-group-title"><span data-i18n="combined_results" id="flightGroupLabel">الرحلات (ذهاب وعودة)</span><span class="tag" id="pairCount"></span></div>
+      <!-- موديل ويجو: لا حجز فوري بدون اختيار. لو المسافر حدد رحلة ذهاب + رحلة عودة من كارتين
+           مختلفين (checkbox جانب كل رحلة)، تتجمّع الرحلتين هنا في كارت واحد مخصص بزرار حجز مفعّل. -->
+      <div id="customComboSlot"></div>
       <div id="pairedFlights"></div>
     </div>
   </div>
@@ -1253,10 +1286,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_routes">الوجهات الشائعة</h4>
-        <span class="flink">الرياض ← دبي</span>
-        <span class="flink">القاهرة ← جدة</span>
-        <span class="flink">اسطنبول ← الدمام</span>
-        <span class="flink">عمان ← أبها</span>
+        <div id="popularRoutesList"></div>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_support">الدعم</h4>
@@ -1582,7 +1612,7 @@ const I18N = {
   admin_partner:"مكتب الحجز / شركة الطيران", admin_click2:"نقرات", admin_book2:"حجوزات", admin_earn:"العمولة",
   admin_note:"هذه بيانات توضيحية — عند الربط الفعلي بشركاء الحجز سيتم سحب هذه الأرقام تلقائيًا من واجهات API الخاصة بهم.",
   toast_alert:"تم ضبط تنبيه انخفاض السعر", stops_direct:"مباشرة", stops_n:"توقف",
-  combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن",
+  combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن", manual_book_btn:"احجز الرحلتين المختارتين", manual_select_out:"اختر رحلة الذهاب", manual_select_in:"اختر رحلة العودة",
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
   corp_head:"فنادق ومناسبات", corp_sub:"حلول جاهزة تُحجز مباشرة — جرّب البحث والتواصل التجريبي بنفسك",
   filters:"الفلاتر",
@@ -1632,7 +1662,7 @@ const I18N = {
   admin_partner:"Agency / airline", admin_click2:"Clicks", admin_book2:"Bookings", admin_earn:"Commission",
   admin_note:"Sample data shown here — once connected to real booking partners, these figures will be pulled live from their APIs.",
   toast_alert:"Price drop alert set", stops_direct:"Direct", stops_n:"stop",
-  combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now",
+  combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now", manual_book_btn:"Book selected flights", manual_select_out:"Select outbound flight", manual_select_in:"Select return flight",
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
   corp_head:"Hotels & Events", corp_sub:"Ready-made solutions you can book directly — try the demo search and contact flow yourself",
   filters:"Filters",
@@ -1652,7 +1682,157 @@ const I18N = {
   footer_desc:"A global smart search platform for flights, hotels, and business & event venues. We're a simple intermediary — we never collect booking funds.",
   footer_contact:"Contact us", footer_whatsapp:"WhatsApp", footer_instagram:"Instagram",
   footer_routes:"Popular routes", footer_support:"Support", footer_help:"Help center",
-  footer_cancel:"Cancellation policy", footer_terms:"Terms & conditions", footer_privacy:"Privacy policy"}
+  footer_cancel:"Cancellation policy", footer_terms:"Terms & conditions", footer_privacy:"Privacy policy"},
+  tr:{brand:"PrimeTravel365", logo_tag:"Uçuş, otel ve etkinlik salonu için akıllı arama platformu", nav_home:"Ana Sayfa", nav_flights:"✈️ Uçuşlar", nav_hotels:"Oteller ve Fırsatlar", nav_admin:"Yönetim Paneli", rqn_hotels:"🏨 Oteller ve Fırsatlar", rqn_events:"🏛️ Salonlar ve Etkinlikler", rqn_wedding:"💍 Düğünler ve Etkinlikler", rqn_leisure:"🌴 Eğlence Gezileri",
+  login:"Giriş yap", signup:"Kayıt ol", logout:"Çıkış yap", eyebrow:"Akıllı seyahat danışmanınız", hero_h1:"Dünyayı bizimle keşfedin",
+  hero_p:"Onlarca güvenilir kaynaktan anında karşılaştırılan en iyi uçuş ve otel fiyatları.",
+  vid_now:"Şimdi gösteriliyor:", vid1_label:"Kalkış", vid2_label:"Havalimanı terminalleri",
+  assistant:"Akıllı danışman", online:"Şu an çevrimiçi", assist_greet:"Merhaba! Ben akıllı seyahat asistanınızım, bugün size nasıl yardımcı olabilirim?", assist_ph:"Gideceğiniz yer hakkında sorun...",
+  trip_round:"Gidiş-dönüş", trip_one:"Tek yön", trip_multi:"Çoklu şehir",
+  pax1:"1 yolcu", pax2:"2 yolcu", pax4:"4 yolcu", cls_eco:"Ekonomi", cls_biz:"Business", cls_first:"Birinci sınıf",
+  pax_adults:"Yetişkinler", pax_adults_sub:"12 yaş ve üstü", pax_children:"Çocuklar", pax_children_sub:"2 yaşından 12 yaşına kadar",
+  pax_infants:"Bebekler", pax_infants_sub:"2 yaşından küçük", pax_infant_note:"Bebek sayısı yetişkin sayısını geçemez (yetişkin başına 1 bebek)", pax_done:"Tamam",
+  pax_summary_traveler:"yolcu", pax_summary_travelers:"yolcu",
+  from:"Nereden", to:"Nereye", depart:"Gidiş tarihi", return:"Dönüş tarihi", search_btn:"Uçuş ara",
+  from_country:"Kalkış ülkesi öne çıkanlar", to_country:"Varış ülkesi öne çıkanlar",
+  compare_head:"Rezervasyon günü fiyatlarını karşılaştır", compare_sub:"Sadece güvenilir kaynaklardan günlük en düşük fiyat",
+  deals_head:"Öne çıkan seyahat fırsatları", back_home:"Aramaya dön", back_to_home:"Ana Sayfaya Dön", results_note:"Sonuçlar en düşük fiyata göre sıralandı, birden çok acente ve havayolundan derlendi",
+  filters_title:"Sonuçları filtrele", f_stops:"Aktarmalar", f_direct:"Direkt", f_1stop:"1 aktarma", f_2stop:"2+ aktarma",
+  f_time:"Uçuş saati", f_morning:"Sabah", f_night:"Gece", f_airlines:"Havayolları", f_duration:"Süre",
+  f_price:"Fiyat aralığı", f_experience:"Uçuş deneyimi", f_no_overnight:"Gece aktarması olmasın", f_same_airline:"Tüm seyahat aynı havayolu ile",
+  sort_recommended:"Önerilen", sort_cheapest:"En ucuz", sort_fastest:"En hızlı",
+  outbound:"Gidiş", inbound:"Dönüş", book_now:"Şimdi rezervasyon yap", baggage:"Bagaj politikası", cancel_policy:"Rezervasyon ve bilet politikası", book_leg:"Bu uçuşu ayırt", leg_selected:"Seçildi",
+  alert_email:"E-posta ile uyarı", alert_wa:"WhatsApp ile uyarı", price_drop:"Fiyat düşüş uyarısı",
+  footer:"© 2026 PrimeTravel365 — Tüm hakları saklıdır",
+  flight_tracker_btn:"📡 Canlı uçuş takibi", tracker_title:"Canlı uçuş takibi",
+  tracker_sub:"Konumunu anında takip etmek için uçuş numarasını girin (örn. TK1, EK203).",
+  tracker_flight_no:"Uçuş numarası", tracker_go:"Şimdi takip et",
+  tracker_note:"Flightradar24 üzerinden gerçek canlı veri — yeni sekmede açılır",
+  admin_title:"Yönetim paneli — komisyonlar ve takip", admin_clicks:"Bu ayki tıklamalar", admin_bookings:"Onaylanmış rezervasyonlar", admin_commission:"Toplam komisyon",
+  admin_partner:"Acente / havayolu", admin_click2:"Tıklamalar", admin_book2:"Rezervasyonlar", admin_earn:"Komisyon",
+  admin_note:"Burada örnek veriler gösterilmektedir — gerçek rezervasyon ortaklarına bağlandığında bu rakamlar API'lerinden canlı olarak çekilecektir.",
+  toast_alert:"Fiyat düşüş uyarısı ayarlandı", stops_direct:"Direkt", stops_n:"aktarma",
+  combined_results:"Uçuşlar (gidiş-dönüş)", total_price:"Toplam fiyat", continue_booking:"Şimdi rezervasyon yap", manual_book_btn:"Seçilen uçuşları rezerve et", manual_select_out:"Gidiş uçuşunu seçin", manual_select_in:"Dönüş uçuşunu seçin",
+  back_results:"Sonuçlara dön", tdp_title:"Seyahat detayları", price_opts_h:"Fiyat seçenekleri", price_opts_sub:"Gösterilen fiyatlara vergiler ve ödeme ücretleri dahildir",
+  corp_head:"Oteller ve Etkinlikler", corp_sub:"Doğrudan rezervasyon yapabileceğiniz hazır çözümler — demo aramayı ve iletişim akışını kendiniz deneyin",
+  filters:"Filtreler",
+  hotels_head:"Dünya çapında oteller — fiyat ve olanakları karşılaştırın", hotels_sub:"Varış noktanızı ve tarihlerinizi seçin, en iyi rezervasyon sitelerini anında karşılaştıralım",
+  hotel_dest:"Varış noktası", hotel_checkin:"Giriş", hotel_checkout:"Çıkış", hotel_rooms:"Odalar ve misafirler",
+  hg_1_1:"1 oda, 1 misafir", hg_1_2:"1 oda, 2 misafir", hg_2_4:"2 oda, 4 misafir", hg_3_6:"3 oda, 6 misafir",
+  hotel_search_btn:"Otel ara", hotel_sort_rating:"En yüksek puanlı", hotel_stars:"Yıldız sınıfı",
+  hs_flights:"Uçuşlar", hs_hotels:"Oteller", hs_where:"Nereye?", hs_where_ph:"Varış noktası ara...", hs_dates:"Tarihler", hs_guests:"Yolcular", hs_btn:"Ara",
+  hotel_price_range:"Gecelik fiyat aralığı", hotel_amenities:"Olanaklar",
+  am_wifi:"Ücretsiz Wi-Fi", am_pool:"Havuz", am_breakfast:"Ücretsiz kahvaltı", am_gym:"Spor salonu",
+  fa_meal:"Yemek", fa_wifi:"Wi-Fi", fa_power:"Priz", fa_entertainment:"Eğlence",
+  policy_baggage_title:"Bagaj Politikası", policy_ticket_title:"Rezervasyon ve Bilet Politikası",
+  corp_wedding_h:"Düğünler ve Etkinlikler", corp_wedding_p:"En iyi otel ve tatil köylerinde her şey dahil paketlerle düğün salonu rezervasyonu yapın.",
+  corp_leisure_h:"Eğlence Gezileri", corp_leisure_p:"Entegre programlar ve aktivitelerle personel gezileri düzenleyin.",
+  corp_group_h:"Grup Konaklaması", corp_group_p:"Ertelenmiş ödeme ve aylık faturalandırma seçenekleriyle kurumsal otel rezervasyonları.",
+  corp_conf_h:"Konferans Salonları", corp_conf_p:"Sizi 50'den fazla ülkede konferansa hazır en iyi otellerle buluşturuyoruz.",
+  footer_desc:"Uçuşlar, oteller ve iş & etkinlik salonları için küresel akıllı arama platformu. Basit bir aracıyız — rezervasyon paralarını asla almayız.",
+  footer_contact:"Bize ulaşın", footer_whatsapp:"WhatsApp", footer_instagram:"Instagram",
+  footer_routes:"Popüler güzergahlar", footer_support:"Destek", footer_help:"Yardım merkezi",
+  footer_cancel:"İptal politikası", footer_terms:"Şartlar ve koşullar", footer_privacy:"Gizlilik politikası"},
+  fr:{brand:"PrimeTravel365", logo_tag:"Plateforme de recherche intelligente de vols, hôtels et salles d'événements", nav_home:"Accueil", nav_flights:"✈️ Vols", nav_hotels:"Hôtels et offres", nav_admin:"Panneau d'administration", rqn_hotels:"🏨 Hôtels et offres", rqn_events:"🏛️ Salles et événements", rqn_wedding:"💍 Mariages et événements", rqn_leisure:"🌴 Voyages de loisirs",
+  login:"Connexion", signup:"S'inscrire", logout:"Déconnexion", eyebrow:"Votre conseiller de voyage intelligent", hero_h1:"Découvrez le monde avec nous",
+  hero_p:"Les meilleurs prix de vols et d'hôtels, comparés instantanément parmi des dizaines de sources fiables.",
+  vid_now:"En cours de lecture :", vid1_label:"Décollage", vid2_label:"Terminaux d'aéroport",
+  assistant:"Conseiller intelligent", online:"En ligne", assist_greet:"Bonjour ! Je suis votre assistant de voyage intelligent, comment puis-je vous aider aujourd'hui ?", assist_ph:"Posez-moi une question sur votre destination...",
+  trip_round:"Aller-retour", trip_one:"Aller simple", trip_multi:"Multi-destinations",
+  pax1:"1 voyageur", pax2:"2 voyageurs", pax4:"4 voyageurs", cls_eco:"Économique", cls_biz:"Affaires", cls_first:"Première classe",
+  pax_adults:"Adultes", pax_adults_sub:"12 ans et plus", pax_children:"Enfants", pax_children_sub:"De 2 à moins de 12 ans",
+  pax_infants:"Bébés", pax_infants_sub:"Moins de 2 ans", pax_infant_note:"Le nombre de bébés ne peut pas dépasser le nombre d'adultes (1 bébé par adulte)", pax_done:"Terminé",
+  pax_summary_traveler:"voyageur", pax_summary_travelers:"voyageurs",
+  from:"De", to:"À", depart:"Date de départ", return:"Date de retour", search_btn:"Rechercher des vols",
+  from_country:"Points forts du pays de départ", to_country:"Points forts du pays d'arrivée",
+  compare_head:"Comparer les prix par jour de réservation", compare_sub:"Le prix le plus bas par jour, uniquement de sources fiables",
+  deals_head:"Offres de voyage en vedette", back_home:"Retour à la recherche", back_to_home:"Retour à l'accueil", results_note:"Résultats triés par prix croissant, regroupés depuis plusieurs agences et compagnies aériennes",
+  filters_title:"Filtrer les résultats", f_stops:"Escales", f_direct:"Direct", f_1stop:"1 escale", f_2stop:"2 escales ou plus",
+  f_time:"Heure du vol", f_morning:"Matin", f_night:"Nuit", f_airlines:"Compagnies aériennes", f_duration:"Durée",
+  f_price:"Fourchette de prix", f_experience:"Expérience de vol", f_no_overnight:"Sans escale de nuit", f_same_airline:"Voyage complet avec la même compagnie",
+  sort_recommended:"Recommandé", sort_cheapest:"Le moins cher", sort_fastest:"Le plus rapide",
+  outbound:"Aller", inbound:"Retour", book_now:"Réserver maintenant", baggage:"Politique de bagages", cancel_policy:"Politique de réservation et billets", book_leg:"Réserver ce vol", leg_selected:"Sélectionné",
+  alert_email:"Alerte par e-mail", alert_wa:"Alerte par WhatsApp", price_drop:"Alerte de baisse de prix",
+  footer:"© 2026 PrimeTravel365 — Tous droits réservés",
+  flight_tracker_btn:"📡 Suivi de vol en direct", tracker_title:"Suivi de vol en direct",
+  tracker_sub:"Entrez le numéro de vol (ex. TK1, EK203) pour suivre sa position en direct.",
+  tracker_flight_no:"Numéro de vol", tracker_go:"Suivre maintenant",
+  tracker_note:"Données en direct réelles via Flightradar24 — s'ouvre dans un nouvel onglet",
+  admin_title:"Panneau d'administration — commissions et suivi", admin_clicks:"Clics ce mois-ci", admin_bookings:"Réservations confirmées", admin_commission:"Commission totale",
+  admin_partner:"Agence / compagnie aérienne", admin_click2:"Clics", admin_book2:"Réservations", admin_earn:"Commission",
+  admin_note:"Données d'exemple affichées ici — une fois connecté aux partenaires de réservation réels, ces chiffres seront extraits en direct de leurs API.",
+  toast_alert:"Alerte de baisse de prix activée", stops_direct:"Direct", stops_n:"escale",
+  combined_results:"Vols (aller-retour)", total_price:"Prix total", continue_booking:"Réserver maintenant", manual_book_btn:"Réserver les vols sélectionnés", manual_select_out:"Choisir le vol aller", manual_select_in:"Choisir le vol retour",
+  back_results:"Retour aux résultats", tdp_title:"Détails du voyage", price_opts_h:"Options de prix", price_opts_sub:"Les prix affichés incluent les taxes et frais de paiement",
+  corp_head:"Hôtels et événements", corp_sub:"Solutions prêtes à réserver directement — essayez la recherche de démonstration et le flux de contact vous-même",
+  filters:"Filtres",
+  hotels_head:"Hôtels dans le monde — comparez prix et équipements", hotels_sub:"Choisissez votre destination et vos dates, nous comparerons instantanément les meilleurs sites de réservation",
+  hotel_dest:"Destination", hotel_checkin:"Arrivée", hotel_checkout:"Départ", hotel_rooms:"Chambres et voyageurs",
+  hg_1_1:"1 chambre, 1 voyageur", hg_1_2:"1 chambre, 2 voyageurs", hg_2_4:"2 chambres, 4 voyageurs", hg_3_6:"3 chambres, 6 voyageurs",
+  hotel_search_btn:"Rechercher des hôtels", hotel_sort_rating:"Les mieux notés", hotel_stars:"Classement par étoiles",
+  hs_flights:"Vols", hs_hotels:"Hôtels", hs_where:"Où allez-vous ?", hs_where_ph:"Rechercher une destination...", hs_dates:"Dates", hs_guests:"Voyageurs", hs_btn:"Rechercher",
+  hotel_price_range:"Fourchette de prix par nuit", hotel_amenities:"Équipements",
+  am_wifi:"Wi-Fi gratuit", am_pool:"Piscine", am_breakfast:"Petit-déjeuner gratuit", am_gym:"Salle de sport",
+  fa_meal:"Repas", fa_wifi:"Wi-Fi", fa_power:"Prise électrique", fa_entertainment:"Divertissement",
+  policy_baggage_title:"Politique de bagages", policy_ticket_title:"Politique de réservation et billets",
+  corp_wedding_h:"Mariages et événements", corp_wedding_p:"Réservez des salles de mariage dans les meilleurs hôtels et complexes avec des forfaits tout compris.",
+  corp_leisure_h:"Voyages de loisirs", corp_leisure_p:"Organisez des voyages pour vos employés avec des programmes et activités intégrés.",
+  corp_group_h:"Hébergement de groupe", corp_group_p:"Réservations hôtelières sur mesure pour entreprises, avec paiement différé et facturation mensuelle.",
+  corp_conf_h:"Salles de conférence", corp_conf_p:"Nous vous mettons en relation avec les meilleurs hôtels équipés pour les conférences dans plus de 50 pays.",
+  footer_desc:"Une plateforme mondiale de recherche intelligente pour les vols, hôtels et salles d'affaires et d'événements. Nous sommes un simple intermédiaire — nous ne recevons jamais les fonds de réservation.",
+  footer_contact:"Contactez-nous", footer_whatsapp:"WhatsApp", footer_instagram:"Instagram",
+  footer_routes:"Destinations populaires", footer_support:"Assistance", footer_help:"Centre d'aide",
+  footer_cancel:"Politique d'annulation", footer_terms:"Conditions générales", footer_privacy:"Politique de confidentialité"},
+  ur:{brand:"PrimeTravel365", logo_tag:"پروازوں، ہوٹلز اور تقریبات کے ہالز کے لیے سمارٹ سرچ پلیٹ فارم", nav_home:"ہوم", nav_flights:"✈️ پروازیں", nav_hotels:"ہوٹلز اور ڈیلز", nav_admin:"ایڈمن پینل", rqn_hotels:"🏨 ہوٹلز اور ڈیلز", rqn_events:"🏛️ ہالز اور تقریبات", rqn_wedding:"💍 شادیاں اور تقریبات", rqn_leisure:"🌴 تفریحی سفر",
+  login:"لاگ اِن", signup:"سائن اپ", logout:"لاگ آؤٹ", eyebrow:"آپ کا سمارٹ سفری مشیر", hero_h1:"ہمارے ساتھ دنیا دریافت کریں",
+  hero_p:"درجنوں معتبر ذرائع سے فوری موازنہ کے ساتھ پروازوں اور ہوٹلز کی بہترین قیمتیں۔",
+  vid_now:"اب دکھایا جا رہا ہے:", vid1_label:"ٹیک آف", vid2_label:"ایئرپورٹ ٹرمینلز",
+  assistant:"سمارٹ مشیر", online:"ابھی آن لائن", assist_greet:"ہیلو! میں آپ کا سمارٹ سفری اسسٹنٹ ہوں، آج میں آپ کی کیسے مدد کر سکتا ہوں؟", assist_ph:"اپنی منزل کے بارے میں پوچھیں...",
+  trip_round:"راؤنڈ ٹرپ", trip_one:"ون وے", trip_multi:"ملٹی سٹی",
+  pax1:"1 مسافر", pax2:"2 مسافر", pax4:"4 مسافر", cls_eco:"اکانومی", cls_biz:"بزنس", cls_first:"فرسٹ کلاس",
+  pax_adults:"بالغ افراد", pax_adults_sub:"12 سال یا اس سے زیادہ", pax_children:"بچے", pax_children_sub:"2 سال سے 12 سال سے کم",
+  pax_infants:"شیر خوار بچے", pax_infants_sub:"2 سال سے کم", pax_infant_note:"شیر خوار بچوں کی تعداد بالغ افراد کی تعداد سے زیادہ نہیں ہو سکتی (فی بالغ 1 شیر خوار بچہ)", pax_done:"مکمل",
+  pax_summary_traveler:"مسافر", pax_summary_travelers:"مسافر",
+  from:"کہاں سے", to:"کہاں تک", depart:"روانگی کی تاریخ", return:"واپسی کی تاریخ", search_btn:"پروازیں تلاش کریں",
+  from_country:"ملکِ روانگی کی جھلکیاں", to_country:"ملکِ آمد کی جھلکیاں",
+  compare_head:"بکنگ کے دن کی قیمتوں کا موازنہ کریں", compare_sub:"صرف معتبر ذرائع سے روزانہ کی کم ترین قیمت",
+  deals_head:"نمایاں سفری ڈیلز", back_home:"تلاش پر واپس جائیں", back_to_home:"ہوم پیج پر واپس جائیں", results_note:"نتائج کم ترین قیمت کے حساب سے ترتیب دیے گئے، متعدد ایجنسیوں اور ایئرلائنز سے اکٹھے کیے گئے",
+  filters_title:"نتائج فلٹر کریں", f_stops:"سٹاپس", f_direct:"براہ راست", f_1stop:"1 سٹاپ", f_2stop:"2+ سٹاپس",
+  f_time:"پرواز کا وقت", f_morning:"صبح", f_night:"رات", f_airlines:"ایئرلائنز", f_duration:"دورانیہ",
+  f_price:"قیمت کی حد", f_experience:"پرواز کا تجربہ", f_no_overnight:"رات بھر کا سٹاپ نہیں", f_same_airline:"مکمل سفر ایک ہی ایئرلائن کے ساتھ",
+  sort_recommended:"تجویز کردہ", sort_cheapest:"سب سے سستی", sort_fastest:"سب سے تیز",
+  outbound:"جانے کی پرواز", inbound:"واپسی کی پرواز", book_now:"ابھی بک کریں", baggage:"سامان کی پالیسی", cancel_policy:"بکنگ اور ٹکٹ کی پالیسی", book_leg:"یہ پرواز بک کریں", leg_selected:"منتخب شدہ",
+  alert_email:"ای میل کے ذریعے الرٹ", alert_wa:"واٹس ایپ کے ذریعے الرٹ", price_drop:"قیمت میں کمی کا الرٹ",
+  footer:"© 2026 PrimeTravel365 — جملہ حقوق محفوظ ہیں",
+  flight_tracker_btn:"📡 لائیو فلائٹ ٹریکر", tracker_title:"لائیو فلائٹ ٹریکر",
+  tracker_sub:"فوری طور پر اس کی لائیو پوزیشن دیکھنے کے لیے پرواز کا نمبر درج کریں (مثلاً TK1، EK203)۔",
+  tracker_flight_no:"پرواز کا نمبر", tracker_go:"ابھی ٹریک کریں",
+  tracker_note:"Flightradar24 کے ذریعے حقیقی لائیو ڈیٹا — نئے ٹیب میں کھلتا ہے",
+  admin_title:"ایڈمن پینل — کمیشن اور ٹریکنگ", admin_clicks:"اس ماہ کے کلکس", admin_bookings:"تصدیق شدہ بکنگز", admin_commission:"کل کمیشن",
+  admin_partner:"ایجنسی / ایئرلائن", admin_click2:"کلکس", admin_book2:"بکنگز", admin_earn:"کمیشن",
+  admin_note:"یہاں نمونہ ڈیٹا دکھایا گیا ہے — حقیقی بکنگ پارٹنرز سے منسلک ہونے کے بعد یہ اعداد و شمار براہ راست ان کے API سے حاصل کیے جائیں گے۔",
+  toast_alert:"قیمت میں کمی کا الرٹ سیٹ ہو گیا", stops_direct:"براہ راست", stops_n:"سٹاپ",
+  combined_results:"پروازیں (راؤنڈ ٹرپ)", total_price:"کل قیمت", continue_booking:"ابھی بک کریں", manual_book_btn:"منتخب پروازیں بک کریں", manual_select_out:"جانے کی پرواز منتخب کریں", manual_select_in:"واپسی کی پرواز منتخب کریں",
+  back_results:"نتائج پر واپس جائیں", tdp_title:"سفر کی تفصیلات", price_opts_h:"قیمت کے اختیارات", price_opts_sub:"دکھائی گئی قیمتوں میں ٹیکس اور ادائیگی کے چارجز شامل ہیں",
+  corp_head:"ہوٹلز اور تقریبات", corp_sub:"براہ راست بک کیے جا سکنے والے تیار حل — خود ڈیمو سرچ اور رابطہ آزمائیں",
+  filters:"فلٹرز",
+  hotels_head:"دنیا بھر کے ہوٹلز — قیمتوں اور سہولیات کا موازنہ کریں", hotels_sub:"اپنی منزل اور تاریخیں منتخب کریں، ہم فوری طور پر بہترین بکنگ سائٹس کا موازنہ کریں گے",
+  hotel_dest:"منزل", hotel_checkin:"چیک اِن", hotel_checkout:"چیک آؤٹ", hotel_rooms:"کمرے اور مہمان",
+  hg_1_1:"1 کمرہ، 1 مہمان", hg_1_2:"1 کمرہ، 2 مہمان", hg_2_4:"2 کمرے، 4 مہمان", hg_3_6:"3 کمرے، 6 مہمان",
+  hotel_search_btn:"ہوٹل تلاش کریں", hotel_sort_rating:"سب سے زیادہ ریٹڈ", hotel_stars:"ستاروں کی درجہ بندی",
+  hs_flights:"پروازیں", hs_hotels:"ہوٹلز", hs_where:"کہاں جانا ہے؟", hs_where_ph:"منزل تلاش کریں...", hs_dates:"تاریخیں", hs_guests:"مسافر", hs_btn:"تلاش کریں",
+  hotel_price_range:"فی رات قیمت کی حد", hotel_amenities:"سہولیات",
+  am_wifi:"مفت وائی فائی", am_pool:"سوئمنگ پول", am_breakfast:"مفت ناشتہ", am_gym:"جم",
+  fa_meal:"کھانا", fa_wifi:"وائی فائی", fa_power:"پاور", fa_entertainment:"تفریح",
+  policy_baggage_title:"سامان کی پالیسی", policy_ticket_title:"بکنگ اور ٹکٹ کی پالیسی",
+  corp_wedding_h:"شادیاں اور تقریبات", corp_wedding_p:"بہترین ہوٹلز اور ریزورٹس میں آل انکلوسو پیکجز کے ساتھ شادی ہال بک کریں۔",
+  corp_leisure_h:"تفریحی سفر", corp_leisure_p:"مربوط پروگراموں اور سرگرمیوں کے ساتھ عملے کے سفر کا اہتمام کریں۔",
+  corp_group_h:"گروپ رہائش", corp_group_p:"موخر ادائیگی اور ماہانہ بلنگ کے اختیارات کے ساتھ کارپوریٹ ہوٹل بکنگز۔",
+  corp_conf_h:"کانفرنس ہالز", corp_conf_p:"ہم آپ کو 50 سے زائد ممالک میں کانفرنس کے لیے تیار بہترین ہوٹلز سے جوڑتے ہیں۔",
+  footer_desc:"پروازوں، ہوٹلز اور کاروباری و تقریباتی ہالز کے لیے ایک عالمی سمارٹ سرچ پلیٹ فارم۔ ہم ایک سادہ درمیانی فریق ہیں — ہم کبھی بھی بکنگ کی رقم وصول نہیں کرتے۔",
+  footer_contact:"ہم سے رابطہ کریں", footer_whatsapp:"واٹس ایپ", footer_instagram:"انسٹاگرام",
+  footer_routes:"مقبول روٹس", footer_support:"سپورٹ", footer_help:"مدد کا مرکز",
+  footer_cancel:"منسوخی کی پالیسی", footer_terms:"شرائط و ضوابط", footer_privacy:"رازداری کی پالیسی"}
 };
 
 const COUNTRIES = [
@@ -1739,6 +1919,7 @@ const COUNTRIES = [
   {code:'MA', name_ar:'المغرب', name_en:'Morocco', airports:[
      {code:'CMN', name_ar:'مطار محمد الخامس الدولي', name_en:'Mohammed V International Airport', city_ar:'الدار البيضاء', city_en:'Casablanca'},
      {code:'RAK', name_ar:'مطار مراكش المنارة', name_en:'Marrakesh Menara Airport', city_ar:'مراكش', city_en:'Marrakesh'},
+     {code:'AGA', name_ar:'مطار أكادير المسيرة', name_en:'Agadir–Al Massira Airport', city_ar:'أكادير', city_en:'Agadir'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=1600&q=85&auto=format&fit=crop', l_ar:'أسواق مراكش', l_en:'Marrakesh souks'}]},
   {code:'TN', name_ar:'تونس', name_en:'Tunisia', airports:[
      {code:'TUN', name_ar:'مطار تونس قرطاج الدولي', name_en:'Tunis–Carthage Intl Airport', city_ar:'تونس', city_en:'Tunis'},
@@ -1746,13 +1927,21 @@ const COUNTRIES = [
   {code:'IN', name_ar:'الهند', name_en:'India', airports:[
      {code:'DEL', name_ar:'مطار إنديرا غاندي الدولي', name_en:'Indira Gandhi International Airport', city_ar:'دلهي', city_en:'Delhi'},
      {code:'BOM', name_ar:'مطار تشاتراباتي شيفاجي', name_en:'Chhatrapati Shivaji Intl Airport', city_ar:'مومباي', city_en:'Mumbai'},
+     {code:'BLR', name_ar:'مطار كمبيغودا الدولي', name_en:'Kempegowda International Airport', city_ar:'بنغالورو', city_en:'Bengaluru'},
+     {code:'MAA', name_ar:'مطار تشيناي الدولي', name_en:'Chennai International Airport', city_ar:'تشيناي', city_en:'Chennai'},
+     {code:'HYD', name_ar:'مطار راجيف غاندي الدولي', name_en:'Rajiv Gandhi International Airport', city_ar:'حيدر أباد', city_en:'Hyderabad'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600&q=85&auto=format&fit=crop', l_ar:'تاج محل', l_en:'Taj Mahal'}]},
   {code:'PK', name_ar:'باكستان', name_en:'Pakistan', airports:[
      {code:'KHI', name_ar:'مطار جناح الدولي', name_en:'Jinnah International Airport', city_ar:'كراتشي', city_en:'Karachi'},
+     {code:'LHE', name_ar:'مطار علامة إقبال الدولي', name_en:'Allama Iqbal International Airport', city_ar:'لاهور', city_en:'Lahore'},
+     {code:'ISB', name_ar:'مطار إسلام آباد الدولي', name_en:'Islamabad International Airport', city_ar:'إسلام آباد', city_en:'Islamabad'},
+     {code:'PEW', name_ar:'مطار باشا خان الدولي', name_en:'Bacha Khan International Airport', city_ar:'بيشاور', city_en:'Peshawar'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1554456464-f2b6d6c8ea21?w=1600&q=85&auto=format&fit=crop', l_ar:'كراتشي', l_en:'Karachi'}]},
   {code:'CN', name_ar:'الصين', name_en:'China', airports:[
      {code:'PEK', name_ar:'مطار بكين العاصمة الدولي', name_en:'Beijing Capital Intl Airport', city_ar:'بكين', city_en:'Beijing'},
      {code:'PVG', name_ar:'مطار شنغهاي بودونغ الدولي', name_en:'Shanghai Pudong Intl Airport', city_ar:'شنغهاي', city_en:'Shanghai'},
+     {code:'CAN', name_ar:'مطار غوانزو بايون الدولي', name_en:'Guangzhou Baiyun International Airport', city_ar:'غوانزو', city_en:'Guangzhou'},
+     {code:'SZX', name_ar:'مطار شنتشن باوآن الدولي', name_en:"Shenzhen Bao'an International Airport", city_ar:'شنتشن', city_en:'Shenzhen'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1600&q=85&auto=format&fit=crop', l_ar:'سور الصين العظيم', l_en:'Great Wall of China'}]},
   {code:'JP', name_ar:'اليابان', name_en:'Japan', airports:[
      {code:'NRT', name_ar:'مطار ناريتا الدولي', name_en:'Narita International Airport', city_ar:'طوكيو', city_en:'Tokyo'},
@@ -1760,16 +1949,22 @@ const COUNTRIES = [
    ], imgs:[{u:'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1600&q=85&auto=format&fit=crop', l_ar:'جبل فوجي', l_en:'Mount Fuji'}]},
   {code:'KR', name_ar:'كوريا الجنوبية', name_en:'South Korea', airports:[
      {code:'ICN', name_ar:'مطار إنتشون الدولي', name_en:'Incheon International Airport', city_ar:'سول', city_en:'Seoul'},
+     {code:'GMP', name_ar:'مطار جيمبو الدولي', name_en:'Gimpo International Airport', city_ar:'سول', city_en:'Seoul'},
+     {code:'PUS', name_ar:'مطار بوسان جيمهاي الدولي', name_en:'Busan Gimhae International Airport', city_ar:'بوسان', city_en:'Busan'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1600&q=85&auto=format&fit=crop', l_ar:'سول', l_en:'Seoul skyline'}]},
   {code:'MY', name_ar:'ماليزيا', name_en:'Malaysia', airports:[
      {code:'KUL', name_ar:'مطار كوالالمبور الدولي', name_en:'Kuala Lumpur International Airport', city_ar:'كوالالمبور', city_en:'Kuala Lumpur'},
+     {code:'PEN', name_ar:'مطار بينانغ الدولي', name_en:'Penang International Airport', city_ar:'بينانغ', city_en:'Penang'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1600&q=85&auto=format&fit=crop', l_ar:'برجا بتروناس', l_en:'Petronas Towers'}]},
   {code:'TH', name_ar:'تايلاند', name_en:'Thailand', airports:[
      {code:'BKK', name_ar:'مطار سوفارنابومي', name_en:'Suvarnabhumi Airport', city_ar:'بانكوك', city_en:'Bangkok'},
+     {code:'HKT', name_ar:'مطار بوكيت الدولي', name_en:'Phuket International Airport', city_ar:'بوكيت', city_en:'Phuket'},
+     {code:'CNX', name_ar:'مطار تشيانغ ماي الدولي', name_en:'Chiang Mai International Airport', city_ar:'تشيانغ ماي', city_en:'Chiang Mai'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1600&q=85&auto=format&fit=crop', l_ar:'معابد بانكوك', l_en:'Bangkok temples'}]},
   {code:'ID', name_ar:'إندونيسيا', name_en:'Indonesia', airports:[
      {code:'CGK', name_ar:'مطار سوكارنو هاتا', name_en:'Soekarno–Hatta Intl Airport', city_ar:'جاكرتا', city_en:'Jakarta'},
      {code:'DPS', name_ar:'مطار نغوراه راي', name_en:'Ngurah Rai International Airport', city_ar:'بالي', city_en:'Bali'},
+     {code:'SUB', name_ar:'مطار جوانداع الدولي', name_en:'Juanda International Airport', city_ar:'سورابايا', city_en:'Surabaya'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1600&q=85&auto=format&fit=crop', l_ar:'شواطئ بالي', l_en:'Bali beaches'}]},
   {code:'SG', name_ar:'سنغافورة', name_en:'Singapore', airports:[
      {code:'SIN', name_ar:'مطار تشانغي', name_en:'Singapore Changi Airport', city_ar:'سنغافورة', city_en:'Singapore'},
@@ -1777,14 +1972,17 @@ const COUNTRIES = [
   {code:'DE', name_ar:'ألمانيا', name_en:'Germany', airports:[
      {code:'FRA', name_ar:'مطار فرانكفورت الدولي', name_en:'Frankfurt Airport', city_ar:'فرانكفورت', city_en:'Frankfurt'},
      {code:'MUC', name_ar:'مطار ميونخ', name_en:'Munich Airport', city_ar:'ميونخ', city_en:'Munich'},
+     {code:'BER', name_ar:'مطار برلين براندنبورغ', name_en:'Berlin Brandenburg Airport', city_ar:'برلين', city_en:'Berlin'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1600&q=85&auto=format&fit=crop', l_ar:'بوابة براندنبورغ', l_en:'Brandenburg Gate'}]},
   {code:'IT', name_ar:'إيطاليا', name_en:'Italy', airports:[
      {code:'FCO', name_ar:'مطار ليوناردو دا فينشي', name_en:'Leonardo da Vinci–Fiumicino Airport', city_ar:'روما', city_en:'Rome'},
      {code:'MXP', name_ar:'مطار مالبنسا', name_en:'Milan Malpensa Airport', city_ar:'ميلانو', city_en:'Milan'},
+     {code:'VCE', name_ar:'مطار البندقية ماركو بولو', name_en:'Venice Marco Polo Airport', city_ar:'البندقية', city_en:'Venice'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1600&q=85&auto=format&fit=crop', l_ar:'الكولوسيوم', l_en:'Colosseum'}]},
   {code:'ES', name_ar:'إسبانيا', name_en:'Spain', airports:[
      {code:'MAD', name_ar:'مطار مدريد باراخاس', name_en:'Adolfo Suárez Madrid–Barajas Airport', city_ar:'مدريد', city_en:'Madrid'},
      {code:'BCN', name_ar:'مطار برشلونة البرات', name_en:'Barcelona–El Prat Airport', city_ar:'برشلونة', city_en:'Barcelona'},
+     {code:'AGP', name_ar:'مطار مالقة الدولي', name_en:'Málaga Airport', city_ar:'مالقة', city_en:'Málaga'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=1600&q=85&auto=format&fit=crop', l_ar:'ساغرادا فاميليا', l_en:'Sagrada Família'}]},
   {code:'NL', name_ar:'هولندا', name_en:'Netherlands', airports:[
      {code:'AMS', name_ar:'مطار سخيبول', name_en:'Amsterdam Airport Schiphol', city_ar:'أمستردام', city_en:'Amsterdam'},
@@ -1795,18 +1993,28 @@ const COUNTRIES = [
   {code:'US', name_ar:'أمريكا', name_en:'United States', airports:[
      {code:'JFK', name_ar:'مطار جون كينيدي الدولي', name_en:'John F. Kennedy Intl Airport', city_ar:'نيويورك', city_en:'New York'},
      {code:'LAX', name_ar:'مطار لوس أنجلوس الدولي', name_en:'Los Angeles International Airport', city_ar:'لوس أنجلوس', city_en:'Los Angeles'},
+     {code:'ORD', name_ar:'مطار أوهير الدولي', name_en:"O'Hare International Airport", city_ar:'شيكاغو', city_en:'Chicago'},
+     {code:'MIA', name_ar:'مطار ميامي الدولي', name_en:'Miami International Airport', city_ar:'ميامي', city_en:'Miami'},
+     {code:'SFO', name_ar:'مطار سان فرانسيسكو الدولي', name_en:'San Francisco International Airport', city_ar:'سان فرانسيسكو', city_en:'San Francisco'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=85&auto=format&fit=crop', l_ar:'أفق نيويورك', l_en:'New York skyline'}]},
   {code:'CA', name_ar:'كندا', name_en:'Canada', airports:[
      {code:'YYZ', name_ar:'مطار تورونتو بيرسون', name_en:'Toronto Pearson Airport', city_ar:'تورونتو', city_en:'Toronto'},
+     {code:'YVR', name_ar:'مطار فانكوفر الدولي', name_en:'Vancouver International Airport', city_ar:'فانكوفر', city_en:'Vancouver'},
+     {code:'YUL', name_ar:'مطار مونتريال ترودو الدولي', name_en:'Montréal–Trudeau International Airport', city_ar:'مونتريال', city_en:'Montreal'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1517090504586-fde19ea6066f?w=1600&q=85&auto=format&fit=crop', l_ar:'أفق تورونتو', l_en:'Toronto skyline'}]},
   {code:'AU', name_ar:'أستراليا', name_en:'Australia', airports:[
      {code:'SYD', name_ar:'مطار سيدني كينغسفورد سميث', name_en:'Sydney Kingsford Smith Airport', city_ar:'سيدني', city_en:'Sydney'},
+     {code:'MEL', name_ar:'مطار ملبورن الدولي', name_en:'Melbourne Airport', city_ar:'ملبورن', city_en:'Melbourne'},
+     {code:'BNE', name_ar:'مطار بريزبن الدولي', name_en:'Brisbane Airport', city_ar:'بريزبن', city_en:'Brisbane'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1600&q=85&auto=format&fit=crop', l_ar:'دار أوبرا سيدني', l_en:'Sydney Opera House'}]},
   {code:'ZA', name_ar:'جنوب أفريقيا', name_en:'South Africa', airports:[
      {code:'JNB', name_ar:'مطار أو.آر.تامبو الدولي', name_en:'O.R. Tambo International Airport', city_ar:'جوهانسبرغ', city_en:'Johannesburg'},
+     {code:'CPT', name_ar:'مطار كيب تاون الدولي', name_en:'Cape Town International Airport', city_ar:'كيب تاون', city_en:'Cape Town'},
+     {code:'DUR', name_ar:'مطار الملك شاكا الدولي', name_en:'King Shaka International Airport', city_ar:'ديربان', city_en:'Durban'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1600&q=85&auto=format&fit=crop', l_ar:'كيب تاون', l_en:'Cape Town'}]},
   {code:'KE', name_ar:'كينيا', name_en:'Kenya', airports:[
      {code:'NBO', name_ar:'مطار جومو كينياتا الدولي', name_en:'Jomo Kenyatta Intl Airport', city_ar:'نيروبي', city_en:'Nairobi'},
+     {code:'MBA', name_ar:'مطار موي الدولي', name_en:'Moi International Airport', city_ar:'مومباسا', city_en:'Mombasa'},
    ], imgs:[{u:'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1600&q=85&auto=format&fit=crop', l_ar:'سفاري كينيا', l_en:'Kenyan safari'}]},
   {code:'NG', name_ar:'نيجيريا', name_en:'Nigeria', airports:[
      {code:'LOS', name_ar:'مطار مورتالا محمد الدولي', name_en:'Murtala Muhammed International Airport', city_ar:'لاغوس', city_en:'Lagos'},
@@ -1960,11 +2168,13 @@ const COUNTRIES = [
   {code:'MX', name_ar:'المكسيك', name_en:'Mexico', airports:[
      {code:'MEX', name_ar:'مطار مكسيكو سيتي الدولي', name_en:'Mexico City International Airport', city_ar:'مكسيكو سيتي', city_en:'Mexico City'},
      {code:'CUN', name_ar:'مطار كانكون الدولي', name_en:'Cancún International Airport', city_ar:'كانكون', city_en:'Cancún'},
+     {code:'GDL', name_ar:'مطار غوادالاخارا الدولي', name_en:'Guadalajara International Airport', city_ar:'غوادالاخارا', city_en:'Guadalajara'},
    ],
    imgs:[{u:'https://flagcdn.com/w320/mx.png', l_ar:'المكسيك', l_en:'Mexico'}]},
   {code:'BR', name_ar:'البرازيل', name_en:'Brazil', airports:[
      {code:'GRU', name_ar:'مطار ساو باولو-غوارولوس الدولي', name_en:'São Paulo–Guarulhos International Airport', city_ar:'ساو باولو', city_en:'São Paulo'},
      {code:'GIG', name_ar:'مطار ريو دي جانيرو-غاليون الدولي', name_en:'Rio de Janeiro–Galeão International Airport', city_ar:'ريو دي جانيرو', city_en:'Rio de Janeiro'},
+     {code:'BSB', name_ar:'مطار برازيليا الدولي', name_en:'Brasília International Airport', city_ar:'برازيليا', city_en:'Brasília'},
    ],
    imgs:[{u:'https://flagcdn.com/w320/br.png', l_ar:'البرازيل', l_en:'Brazil'}]},
   {code:'AR', name_ar:'الأرجنتين', name_en:'Argentina', airports:[
@@ -2118,6 +2328,8 @@ const COUNTRIES = [
    imgs:[{u:'https://flagcdn.com/w320/is.png', l_ar:'آيسلندا', l_en:'Iceland'}]},
   {code:'RU', name_ar:'روسيا', name_en:'Russia', airports:[
      {code:'SVO', name_ar:'مطار شيريميتيفو الدولي', name_en:'Sheremetyevo International Airport', city_ar:'موسكو', city_en:'Moscow'},
+     {code:'DME', name_ar:'مطار دوموديدوفو الدولي', name_en:'Domodedovo International Airport', city_ar:'موسكو', city_en:'Moscow'},
+     {code:'LED', name_ar:'مطار بولكوفو', name_en:'Pulkovo Airport', city_ar:'سانت بطرسبرغ', city_en:'Saint Petersburg'},
    ],
    imgs:[{u:'https://flagcdn.com/w320/ru.png', l_ar:'روسيا', l_en:'Russia'}]},
   {code:'UA', name_ar:'أوكرانيا', name_en:'Ukraine', airports:[
@@ -2195,10 +2407,13 @@ const COUNTRIES = [
    imgs:[{u:'https://flagcdn.com/w320/vn.png', l_ar:'فيتنام', l_en:'Vietnam'}]},
   {code:'PH', name_ar:'الفلبين', name_en:'Philippines', airports:[
      {code:'MNL', name_ar:'مطار نينوي أكينو الدولي', name_en:'Ninoy Aquino International Airport', city_ar:'مانيلا', city_en:'Manila'},
+     {code:'CEB', name_ar:'مطار ماكتان سيبو الدولي', name_en:'Mactan-Cebu International Airport', city_ar:'سيبو', city_en:'Cebu'},
+     {code:'DVO', name_ar:'مطار فرانسيسكو بانغويلان الدولي', name_en:'Francisco Bangoy International Airport', city_ar:'دافاو', city_en:'Davao'},
    ],
    imgs:[{u:'https://flagcdn.com/w320/ph.png', l_ar:'الفلبين', l_en:'Philippines'}]},
   {code:'BD', name_ar:'بنغلاديش', name_en:'Bangladesh', airports:[
      {code:'DAC', name_ar:'مطار هزرت شاه جلال الدولي', name_en:'Hazrat Shahjalal International Airport', city_ar:'دكا', city_en:'Dhaka'},
+     {code:'CGP', name_ar:'مطار شاه أمانت الدولي', name_en:'Shah Amanat International Airport', city_ar:'شيتاغونغ', city_en:'Chittagong'},
    ],
    imgs:[{u:'https://flagcdn.com/w320/bd.png', l_ar:'بنغلاديش', l_en:'Bangladesh'}]},
   {code:'LK', name_ar:'سريلانكا', name_en:'Sri Lanka', airports:[
@@ -2223,6 +2438,7 @@ const COUNTRIES = [
    imgs:[{u:'https://flagcdn.com/w320/la.png', l_ar:'لاوس', l_en:'Laos'}]},
   {code:'KZ', name_ar:'كازاخستان', name_en:'Kazakhstan', airports:[
      {code:'ALA', name_ar:'مطار ألماتي الدولي', name_en:'Almaty International Airport', city_ar:'ألماتي', city_en:'Almaty'},
+     {code:'NQZ', name_ar:'مطار أستانا الدولي', name_en:'Astana International Airport', city_ar:'أستانا', city_en:'Astana'},
    ],
    imgs:[{u:'https://flagcdn.com/w320/kz.png', l_ar:'كازاخستان', l_en:'Kazakhstan'}]},
   {code:'UZ', name_ar:'أوزبكستان', name_en:'Uzbekistan', airports:[
@@ -2235,6 +2451,8 @@ const COUNTRIES = [
    imgs:[{u:'https://flagcdn.com/w320/mn.png', l_ar:'منغوليا', l_en:'Mongolia'}]},
   {code:'IQ', name_ar:'العراق', name_en:'Iraq', airports:[
      {code:'BGW', name_ar:'مطار بغداد الدولي', name_en:'Baghdad International Airport', city_ar:'بغداد', city_en:'Baghdad'},
+     {code:'EBL', name_ar:'مطار أربيل الدولي', name_en:'Erbil International Airport', city_ar:'أربيل', city_en:'Erbil'},
+     {code:'BSR', name_ar:'مطار البصرة الدولي', name_en:'Basra International Airport', city_ar:'البصرة', city_en:'Basra'},
    ],
    imgs:[{u:'https://flagcdn.com/w320/iq.png', l_ar:'العراق', l_en:'Iraq'}]},
   {code:'IR', name_ar:'إيران', name_en:'Iran', airports:[
@@ -2317,6 +2535,7 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent = t(el.getAttribute('data-i18n'));});
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));});
   if(typeof renderPaxPicker === 'function') renderPaxPicker();
+  buildPopularRoutes();
 }
 function fmtPrice(aedVal){
   const rate = RATES[currentCurrency] || 1;
@@ -2338,26 +2557,54 @@ function buildCurrencySelect(){
   sel.onchange = ()=>{ currentCurrency = sel.value; updateFxHint(); renderAll(); };
   updateFxHint();
 }
+// اللغات المفعّلة فعليًا (كل نصوص الواجهة مترجمة بالكامل في I18N) + لغات "قيد الإضافة" لسه
+// معروضة في القائمة عشان يشوفها الزائر لكن ما تتفعّلش لحد ما تتضاف ترجمتها الكاملة.
+const RTL_LANGS = ['ar','ur'];
 function buildLangSelect(){
   const sel = document.getElementById('langSel');
-  const opts = [['ar','العربية'],['en','English'],['fr','Français*'],['es','Español*'],['tr','Türkçe*']];
+  const opts = [['ar','العربية'],['en','English'],['tr','Türkçe'],['fr','Français'],['ur','اردو'],['es','Español*']];
   sel.innerHTML = opts.map(o=>`<option value="${o[0]}" ${o[0]===currentLang?'selected':''}>${o[1]}</option>`).join('');
   sel.onchange = ()=>{
     if(!I18N[sel.value]){ showToast(currentLang==='ar' ? 'هذه اللغة قيد الإضافة قريبًا' : 'This language is coming soon'); sel.value = currentLang; return; }
     currentLang = sel.value;
     document.documentElement.lang = currentLang;
-    document.documentElement.dir = currentLang==='ar' ? 'rtl':'ltr';
-    document.body.className = currentLang==='en' ? 'lang-en' : '';
+    document.documentElement.dir = RTL_LANGS.includes(currentLang) ? 'rtl':'ltr';
+    // en/tr/fr كلها لاتينية الخط — نفس عائلة الخط البديلة؛ ar/ur تفضل على خط المنصة الافتراضي (عربي)
+    document.body.className = !RTL_LANGS.includes(currentLang) ? 'lang-en' : '';
     applyI18n(); renderAll();
   };
 }
 
+// اسم المدينة حسب اللغة الحالية (ar/en/tr/fr/ur) — يرجع للإنجليزي كاحتياط لو اللغة مش مغطاة بعد
+function cityL(obj, key){
+  const v = obj[key+'_'+currentLang];
+  return v !== undefined ? v : obj[key+'_en'];
+}
+
+/* ============ فوتر: "الوجهات الشائعة" — كانت أسماء مدن عربية ثابتة بدون ترجمة (باگ) ============
+   بقت مصفوفة بيانات متعددة اللغات + رسم عبر JS، بتتحدث تلقائيًا مع buildPopularRoutes() في applyI18n() */
+const POPULAR_ROUTES = [
+  {a_ar:'الرياض', b_ar:'دبي', a_en:'Riyadh', b_en:'Dubai', a_tr:'Riyad', b_tr:'Dubai', a_fr:'Riyad', b_fr:'Dubaï', a_ur:'ریاض', b_ur:'دبئی'},
+  {a_ar:'القاهرة', b_ar:'جدة', a_en:'Cairo', b_en:'Jeddah', a_tr:'Kahire', b_tr:'Cidde', a_fr:'Le Caire', b_fr:'Djeddah', a_ur:'قاہرہ', b_ur:'جدہ'},
+  {a_ar:'اسطنبول', b_ar:'الدمام', a_en:'Istanbul', b_en:'Dammam', a_tr:'İstanbul', b_tr:'Dammam', a_fr:'Istanbul', b_fr:'Dammam', a_ur:'استنبول', b_ur:'دمام'},
+  {a_ar:'عمان', b_ar:'أبها', a_en:'Amman', b_en:'Abha', a_tr:'Amman', b_tr:'Abha', a_fr:'Amman', b_fr:'Abha', a_ur:'عمان', b_ur:'ابہا'},
+];
+function buildPopularRoutes(){
+  const el = document.getElementById('popularRoutesList');
+  if(!el) return;
+  const arrow = currentLang==='ar' || currentLang==='ur' ? '←' : '→';
+  el.innerHTML = POPULAR_ROUTES.map(r=>`<span class="flink">${cityL(r,'a')} ${arrow} ${cityL(r,'b')}</span>`).join('');
+}
 function buildTicker(){
   const routes = [
-    {a:'الرياض',b:'دبي',p:850},{a:'جدة',b:'القاهرة',p:1200},{a:'الدمام',b:'اسطنبول',p:1450},
-    {a:'أبها',b:'عمان',p:650},{a:'الرياض',b:'لندن',p:2100},{a:'جدة',b:'باريس',p:2350}
+    {a_ar:'الرياض',b_ar:'دبي',a_en:'Riyadh',b_en:'Dubai',a_tr:'Riyad',b_tr:'Dubai',a_fr:'Riyad',b_fr:'Dubaï',a_ur:'ریاض',b_ur:'دبئی',p:850},
+    {a_ar:'جدة',b_ar:'القاهرة',a_en:'Jeddah',b_en:'Cairo',a_tr:'Cidde',b_tr:'Kahire',a_fr:'Djeddah',b_fr:'Le Caire',a_ur:'جدہ',b_ur:'قاہرہ',p:1200},
+    {a_ar:'الدمام',b_ar:'اسطنبول',a_en:'Dammam',b_en:'Istanbul',a_tr:'Dammam',b_tr:'İstanbul',a_fr:'Dammam',b_fr:'Istanbul',a_ur:'دمام',b_ur:'استنبول',p:1450},
+    {a_ar:'أبها',b_ar:'عمان',a_en:'Abha',b_en:'Amman',a_tr:'Abha',b_tr:'Amman',a_fr:'Abha',b_fr:'Amman',a_ur:'ابہا',b_ur:'امّان',p:650},
+    {a_ar:'الرياض',b_ar:'لندن',a_en:'Riyadh',b_en:'London',a_tr:'Riyad',b_tr:'Londra',a_fr:'Riyad',b_fr:'Londres',a_ur:'ریاض',b_ur:'لندن',p:2100},
+    {a_ar:'جدة',b_ar:'باريس',a_en:'Jeddah',b_en:'Paris',a_tr:'Cidde',b_tr:'Paris',a_fr:'Djeddah',b_fr:'Paris',a_ur:'جدہ',b_ur:'پیرس',p:2350}
   ];
-  const item = r => `<span>${r.a} → ${r.b} <b class="price">${fmtPrice(r.p)}</b></span>`;
+  const item = r => `<span>${cityL(r,'a')} → ${cityL(r,'b')} <b class="price">${fmtPrice(r.p)}</b></span>`;
   const html = routes.map(item).join('');
   document.getElementById('tickerTrack').innerHTML = html + html;
 }
@@ -2754,19 +3001,19 @@ function buildCompareStrip(){
    أي إضافة/تعديل/إيقاف من الأدمن يعاد رسمه هنا فورًا عبر renderAll() -> buildDeals() */
 const DEFAULT_DEAL_IMG = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=60';
 let dealsData = [
-  {dest:'إسطنبول، تركيا', img:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=400&q=60', old:1800, now:1450, badge:'20%-', active:true},
-  {dest:'القاهرة، مصر', img:'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=400&q=60', old:1500, now:1200, badge:'', active:true},
-  {dest:'دبي، الإمارات', img:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&q=60', old:1200, now:850, badge:'30%-', active:true},
-  {dest:'عمّان، الأردن', img:'https://images.unsplash.com/photo-1544986581-efac024faf62?w=400&q=60', old:900, now:650, badge:'الأرخص', active:true},
-  {dest:'باريس، فرنسا', img:'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=60', old:2900, now:2350, badge:'19%-', active:true},
+  {dest_ar:'إسطنبول، تركيا', dest_en:'Istanbul, Turkey', dest_tr:'İstanbul, Türkiye', dest_fr:'Istanbul, Turquie', dest_ur:'استنبول، ترکی', img:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=400&q=60', old:1800, now:1450, badge:'20%-', active:true},
+  {dest_ar:'القاهرة، مصر', dest_en:'Cairo, Egypt', dest_tr:'Kahire, Mısır', dest_fr:'Le Caire, Égypte', dest_ur:'قاہرہ، مصر', img:'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=400&q=60', old:1500, now:1200, badge:'', active:true},
+  {dest_ar:'دبي، الإمارات', dest_en:'Dubai, UAE', dest_tr:'Dubai, BAE', dest_fr:'Dubaï, É.A.U.', dest_ur:'دبئی، متحدہ عرب امارات', img:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&q=60', old:1200, now:850, badge:'30%-', active:true},
+  {dest_ar:'عمّان، الأردن', dest_en:'Amman, Jordan', dest_tr:'Amman, Ürdün', dest_fr:'Amman, Jordanie', dest_ur:'امّان، اردن', img:'https://images.unsplash.com/photo-1544986581-efac024faf62?w=400&q=60', old:900, now:650, badge:'الأرخص', active:true},
+  {dest_ar:'باريس، فرنسا', dest_en:'Paris, France', dest_tr:'Paris, Fransa', dest_fr:'Paris, France', dest_ur:'پیرس، فرانس', img:'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=60', old:2900, now:2350, badge:'19%-', active:true},
 ];
 function buildDeals(){
   const live = dealsData.filter(d=>d.active);
   const card = d => `
     <div class="deal-card">
-      <div class="deal-img"><img src="${d.img||DEFAULT_DEAL_IMG}" alt="">${d.badge ? `<span class="deal-badge ${d.badge==='الأرخص'||d.badge==='cheapest'?'cheapest':''}">${d.badge==='cheapest'?(currentLang==='ar'?'الأرخص':'Cheapest'):d.badge}</span>`:''}</div>
+      <div class="deal-img"><img src="${d.img||DEFAULT_DEAL_IMG}" alt="">${d.badge ? `<span class="deal-badge ${d.badge==='الأرخص'||d.badge==='cheapest'?'cheapest':''}">${d.badge==='الأرخص'||d.badge==='cheapest'?(currentLang==='ar'?'الأرخص':'Cheapest'):d.badge}</span>`:''}</div>
       <div class="deal-info">
-        <div class="place">${d.dest}</div>
+        <div class="place">${cityL(d,'dest')}</div>
         <div class="desc" data-i18n="rt_trip">${currentLang==='ar'?'رحلة ذهاب وعودة':'Round trip'}</div>
         <div class="prices"><span class="old">${fmtPrice(d.old)}</span><span class="now">${fmtPrice(d.now)}</span></div>
       </div>
@@ -2777,6 +3024,22 @@ function buildDeals(){
 }
 
 const AIRLINES = ['Emirates','flydubai','Saudia','Turkish Airlines','EgyptAir','Etihad Airways','Air Arabia','Royal Jordanian'];
+/* المحطة (hub) الرئيسية الحقيقية لكل شركة طيران — تُستخدم لعرض تفاصيل رحلة الترانزيت (مطار
+   التوقف الفعلي) بدل الاكتفاء بعدد التوقفات فقط. نفس بيانات المطارات الموجودة في COUNTRIES
+   بالضبط (نفس الأكواد والأسماء) لضمان التطابق. */
+const AIRLINE_HUB = {
+  'Emirates':         {code:'DXB', name_ar:'مطار دبي الدولي', name_en:'Dubai International Airport', city_ar:'دبي', city_en:'Dubai'},
+  'flydubai':         {code:'DXB', name_ar:'مطار دبي الدولي', name_en:'Dubai International Airport', city_ar:'دبي', city_en:'Dubai'},
+  'Saudia':           {code:'JED', name_ar:'مطار الملك عبدالعزيز الدولي', name_en:'King Abdulaziz International Airport', city_ar:'جدة', city_en:'Jeddah'},
+  'Turkish Airlines':  {code:'IST', name_ar:'مطار إسطنبول', name_en:'Istanbul Airport', city_ar:'إسطنبول', city_en:'Istanbul'},
+  'EgyptAir':         {code:'CAI', name_ar:'مطار القاهرة الدولي', name_en:'Cairo International Airport', city_ar:'القاهرة', city_en:'Cairo'},
+  'Etihad Airways':   {code:'AUH', name_ar:'مطار زايد الدولي', name_en:'Zayed International Airport', city_ar:'أبوظبي', city_en:'Abu Dhabi'},
+  'Air Arabia':       {code:'SHJ', name_ar:'مطار الشارقة الدولي', name_en:'Sharjah International Airport', city_ar:'الشارقة', city_en:'Sharjah'},
+  'Royal Jordanian':  {code:'AMM', name_ar:'مطار الملكة علياء الدولي', name_en:'Queen Alia International Airport', city_ar:'عمّان', city_en:'Amman'},
+};
+/* محطة ثانوية بديلة تُستخدم فقط لو كانت الرحلة بتوقفين (نادر) عشان التوقف الثاني ميكررش
+   نفس مطار التوقف الأول. */
+const SECONDARY_HUB = {code:'AUH', name_ar:'مطار زايد الدولي', name_en:'Zayed International Airport', city_ar:'أبوظبي', city_en:'Abu Dhabi'};
 /* logo.clearbit.com's free Logo API is no longer reliably reachable (frequently 404s / times out), so results
    were showing a broken/blank logo. Switched to guaranteed-to-render brand-colored badges with distinctive
    glyphs (crown, eagle, wing...) matching each airline's real visual identity — no external image dependency. */
@@ -2825,6 +3088,30 @@ function airlineBadge(airlineName, size){
       onerror="this.parentElement.outerHTML='${fallback}';">
   </span>`;
 }
+/* شعارات مكاتب الحجز/OTA (Wego, Kiwi.com, Booking.com, Trip.com...) في قائمة "خيارات الأسعار" —
+   السبب الحقيقي إن الشعارات فضلت ما اتصلحتش قبل كده: كنا بس ضايفين شارة احتياطية (fallback) لكن
+   المصدر الأساسي (logo.clearbit.com) فضل هو نفسه — وهو غير موثوق ومحدود مجانًا. دلوقتي المصدر
+   الأساسي بقى Google Favicons (خدمة ثابتة وعالية التوفر، بدون مفتاح API)، ومازالت الشارة الملونة
+   موجودة كـ fallback أخير لو حتى الفافيكون فشل. نفس الدومين المستخدم قبل كده مع Clearbit (مش
+   الرابط التسويقي/التتبعي في site اللي ممكن يكون دومين تتبع مختلف تمامًا زي kiwi.tpm.lv). */
+function partnerLogoURL(p){
+  const m = (p.logo||'').match(/clearbit\.com\/(.+)$/);
+  const domain = m ? m[1] : null;
+  return domain ? `https://www.google.com/s2/favicons?sz=64&domain=${domain}` : p.logo;
+}
+function partnerBadgeFallbackHTML(p, s){
+  const bg = p.color || 'var(--blue)';
+  const initial = (p.name||'?').replace(/[^\p{L}\p{N}]/gu,'').slice(0,2).toUpperCase();
+  return `<span style="display:inline-flex; align-items:center; justify-content:center; width:${s}px; height:${s}px; min-width:${s}px; border-radius:8px; background:${bg}; color:#fff; font-weight:800; font-size:${Math.round(s*0.4)}px; flex-shrink:0;">${initial}</span>`;
+}
+function partnerBadge(p, size){
+  const s = size||26;
+  const fallback = partnerBadgeFallbackHTML(p, s).replace(/"/g, '&quot;');
+  return `<span style="display:inline-flex; align-items:center; justify-content:center; width:${s}px; height:${s}px; min-width:${s}px; border-radius:8px; background:#fff; border:1.5px solid var(--border); flex-shrink:0; overflow:hidden;">
+    <img src="${partnerLogoURL(p)}" alt="${p.name}" style="width:82%; height:82%; object-fit:contain;"
+      onerror="this.parentElement.outerHTML='${fallback}';">
+  </span>`;
+}
 /* Real IATA airline codes + home-country ISO2 (for the flag), so results show a genuine code like "EK" — not a made-up one */
 const AIRLINE_IATA = {
   'Emirates':{iata:'EK', country:'ae'},
@@ -2841,8 +3128,8 @@ const AIRLINE_IATA = {
    genuinely different: no free checked bag on their cheapest fare tier, which is accurately reflected here
    rather than showing the same generic numbers for every airline. */
 const AIRLINE_POLICIES = {
-  'Emirates':          {cabin_ar:'7 كجم', cabin_en:'7kg', checked_ar:'حقيبة واحدة حتى 23 كجم مجانًا (يزيد حسب الفئة حتى 35 كجم)', checked_en:'1 bag up to 23kg included (up to 35kg on higher fares)', change_ar:'يُسمح بالتغيير غالبًا مقابل رسوم من 150–500 درهم حسب الفئة؛ بعض العروض الاقتصادية غير قابلة للاسترداد', change_en:'Changes usually allowed for a fee of AED 150–500 depending on fare; some Saver fares are non-refundable'},
-  'flydubai':          {cabin_ar:'7 كجم', cabin_en:'7kg', checked_ar:'غير مشمولة في فئة Lite — تُضاف بدءًا من 60 درهم/20 كجم؛ مشمولة (20-30 كجم) في فئتي Value وFlex', checked_en:'Not included on Lite fare — add-on from AED 60/20kg; included (20-30kg) on Value & Flex fares', change_ar:'فئة Lite غير قابلة للتغيير؛ فئتا Value وFlex تسمحان بالتغيير مقابل رسوم', change_en:'Lite fare is non-changeable; Value & Flex fares allow changes for a fee'},
+  'Emirates':          {cabin_ar:'7 كجم', cabin_en:'7kg', checked_ar:'حسب الفئة: Special® 20 كجم · Saver 25 كجم · Flex 30 كجم · Flex Plus 35 كجم (نظام الوزن على معظم الوجهات؛ على رحلات أمريكا وأفريقيا: قطعة واحدة حتى 23 كجم في Special/Saver، وقطعتان حتى 23 كجم لكل منهما في Flex/Flex Plus)', checked_en:'By fare: Special® 20kg · Saver 25kg · Flex 30kg · Flex Plus 35kg (weight-based on most routes; on Americas/Africa routes: 1 piece up to 23kg on Special/Saver, 2 pieces up to 23kg each on Flex/Flex Plus)', change_ar:'يُسمح بالتغيير غالبًا مقابل رسوم من 150–500 درهم حسب الفئة؛ بعض العروض الاقتصادية غير قابلة للاسترداد', change_en:'Changes usually allowed for a fee of AED 150–500 depending on fare; some Saver fares are non-refundable'},
+  'flydubai':          {cabin_ar:'7 كجم', cabin_en:'7kg', checked_ar:'غير مشمولة إطلاقًا في فئة Lite (تُضاف كخدمة إضافية عند الحجز)؛ 20 كجم في فئة Value؛ 30 كجم في فئة Flex', checked_en:'Not included at all on Lite fare (must be purchased as an add-on); 20kg included on Value fare; 30kg included on Flex fare', change_ar:'فئة Lite غير قابلة للتغيير؛ فئتا Value وFlex تسمحان بالتغيير مقابل رسوم', change_en:'Lite fare is non-changeable; Value & Flex fares allow changes for a fee'},
   'Saudia':            {cabin_ar:'7 كجم', cabin_en:'7kg', checked_ar:'حقيبة واحدة حتى 23 كجم مجانًا', checked_en:'1 bag up to 23kg included', change_ar:'فئة Lite غير قابلة للاسترداد؛ الفئات الأعلى تسمح بالتغيير مقابل رسوم', change_en:'Lite fare non-refundable; higher fares allow changes for a fee'},
   'Turkish Airlines':  {cabin_ar:'8 كجم', cabin_en:'8kg', checked_ar:'حقيبة واحدة حتى 23 كجم مجانًا (نظام قطع على رحلات أمريكا)', checked_en:'1 bag up to 23kg included (piece system on Americas routes)', change_ar:'فئة Economy Restricted برسوم تغيير منخفضة؛ Economy Flex بتغيير مجاني', change_en:'Economy Restricted has a low change fee; Economy Flex changes are free'},
   'EgyptAir':          {cabin_ar:'8 كجم', cabin_en:'8kg', checked_ar:'حقيبة واحدة حتى 23 كجم مجانًا', checked_en:'1 bag up to 23kg included', change_ar:'رسوم التغيير تختلف حسب فئة التذكرة المحجوزة', change_en:'Change fees vary depending on the booked fare class'},
@@ -2962,11 +3249,25 @@ function genFlights(seed, count){
     const price = 550 + Math.floor(r1 * 900) + i*70 + (stops*90);
     const depHour = isMorning ? (5 + Math.floor(seededRand(base+i*2.2)*7)) : (18 + Math.floor(seededRand(base+i*2.2)*5));
     const depMin = Math.floor(seededRand(base+i*3.3)*60);
+    const airlineName = AIRLINES[airlineIdx];
+    // تفاصيل الترانزيت (مطار التوقف الفعلي + مدة الانتظار) — فقط للرحلات اللي فيها توقف واحد
+    // أو أكثر؛ الرحلة المباشرة (stops=0) بتفضل بدون connections زي ما هي بالظبط.
+    let connections = [];
+    if(stops>=1){
+      const hub1 = AIRLINE_HUB[airlineName];
+      const layover1 = 45 + Math.floor(seededRand(base+i*29.4)*195); // 45–240 دقيقة
+      connections.push({airport:hub1, layoverMin:layover1});
+    }
+    if(stops>=2){
+      const hub2 = AIRLINE_HUB[airlineName].code==='AUH' ? {code:'DXB', name_ar:'مطار دبي الدولي', name_en:'Dubai International Airport', city_ar:'دبي', city_en:'Dubai'} : SECONDARY_HUB;
+      const layover2 = 45 + Math.floor(seededRand(base+i*37.1)*195);
+      connections.push({airport:hub2, layoverMin:layover2});
+    }
     out.push({
       id: seed+'-'+i,
-      airline: AIRLINES[airlineIdx],
-      code: airlineIata(AIRLINES[airlineIdx])+(100+Math.floor(r2*800)),
-      stops, morning:isMorning, dur, price,
+      airline: airlineName,
+      code: airlineIata(airlineName)+(100+Math.floor(r2*800)),
+      stops, morning:isMorning, dur, price, connections,
       aircraft: AIRCRAFT_TYPES[Math.floor(seededRand(base+i*8.8)*AIRCRAFT_TYPES.length)],
       dep: `${depHour<10?'0':''}${depHour}:${depMin<10?'0':''}${depMin}`,
     });
@@ -2993,11 +3294,20 @@ function stopsLabel(n){
 function findFlight(id){
   return outbound.find(f=>f.id===id) || inbound.find(f=>f.id===id);
 }
+/* اختيار حر لكل رحلة (checkbox) — بالإضافة لزر "حجز" الأساسي على الكارت، وليس بديلاً عنه.
+   يسمح للمسافر يختار رحلة ذهاب من كارت ورحلة عودة من كارت تاني مختلف، حسب طلب أحمد. متاح فقط
+   للرحلات ذهاب وعودة (مش رحلة واحدة، لأن فيها بالفعل رحلة واحدة تكفي واختيارها بديهي). */
+let manualOutSel = null, manualInSel = null;
 function wegoRowHTML(f, group){
   if(!f) return `<div class="wego-row"><span style="color:var(--dim); font-size:12px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</span></div>`;
   const arr = arrTime(f.dep, f.dur);
+  const showCheck = tripType!=='one';
+  const isChecked = (group==='out' ? manualOutSel : manualInSel) === f.id;
   return `
-  <div class="wego-row" data-id="${f.id}" data-group="${group}">
+  <div class="wego-row${isChecked?' checked':''}" data-id="${f.id}" data-group="${group}">
+    ${showCheck ? `<label class="leg-select" onclick="event.stopPropagation()" title="${group==='out'?t('manual_select_out'):t('manual_select_in')}">
+      <input type="checkbox" class="leg-select-cb" data-id="${f.id}" data-group="${group}" ${isChecked?'checked':''}>
+    </label>` : ''}
     <div class="wego-air">${airlineBadge(f.airline, 40)}<div><b style="font-size:14px;">${f.airline}</b><span>${f.code} · ${f.aircraft}</span></div></div>
     <div class="fc-time">
       <div class="t"><b>${f.dep}</b><span>${currentLang==='ar'?'مغادرة':'Depart'}</span></div>
@@ -3023,18 +3333,20 @@ function wegoRowHTML(f, group){
     </button>
   </div>`;
 }
-/* بطاقة نتيجة الرحلة: مربع واحد فقط للاختيار — زر "حجز" واحد ينقل المسافر مباشرة
-   إلى صفحة اختيار مكتب الحجز / شركة الطيران الأم، سواء كان البحث ذهاب فقط أو ذهاب وعودة.
-   لا يوجد أي خطوة وسيطة ("محجوزة" / شريط متابعة) قبل ذلك. */
+/* بطاقة نتيجة الرحلة — موديل ويجو الحقيقي: زر "حجز" يبدأ مقفول دايمًا (ذهاب وعودة)، ولا يتفعّل إلا
+   لو المسافر حدد بنفسه الرحلتين (checkbox) في نفس الكارت. الرحلة الواحدة (ذهاب فقط) لسه فيها نفس
+   السلوك القديم: زر يعمل فورًا (مفيش رحلة تانية تتحدد أصلاً)، عشان مانرجعش لباگ "حجز الآن ما بيعملش حاجة". */
 function wegoCardHTML(fOut, fIn, idx){
   const oneWay = tripType==='one';
+  const isCustom = idx<0;
   const price = (fOut?fOut.price:0) + (oneWay?0:(fIn?fIn.price:0));
   const isCheapest = idx===0;
   const isBest = idx===1; // second-cheapest with (usually) better routing shown as "best value", mirroring the reference layout
   const sites = 8 + ((fOut?fOut.id.length:0)+(fIn?fIn.id.length:0))%16;
+  const enabled = oneWay ? !!fOut : (!!fOut && !!fIn && manualOutSel===fOut.id && manualInSel===fIn.id);
   return `
   <div class="wego-card">
-    <div class="wego-num">${idx+1}</div>
+    <div class="wego-num">${isCustom ? '<i class="fa-solid fa-star" style="color:var(--gold-l); font-size:14px;"></i>' : (idx+1)}</div>
     <div class="wego-rows">
       ${wegoRowHTML(fOut,'out')}
       ${oneWay ? '' : wegoRowHTML(fIn,'in')}
@@ -3048,7 +3360,7 @@ function wegoCardHTML(fOut, fIn, idx){
       <b>${fmtPrice(price)}</b>
       <span>${oneWay ? (currentLang==='ar'?'للشخص (ذهاب فقط)':'per traveler (one way)') : (currentLang==='ar'?'للشخص (ذهاب وعودة)':'per traveler (round trip)')}</span>
       <div class="wego-price-note interest">${currentLang==='ar'?'دفع بدون فوائد':'Interest-free payments'}</div>
-      ${fOut ? `<button class="wego-price-book-btn" data-out="${fOut.id}" data-in="${(!oneWay && fIn) ? fIn.id : ''}">${currentLang==='ar'?'حجز':'Book'}</button>` : ''}
+      ${fOut ? `<button class="wego-price-book-btn" data-out="${fOut.id}" data-in="${(!oneWay && fIn) ? fIn.id : ''}" ${enabled?'':'disabled'}>${currentLang==='ar'?'حجز':'Book'}</button>` : ''}
     </div>
   </div>`;
 }
@@ -3103,6 +3415,7 @@ function renderFlightLists(){
     document.getElementById('stPriceFastest').textContent = fmtPrice(fastestPrice);
   }
   attachFlightEvents();
+  renderCustomCombo();
 }
 function attachFlightEvents(){
   document.querySelectorAll('[data-pop]').forEach(btn=>{
@@ -3117,18 +3430,91 @@ function attachFlightEvents(){
   document.querySelectorAll('[data-alert]').forEach(row=>{
     row.onclick = (e)=>{ e.stopPropagation(); showToast(t('toast_alert')); document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open')); };
   });
-  // زر "حجز" الوحيد على البطاقة — ينقل المسافر مباشرة إلى صفحة اختيار مكتب الحجز/شركة
-  // الطيران الأم، بدون أي خطوة اختيار أو "محجوزة" وسيطة. يعمل لكل من الذهاب فقط والذهاب والعودة.
+  // زر "حجز" على كل كارت — لرحلة ذهاب فقط: يعمل فورًا (نفس إصلاح باگ "حجز الآن" الأصلي). لرحلة
+  // ذهاب وعودة: يبقى مقفول (disabled) لحد ما المسافر يحدد نفس الرحلتين بالضبط عبر الـ checkbox —
+  // شرط الـ disabled الطبيعي في المتصفح كافي، والفحص هنا للأمان بس.
   document.querySelectorAll('.wego-price-book-btn').forEach(btn=>{
     btn.onclick = (e)=>{
       e.stopPropagation();
+      if(btn.disabled) return;
       const outId = btn.getAttribute('data-out');
       const inId = btn.getAttribute('data-in');
       if(!outId) return;
       startBooking(outId, inId || null);
     };
   });
+  // اختيار حر (checkbox) لكل رحلة — موديل ويجو: مفيش حاجة محددة مسبقًا، والمسافر لازم يحدد
+  // الرحلتين بنفسه. اختيار واحد بس مسموح لكل مجموعة (ذهاب/عودة) في نفس الوقت.
+  document.querySelectorAll('.leg-select-cb').forEach(cb=>{
+    cb.onchange = ()=>{
+      const id = cb.getAttribute('data-id');
+      const group = cb.getAttribute('data-group');
+      if(cb.checked){
+        if(group==='out') manualOutSel = id; else manualInSel = id;
+      } else {
+        if(group==='out' && manualOutSel===id) manualOutSel = null;
+        if(group==='in' && manualInSel===id) manualInSel = null;
+      }
+      document.querySelectorAll(`.leg-select-cb[data-group="${group}"]`).forEach(other=>{
+        const otherId = other.getAttribute('data-id');
+        const shouldCheck = (group==='out'?manualOutSel:manualInSel) === otherId;
+        other.checked = shouldCheck;
+        const row = other.closest('.wego-row');
+        if(row) row.classList.toggle('checked', shouldCheck);
+      });
+      refreshBookButtons();
+      renderCustomCombo();
+    };
+  });
   document.addEventListener('click', ()=>document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open')), {once:true});
+}
+// يحدّث حالة تفعيل/تعطيل كل زر "حجز" على كل الكروت المعروضة (بما فيها الكارت المخصص لو موجود)
+// حسب تطابقه بالظبط مع الاختيار الحالي — بدون إعادة رسم كامل القائمة.
+function refreshBookButtons(){
+  document.querySelectorAll('.wego-price-book-btn').forEach(btn=>{
+    if(tripType==='one'){ btn.disabled = false; return; }
+    const outId = btn.getAttribute('data-out');
+    const inId = btn.getAttribute('data-in');
+    btn.disabled = !(outId && inId && manualOutSel===outId && manualInSel===inId);
+  });
+}
+/* الكارت المخصص: لو المسافر حدد رحلة ذهاب ورحلة عودة من كارتين مختلفين (مش نفس التزويج الافتراضي)،
+   تتجمّع الرحلتين هنا في كارت واحد جديد أعلى النتائج بزرار حجز مفعّل فورًا — تمامًا زي فيديو ويجو
+   المرجعي. لو الاختيار مطابق لكارت موجود أصلاً، أو لسه ناقص رحلة، مفيش داعي لكارت مخصص. */
+// يتذكر آخر زوج (ذهاب+عودة) عملنا له تمرير تلقائي للصفحة، عشان ميعملش سكرول متكرر مزعج لو
+// حصل إعادة رسم تانية (تغيير فلتر مثلًا) والاختيار نفسه لسه هو هو.
+let comboScrolledFor = null;
+function renderCustomCombo(){
+  const slot = document.getElementById('customComboSlot');
+  if(!slot) return;
+  if(tripType==='one' || (!manualOutSel && !manualInSel)){ slot.innerHTML = ''; comboScrolledFor = null; return; }
+  if(!manualOutSel || !manualInSel){
+    slot.innerHTML = `<div class="combo-hint"><i class="fa-solid fa-circle-info"></i> ${manualOutSel ? t('manual_select_in') : t('manual_select_out')}</div>`;
+    return;
+  }
+  // بعد اكتمال اختيار الرحلتين (بأي ترتيب)، ترفع الصفحة تلقائيًا لتقف أمام الرحلتين المختارتين
+  // في المربع المرصّع بنجمة ذهبية — أو أمام الكارت الأصلي لو الرحلتين أصلاً من نفس الكارت.
+  const key = manualOutSel+'|'+manualInSel;
+  const matchedBtn = [...document.querySelectorAll('#pairedFlights .wego-price-book-btn')]
+    .find(btn=>btn.getAttribute('data-out')===manualOutSel && btn.getAttribute('data-in')===manualInSel);
+  let scrollTarget = null;
+  if(matchedBtn){
+    slot.innerHTML = '';
+    scrollTarget = matchedBtn.closest('.wego-card');
+  } else {
+    const fOut = findFlight(manualOutSel), fIn = findFlight(manualInSel);
+    if(!fOut || !fIn){ slot.innerHTML = ''; return; }
+    slot.innerHTML = `<div class="custom-combo-wrap">
+      <div class="custom-combo-label"><i class="fa-solid fa-star"></i>${currentLang==='ar'?'رحلتك المختارة':'Your selected itinerary'}</div>
+      ${wegoCardHTML(fOut, fIn, -1)}
+    </div>`;
+    attachFlightEvents();
+    scrollTarget = slot;
+  }
+  if(scrollTarget && comboScrolledFor!==key){
+    comboScrolledFor = key;
+    requestAnimationFrame(()=>scrollTarget.scrollIntoView({behavior:'smooth', block:'center'}));
+  }
 }
 function buildAirlineFilters(){
   document.getElementById('airlineFilters').innerHTML = AIRLINES.map(a=>`
@@ -3152,7 +3538,43 @@ function isOvernightFlight(f){
   return parseInt(arr,10) < parseInt(f.dep,10);
 }
 
-function tdpBoxHTML(f, label, fromAp, toAp){
+/* تفاصيل رحلة الترانزيت (مطار التوقف الفعلي + مدة الانتظار + شعار شركة الطيران) — خط سير رأسي
+   متصل (نقطة مطار → صندوق رحلة → شريط "مدة التوقف" ذهبي بارز → ...)، مطابق للنموذج المرجعي.
+   يظهر فقط للرحلات اللي فيها توقف (connections.length>0)، ولا يغيّر أي شيء في الرحلات المباشرة
+   ولا في سياسات الحقائب/الحجز الأصلية أسفل اللوحة. */
+function fmtLayover(min){
+  const h = Math.floor(min/60), m = min%60;
+  const hLbl = currentLang==='ar' ? 'س' : 'h', mLbl = currentLang==='ar' ? 'د' : 'm';
+  return h>0 ? `${h}${hLbl} ${m}${mLbl}` : `${m}${mLbl}`;
+}
+// قطعة الرحلة المباشرة (بدون توقف) — نفس تصميم .tdp-tl-mid الأصلي زي ما كان بالظبط، بدون أي تغيير
+function flightSegmentHTML(f){
+  return `
+      <div class="tdp-tl-mid">
+        <div class="airline-line" style="margin:0; padding:0; border:none;">${airlineBadge(f.airline, 24)}<b>${f.airline}</b><span>${f.code} (${f.aircraft})</span></div>
+        <div class="sub-meta">${currentLang==='ar'?'الدرجة الاقتصادية':'Economy'}</div>
+        <div class="tdp-amenities">
+          <span><i class="fa-solid fa-utensils"></i>${t('fa_meal')}</span>
+          <span><i class="fa-solid fa-film"></i>${t('fa_entertainment')}</span>
+          <span><i class="fa-solid fa-wifi"></i>${t('fa_wifi')}</span>
+          <span><i class="fa-solid fa-plug"></i>${t('fa_power')}</span>
+        </div>
+      </div>`;
+}
+// نقطة توقف الترانزيت (مطار + شريط "مدة التوقف" الذهبي) — تُدرج بين صندوقي رحلة متتاليين في نفس
+// الخط الزمني المتصل، مطابقة للنموذج المرجعي اللي بعته أحمد بالظبط
+function transitStopHTML(c){
+  const ap = c.airport;
+  const apName = currentLang==='ar' ? ap.name_ar : ap.name_en;
+  const apCity = currentLang==='ar' ? ap.city_ar : ap.city_en;
+  return `
+      <div class="tdp-tl-row transit"><span class="tl-dot mid"></span><div><b>${apCity} (${ap.code})</b><span class="tl-sub">${apName}</span></div></div>
+      <div class="transit-wait-box">
+        <i class="fa-solid fa-clock"></i>
+        <span>${currentLang==='ar'?'مدة التوقف: ':'Layover: '}<b>${fmtLayover(c.layoverMin)}</b></span>
+      </div>`;
+}
+function tdpBoxHTML(f, label, fromAp, toAp, isReturn){
   if(!f) return '';
   const arr = arrTime(f.dep, f.dur);
   const overnight = (parseInt(f.dep)+f.dur) >= 24 || (parseInt(arr) < parseInt(f.dep));
@@ -3164,7 +3586,7 @@ function tdpBoxHTML(f, label, fromAp, toAp){
     <div class="date">${label}</div>
     <div class="tdp-time-row">
       <div class="tdp-point"><b>${f.dep}</b><span>${fromAp.code}</span></div>
-      <div class="tdp-plane">✈</div>
+      <div class="tdp-plane${isReturn?' reverse':''}">✈</div>
       <div class="tdp-point"><b>${arr}</b><span>${toAp.code}</span>${overnight?`<i class="ovn-badge">+1</i>`:''}</div>
     </div>
     <div class="sub-meta">${fromAirport} → ${toAirport}</div>
@@ -3172,16 +3594,8 @@ function tdpBoxHTML(f, label, fromAp, toAp){
 
     <div class="tdp-timeline">
       <div class="tdp-tl-row"><span class="tl-dot"></span><div><b>${fromAirport}</b><span class="tl-sub">(${fromAp.code}) ${fromName}</span></div></div>
-      <div class="tdp-tl-mid">
-        <div class="airline-line" style="margin:0; padding:0; border:none;">${airlineBadge(f.airline, 24)}<b>${f.airline}</b><span>${f.code} (${f.aircraft})</span></div>
-        <div class="sub-meta">${currentLang==='ar'?'الدرجة الاقتصادية':'Economy'}</div>
-        <div class="tdp-amenities">
-          <span><i class="fa-solid fa-utensils"></i>${t('fa_meal')}</span>
-          <span><i class="fa-solid fa-film"></i>${t('fa_entertainment')}</span>
-          <span><i class="fa-solid fa-wifi"></i>${t('fa_wifi')}</span>
-          <span><i class="fa-solid fa-plug"></i>${t('fa_power')}</span>
-        </div>
-      </div>
+      ${flightSegmentHTML(f)}
+      ${(f.connections||[]).map(c=>transitStopHTML(c)+flightSegmentHTML(f)).join('')}
       <div class="tdp-tl-row"><span class="tl-dot end"></span><div><b>${toAirport}</b><span class="tl-sub">(${toAp.code}) ${toName}</span></div></div>
     </div>
     <div class="tdp-policies">
@@ -3210,12 +3624,12 @@ function openTripDetails(){
   // وجود رحلة الذهاب فقط لفتح صفحة اختيار جهة الحجز.
   if(!fOut) return;
   const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
-  document.getElementById('tdpOutBox').innerHTML = tdpBoxHTML(fOut, currentLang==='ar'?'رحلة الذهاب':'Outbound', fromAp, toAp);
+  document.getElementById('tdpOutBox').innerHTML = tdpBoxHTML(fOut, currentLang==='ar'?'رحلة الذهاب':'Outbound', fromAp, toAp, false);
   const tdpInBox = document.getElementById('tdpInBox');
   const tdpBoxesEl = document.getElementById('tdpBoxes');
   if(fIn){
     tdpInBox.style.display = '';
-    tdpInBox.innerHTML = tdpBoxHTML(fIn, currentLang==='ar'?'رحلة العودة':'Return', toAp, fromAp);
+    tdpInBox.innerHTML = tdpBoxHTML(fIn, currentLang==='ar'?'رحلة العودة':'Return', toAp, fromAp, true);
     tdpBoxesEl.classList.remove('single');
   } else {
     tdpInBox.style.display = 'none';
@@ -3237,7 +3651,7 @@ function openTripDetails(){
     <div class="price-row">
       <div class="partner">${o.isAirlineDirect
         ? `${airlineBadge(o.airlineName,26)}<b>${currentLang==='ar'?o.airlineName+' — حجز مباشر':o.airlineName+' — Direct Booking'}</b><span class="partner-note" style="background:rgba(47,111,237,.15); color:var(--blue-l);">${currentLang==='ar'?'الناقل الأصلي':'Operating airline'}</span>`
-        : `<img src="${o.logo}" alt="${o.name}" onerror="this.outerHTML='<b>${o.name}</b>'"> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}`}</div>
+        : `${partnerBadge(o,26)}<b>${o.name}</b> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}`}</div>
       <div class="p-price">${fmtPrice(o.price)}</div>
       <button class="choose-btn" data-partner="${o.name}" data-price="${o.price}" data-site="${o.site}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
     </div>`).join('');
@@ -3351,6 +3765,9 @@ function goResults(){
   // one-way ("ذهاب فقط"): don't generate/show any return-leg flights at all
   inbound = (tripType==='one') ? [] : genFlights('in-'+toIdx+'-'+toApIdx+'-'+fromIdx+'-'+fromApIdx+'-'+retVal, 8);
   selectedOut = null; selectedIn = null;
+  manualOutSel = null; manualInSel = null;
+  const comboSlot = document.getElementById('customComboSlot');
+  if(comboSlot) comboSlot.innerHTML = '';
   const fromCity = currentLang==='ar' ? fromAp.city_ar : fromAp.city_en;
   const toCity = currentLang==='ar' ? toAp.city_ar : toAp.city_en;
   document.getElementById('resRoute').innerHTML = `<img src="${flagImgUrl(from.code)}" style="width:18px;vertical-align:middle;border-radius:2px;margin-inline-end:3px;">${fromCity} (${fromAp.code}) → <img src="${flagImgUrl(to.code)}" style="width:18px;vertical-align:middle;border-radius:2px;margin-inline-end:3px;">${toCity} (${toAp.code})`;
@@ -3383,7 +3800,7 @@ document.querySelectorAll('.hs-tab').forEach(btn=>{
 
 function renderAll(){
   buildCurrencySelect(); buildLangSelect(); buildTicker(); buildCountrySelects(); renderCountryImgs(); buildHotelDestSelect();
-  buildCompareStrip(); buildDeals();
+  buildCompareStrip(); buildDeals(); buildPopularRoutes();
   if(document.getElementById('resultsPage').classList.contains('open')) renderFlightLists();
 }
 
@@ -4257,7 +4674,7 @@ function renderAdminAll(){
     <td><button class="icon-action danger" data-del-media="${i}">✕</button></td></tr>`).join('');
 
   document.getElementById('dealsTable').innerHTML = dealsData.map((d,i)=>`
-    <tr><td>${d.dest}</td><td>${d.old} د.إ</td><td>${d.now} د.إ</td><td>${d.badge}</td>
+    <tr><td>${d.dest_ar}</td><td>${d.old} د.إ</td><td>${d.now} د.إ</td><td>${d.badge}</td>
     <td><span class="pill ${d.active?'active':'inactive'}">${d.active?'نشط':'موقوف'}</span></td>
     <td><button class="icon-action" data-toggle-deal="${i}">⏻</button></td></tr>`).join('');
 
