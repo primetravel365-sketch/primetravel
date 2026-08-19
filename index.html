@@ -785,6 +785,15 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 </head>
 <body>
 
+<!-- ============ إشعار "الموقع تحت التجربة والصيانة" — أُضيف 19 أغسطس 2026 بناءً على طلب صاحب
+     الموقع، لتنبيه الزوار أن النتائج/الأسعار الحالية تجريبية أثناء استكمال ربط مصادر البيانات
+     الحقيقية، وتجنّب أي التباس أو شكاوى من الزوار في هذه المرحلة. شريط ثابت أعلى الصفحة، قابل
+     للإغلاق لكل زيارة (بدون حفظ دائم — يظهر تاني في أي تحميل جديد للصفحة لأنه لسه وضع مؤقت). ============ -->
+<div id="siteMaintenanceBanner" style="background:#f5a623; color:#1a1a1a; text-align:center; font-weight:800; font-size:12.5px; line-height:1.6; padding:9px 40px; position:relative; z-index:10000;">
+  <span data-i18n="maintenance_notice">⚠️ الموقع حاليًا تحت التجربة والتطوير — بعض الأسعار والنتائج قد تكون تقديرية مؤقتًا</span>
+  <button onclick="document.getElementById('siteMaintenanceBanner').style.display='none'" aria-label="إغلاق" style="position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#1a1a1a; font-size:16px; font-weight:900; cursor:pointer; line-height:1;">✕</button>
+</div>
+
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
   <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4.mp4" type="video/mp4">
@@ -1017,11 +1026,11 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
           </div>
           <div class="field">
             <label data-i18n="depart">تاريخ المغادرة</label>
-            <input type="date" id="depDate" value="2026-08-15"><span class="date-display" id="depDateDisplay"></span>
+            <input type="date" id="depDate"><span class="date-display" id="depDateDisplay"></span>
           </div>
           <div class="field" id="retDateField">
             <label data-i18n="return">تاريخ العودة</label>
-            <input type="date" id="retDate" value="2026-08-22"><span class="date-display" id="retDateDisplay"></span>
+            <input type="date" id="retDate"><span class="date-display" id="retDateDisplay"></span>
           </div>
           <button class="search-btn" id="searchBtn"><span>🔍</span><span data-i18n="search_btn">بحث عن رحلات الطيران</span></button>
         </div>
@@ -1675,6 +1684,7 @@ const I18N = {
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
   price_disclaimer:"⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك",
   flights_real_disclaimer:"✅ نتائج حقيقية فعليًا (مواعيد وأرقام رحلات حقيقية عبر Duffel، وضع تجريبي حاليًا)",
+  maintenance_notice:"⚠️ الموقع حاليًا تحت التجربة والتطوير — بعض الأسعار والنتائج قد تكون تقديرية مؤقتًا",
   corp_head:"فنادق ومناسبات", corp_sub:"حلول جاهزة تُحجز مباشرة — جرّب البحث والتواصل التجريبي بنفسك",
   filters:"الفلاتر",
   hotels_head:"فنادق العالم — قارن الأسعار والمرافق", hotels_sub:"اختر وجهتك وتواريخك، وسنقارن لك بين أفضل مواقع الحجز فورًا",
@@ -1727,6 +1737,7 @@ const I18N = {
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
   price_disclaimer:"⚠️ Estimated price — the final price is confirmed when you complete booking on the partner's site",
   flights_real_disclaimer:"✅ Genuinely real results (real times & flight numbers via Duffel, currently in test mode)",
+  maintenance_notice:"⚠️ This site is currently in testing/development — some prices and results may be temporarily estimated",
   corp_head:"Hotels & Events", corp_sub:"Ready-made solutions you can book directly — try the demo search and contact flow yourself",
   filters:"Filters",
   hotels_head:"Hotels worldwide — compare prices & amenities", hotels_sub:"Pick your destination and dates, we'll compare the best booking sites instantly",
@@ -1779,6 +1790,7 @@ const I18N = {
   back_results:"Sonuçlara dön", tdp_title:"Seyahat detayları", price_opts_h:"Fiyat seçenekleri", price_opts_sub:"Gösterilen fiyatlara vergiler ve ödeme ücretleri dahildir",
   price_disclaimer:"⚠️ Tahmini fiyat — kesin fiyat, ortağın sitesinde rezervasyon tamamlanırken onaylanır",
   flights_real_disclaimer:"✅ Gerçek sonuçlar (Duffel üzerinden gerçek saatler ve uçuş numaraları, şu anda test modunda)",
+  maintenance_notice:"⚠️ Bu site şu anda test/geliştirme aşamasındadır — bazı fiyat ve sonuçlar geçici olarak tahmini olabilir",
   corp_head:"Oteller ve Etkinlikler", corp_sub:"Doğrudan rezervasyon yapabileceğiniz hazır çözümler — demo aramayı ve iletişim akışını kendiniz deneyin",
   filters:"Filtreler",
   hotels_head:"Dünya çapında oteller — fiyat ve olanakları karşılaştırın", hotels_sub:"Varış noktanızı ve tarihlerinizi seçin, en iyi rezervasyon sitelerini anında karşılaştıralım",
@@ -1831,6 +1843,7 @@ const I18N = {
   back_results:"Retour aux résultats", tdp_title:"Détails du voyage", price_opts_h:"Options de prix", price_opts_sub:"Les prix affichés incluent les taxes et frais de paiement",
   price_disclaimer:"⚠️ Prix estimé — le prix final est confirmé lors de la réservation sur le site du partenaire",
   flights_real_disclaimer:"✅ Résultats réellement authentiques (horaires et numéros de vol réels via Duffel, actuellement en mode test)",
+  maintenance_notice:"⚠️ Ce site est actuellement en phase de test/développement — certains prix et résultats peuvent être temporairement estimés",
   corp_head:"Hôtels et événements", corp_sub:"Solutions prêtes à réserver directement — essayez la recherche de démonstration et le flux de contact vous-même",
   filters:"Filtres",
   hotels_head:"Hôtels dans le monde — comparez prix et équipements", hotels_sub:"Choisissez votre destination et vos dates, nous comparerons instantanément les meilleurs sites de réservation",
@@ -1883,6 +1896,7 @@ const I18N = {
   back_results:"نتائج پر واپس جائیں", tdp_title:"سفر کی تفصیلات", price_opts_h:"قیمت کے اختیارات", price_opts_sub:"دکھائی گئی قیمتوں میں ٹیکس اور ادائیگی کے چارجز شامل ہیں",
   price_disclaimer:"⚠️ تخمینی قیمت — حتمی قیمت پارٹنر کی ویب سائٹ پر بکنگ مکمل کرتے وقت ظاہر ہوگی",
   flights_real_disclaimer:"✅ حقیقی نتائج (Duffel کے ذریعے حقیقی اوقات اور فلائٹ نمبرز، فی الحال ٹیسٹ موڈ میں)",
+  maintenance_notice:"⚠️ یہ سائٹ فی الحال ٹیسٹنگ/ڈیولپمنٹ میں ہے — کچھ قیمتیں اور نتائج عارضی طور پر تخمینی ہو سکتے ہیں",
   corp_head:"ہوٹلز اور تقریبات", corp_sub:"براہ راست بک کیے جا سکنے والے تیار حل — خود ڈیمو سرچ اور رابطہ آزمائیں",
   filters:"فلٹرز",
   hotels_head:"دنیا بھر کے ہوٹلز — قیمتوں اور سہولیات کا موازنہ کریں", hotels_sub:"اپنی منزل اور تاریخیں منتخب کریں، ہم فوری طور پر بہترین بکنگ سائٹس کا موازنہ کریں گے",
@@ -4019,6 +4033,12 @@ function switchVideo(){
 }
 
 function goResults(){
+  const depValCheck = document.getElementById('depDate').value;
+  const retValCheck = document.getElementById('retDate').value;
+  // تحديث 19 أغسطس 2026: تاريخ العودة بقى فاضي افتراضيًا (الزائر يختاره بنفسه) — لازم نتأكد إنه
+  // مختار فعلًا قبل تنفيذ بحث "ذهاب وعودة"، وإلا البحث هيتم بتاريخ عودة فاضي بصمت.
+  if(!depValCheck){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ المغادرة' : 'Please choose a departure date'); return; }
+  if(tripType!=='one' && !retValCheck){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ العودة' : 'Please choose a return date'); return; }
   const from = COUNTRIES[fromIdx];
   const to = COUNTRIES[toIdx];
   const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
@@ -4100,9 +4120,10 @@ function isoDatePlusDays(days){
 }
 function setDefaultDatesIfStale(){
   const todayISO = isoDatePlusDays(0);
+  // تحديث 19 أغسطس 2026 (بطلب صاحب الموقع): تاريخ "المغادرة" لازم يبقى تاريخ اليوم افتراضيًا،
+  // وتاريخ "العودة" يفضل فاضي تمامًا عشان الزائر يختاره بنفسه (مش رقم افتراضي اتحط له).
   [
-    ['depDate', isoDatePlusDays(3)],
-    ['retDate', isoDatePlusDays(10)],
+    ['depDate', todayISO],
     ['hotelCheckin', isoDatePlusDays(3)],
     ['hotelCheckout', isoDatePlusDays(6)],
   ].forEach(([id, defaultVal])=>{
@@ -4111,12 +4132,27 @@ function setDefaultDatesIfStale(){
     el.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
     if(!el.value || el.value < todayISO) el.value = defaultVal; // لو القيمة المكتوبة في الكود فاتت، تُستبدل بتاريخ مستقبلي منطقي
   });
+  const retEl = document.getElementById('retDate');
+  if(retEl){
+    retEl.setAttribute('min', todayISO);
+    retEl.value = ''; // يفضل فاضي دايمًا عند تحميل الصفحة — الزائر هو اللي يختاره
+  }
+}
+// تاريخ العودة لازم يكون بعد أو يساوي تاريخ المغادرة على الأقل — بنحدّث الحد الأدنى ديناميكيًا
+// كل ما الزائر يغيّر تاريخ المغادرة، ولو تاريخ العودة المختار بقى قبله نمسحه بدل ما يفضل غلط بصمت.
+function syncReturnDateMin(){
+  const depEl = document.getElementById('depDate'), retEl = document.getElementById('retDate');
+  if(!depEl || !retEl || !depEl.value) return;
+  retEl.setAttribute('min', depEl.value);
+  if(retEl.value && retEl.value < depEl.value) retEl.value = '';
 }
 setDefaultDatesIfStale();
 bindDateDisplay('depDate','depDateDisplay');
 bindDateDisplay('retDate','retDateDisplay');
 bindDateDisplay('hotelCheckin','hotelCheckinDisplay');
 bindDateDisplay('hotelCheckout','hotelCheckoutDisplay');
+syncReturnDateMin();
+document.getElementById('depDate')?.addEventListener('change', syncReturnDateMin);
 
 function openAdminApp(){
   document.getElementById('adminApp').classList.add('open');
