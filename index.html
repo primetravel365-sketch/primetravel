@@ -3797,14 +3797,22 @@ function openTripDetails(){
   // نحاول نجيب سعر حقيقي لـKiwi.com/Aviasales تحديدًا عبر وسيط السيرفر (api/tp-price.js) ونحدّث
   // صفهم في القائمة لحظيًا؛ لو الوسيط فشل (توكن غير مضاف في Vercel أو خطأ اتصال) الدالة بترجع null
   // فورًا ومفيش أي تأثير — الصف بيفضل بالسعر التقديري كـfallback.
-  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Kiwi.com', v));
-  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Aviasales', v));
+  // ⚠️ إصلاح 19 أغسطس 2026: لو فتح Duffel (تحت) رجّع سعر أساس حقيقي بعد ما التحديث ده يكون خلص،
+  // كان renderPriceOptionsList بيمسح كل صفوف القائمة ويبنيها من جديد ويشيل تحديث Kiwi/Aviasales
+  // بالكامل من غير ما حد يلاحظ (نفس السعر بيرجع تقديري تاني بصمت). الحل: نخزّن أي سعر حقيقي جبناه
+  // في متغيّرين، ونعيد تطبيقه تاني بعد أي إعادة رسم لاحقة من Duffel.
+  let liveKiwiUSD = null, liveAviaUSD = null;
+  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveKiwiUSD = v; updateLivePriceRow('Kiwi.com', v); });
+  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveAviaUSD = v; updateLivePriceRow('Aviasales', v); });
   // تحديث 19 أغسطس 2026: محاولة جلب سعر أساس حقيقي فعلي من Duffel (عبر وسيط /api/duffel-search على
   // نفس السيرفر — التوكن محفوظ هناك وليس في هذا الملف). لو نجحت، نعيد رسم كل قائمة الأسعار على أساس
   // السعر الحقيقي ده بدل السعر العشوائي المولّد محليًا، ونوضّح للزائر إن السعر الأساسي بقى حقيقي.
   fetchDuffelBasePrice(fromAp.code, toAp.code, depVal, retVal).then(real=>{
     if (!real || !real.priceAED) return;
     renderPriceOptionsList(real.priceAED, fOut, fIn, fromAp, toAp, depVal, retVal, true, real);
+    // نعيد تطبيق أي سعر حقيقي كنا جبناه من Kiwi/Aviasales قبل كده، عشان الرسم الجديد ده ميمسحوش
+    if (liveKiwiUSD != null) updateLivePriceRow('Kiwi.com', liveKiwiUSD);
+    if (liveAviaUSD != null) updateLivePriceRow('Aviasales', liveAviaUSD);
   });
   document.getElementById('resultsPage').classList.remove('open');
   document.getElementById('tripDetailsPage').classList.add('open');
