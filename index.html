@@ -1205,8 +1205,9 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
         <div class="route" id="resRoute"></div>
         <div class="meta" id="resMeta"></div>
       </div>
-      <div class="meta" data-i18n="results_note">نتائج مرتبة من الأقل سعرًا، مجمعة من مكاتب حجز وشركات طيران متعددة</div>
+      <div class="meta" data-i18n="results_note">نتائج مرتبة من الأقل سعرًا</div>
     </div>
+    <div class="price-disclaimer" id="resultsFlightsDisclaimer" data-i18n="price_disclaimer">⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك</div>
   </div>
 
   <div class="results-layout">
@@ -1654,7 +1655,7 @@ const I18N = {
   from:"من", to:"إلى", depart:"تاريخ المغادرة", return:"تاريخ العودة", search_btn:"بحث عن رحلات الطيران",
   from_country:"معالم بلد المغادرة", to_country:"معالم بلد الوصول",
   compare_head:"قارن أسعار أيام الحجز", compare_sub:"أقل سعر يوميًا من بين المصادر الموثوقة فقط",
-  deals_head:"عروض السفر المميزة", back_home:"عودة للبحث", back_to_home:"العودة للصفحة الرئيسية", results_note:"نتائج مرتبة من الأقل سعرًا، مجمعة من مكاتب حجز وشركات طيران متعددة",
+  deals_head:"عروض السفر المميزة", back_home:"عودة للبحث", back_to_home:"العودة للصفحة الرئيسية", results_note:"نتائج مرتبة من الأقل سعرًا",
   filters_title:"تصفية النتائج", f_stops:"التوقفات", f_direct:"مباشرة", f_1stop:"توقف واحد", f_2stop:"توقفان أو أكثر",
   f_time:"وقت الرحلة", f_morning:"صباحية", f_night:"ليلية", f_airlines:"شركات الطيران", f_duration:"مدة الرحلة",
   f_price:"نطاق السعر", f_experience:"تجربة الرحلة", f_no_overnight:"بدون توقف ليلي", f_same_airline:"إتمام الرحلة بنفس الشركة فقط",
@@ -1669,10 +1670,11 @@ const I18N = {
   admin_title:"لوحة تحكم الإدارة — العمولات والتتبع", admin_clicks:"نقرات هذا الشهر", admin_bookings:"حجوزات مؤكدة", admin_commission:"إجمالي العمولات",
   admin_partner:"مكتب الحجز / شركة الطيران", admin_click2:"نقرات", admin_book2:"حجوزات", admin_earn:"العمولة",
   admin_note:"هذه بيانات توضيحية — عند الربط الفعلي بشركاء الحجز سيتم سحب هذه الأرقام تلقائيًا من واجهات API الخاصة بهم.",
-  toast_alert:"تم ضبط تنبيه انخفاض السعر", stops_direct:"مباشرة", stops_n:"توقف",
+  toast_alert:"هذه الميزة قيد التطوير حاليًا وستُفعَّل قريبًا", stops_direct:"مباشرة", stops_n:"توقف",
   combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن", manual_book_btn:"احجز الرحلتين المختارتين", manual_select_out:"اختر رحلة الذهاب", manual_select_in:"اختر رحلة العودة",
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
   price_disclaimer:"⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك",
+  flights_real_disclaimer:"✅ نتائج حقيقية فعليًا (مواعيد وأرقام رحلات حقيقية عبر Duffel، وضع تجريبي حاليًا)",
   corp_head:"فنادق ومناسبات", corp_sub:"حلول جاهزة تُحجز مباشرة — جرّب البحث والتواصل التجريبي بنفسك",
   filters:"الفلاتر",
   hotels_head:"فنادق العالم — قارن الأسعار والمرافق", hotels_sub:"اختر وجهتك وتواريخك، وسنقارن لك بين أفضل مواقع الحجز فورًا",
@@ -1705,7 +1707,7 @@ const I18N = {
   from:"From", to:"To", depart:"Departure date", return:"Return date", search_btn:"Search flights",
   from_country:"Departure country highlights", to_country:"Arrival country highlights",
   compare_head:"Compare booking-day prices", compare_sub:"Lowest daily price from trusted sources only",
-  deals_head:"Featured travel deals", back_home:"Back to search", back_to_home:"Back to Home Page", results_note:"Results sorted by lowest price, aggregated from multiple agencies and airlines",
+  deals_head:"Featured travel deals", back_home:"Back to search", back_to_home:"Back to Home Page", results_note:"Results sorted by lowest price",
   filters_title:"Filter results", f_stops:"Stops", f_direct:"Direct", f_1stop:"1 stop", f_2stop:"2+ stops",
   f_time:"Time of day", f_morning:"Morning", f_night:"Night", f_airlines:"Airlines", f_duration:"Duration",
   f_price:"Price range", f_experience:"Flight experience", f_no_overnight:"No overnight stops", f_same_airline:"Complete trip on same airline",
@@ -1720,10 +1722,11 @@ const I18N = {
   admin_title:"Admin panel — commissions and tracking", admin_clicks:"Clicks this month", admin_bookings:"Confirmed bookings", admin_commission:"Total commission",
   admin_partner:"Agency / airline", admin_click2:"Clicks", admin_book2:"Bookings", admin_earn:"Commission",
   admin_note:"Sample data shown here — once connected to real booking partners, these figures will be pulled live from their APIs.",
-  toast_alert:"Price drop alert set", stops_direct:"Direct", stops_n:"stop",
+  toast_alert:"This feature is under development and will be enabled soon", stops_direct:"Direct", stops_n:"stop",
   combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now", manual_book_btn:"Book selected flights", manual_select_out:"Select outbound flight", manual_select_in:"Select return flight",
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
   price_disclaimer:"⚠️ Estimated price — the final price is confirmed when you complete booking on the partner's site",
+  flights_real_disclaimer:"✅ Genuinely real results (real times & flight numbers via Duffel, currently in test mode)",
   corp_head:"Hotels & Events", corp_sub:"Ready-made solutions you can book directly — try the demo search and contact flow yourself",
   filters:"Filters",
   hotels_head:"Hotels worldwide — compare prices & amenities", hotels_sub:"Pick your destination and dates, we'll compare the best booking sites instantly",
@@ -1756,7 +1759,7 @@ const I18N = {
   from:"Nereden", to:"Nereye", depart:"Gidiş tarihi", return:"Dönüş tarihi", search_btn:"Uçuş ara",
   from_country:"Kalkış ülkesi öne çıkanlar", to_country:"Varış ülkesi öne çıkanlar",
   compare_head:"Rezervasyon günü fiyatlarını karşılaştır", compare_sub:"Sadece güvenilir kaynaklardan günlük en düşük fiyat",
-  deals_head:"Öne çıkan seyahat fırsatları", back_home:"Aramaya dön", back_to_home:"Ana Sayfaya Dön", results_note:"Sonuçlar en düşük fiyata göre sıralandı, birden çok acente ve havayolundan derlendi",
+  deals_head:"Öne çıkan seyahat fırsatları", back_home:"Aramaya dön", back_to_home:"Ana Sayfaya Dön", results_note:"Sonuçlar en düşük fiyata göre sıralandı",
   filters_title:"Sonuçları filtrele", f_stops:"Aktarmalar", f_direct:"Direkt", f_1stop:"1 aktarma", f_2stop:"2+ aktarma",
   f_time:"Uçuş saati", f_morning:"Sabah", f_night:"Gece", f_airlines:"Havayolları", f_duration:"Süre",
   f_price:"Fiyat aralığı", f_experience:"Uçuş deneyimi", f_no_overnight:"Gece aktarması olmasın", f_same_airline:"Tüm seyahat aynı havayolu ile",
@@ -1771,10 +1774,11 @@ const I18N = {
   admin_title:"Yönetim paneli — komisyonlar ve takip", admin_clicks:"Bu ayki tıklamalar", admin_bookings:"Onaylanmış rezervasyonlar", admin_commission:"Toplam komisyon",
   admin_partner:"Acente / havayolu", admin_click2:"Tıklamalar", admin_book2:"Rezervasyonlar", admin_earn:"Komisyon",
   admin_note:"Burada örnek veriler gösterilmektedir — gerçek rezervasyon ortaklarına bağlandığında bu rakamlar API'lerinden canlı olarak çekilecektir.",
-  toast_alert:"Fiyat düşüş uyarısı ayarlandı", stops_direct:"Direkt", stops_n:"aktarma",
+  toast_alert:"Bu özellik geliştirme aşamasında, yakında aktif olacak", stops_direct:"Direkt", stops_n:"aktarma",
   combined_results:"Uçuşlar (gidiş-dönüş)", total_price:"Toplam fiyat", continue_booking:"Şimdi rezervasyon yap", manual_book_btn:"Seçilen uçuşları rezerve et", manual_select_out:"Gidiş uçuşunu seçin", manual_select_in:"Dönüş uçuşunu seçin",
   back_results:"Sonuçlara dön", tdp_title:"Seyahat detayları", price_opts_h:"Fiyat seçenekleri", price_opts_sub:"Gösterilen fiyatlara vergiler ve ödeme ücretleri dahildir",
   price_disclaimer:"⚠️ Tahmini fiyat — kesin fiyat, ortağın sitesinde rezervasyon tamamlanırken onaylanır",
+  flights_real_disclaimer:"✅ Gerçek sonuçlar (Duffel üzerinden gerçek saatler ve uçuş numaraları, şu anda test modunda)",
   corp_head:"Oteller ve Etkinlikler", corp_sub:"Doğrudan rezervasyon yapabileceğiniz hazır çözümler — demo aramayı ve iletişim akışını kendiniz deneyin",
   filters:"Filtreler",
   hotels_head:"Dünya çapında oteller — fiyat ve olanakları karşılaştırın", hotels_sub:"Varış noktanızı ve tarihlerinizi seçin, en iyi rezervasyon sitelerini anında karşılaştıralım",
@@ -1807,7 +1811,7 @@ const I18N = {
   from:"De", to:"À", depart:"Date de départ", return:"Date de retour", search_btn:"Rechercher des vols",
   from_country:"Points forts du pays de départ", to_country:"Points forts du pays d'arrivée",
   compare_head:"Comparer les prix par jour de réservation", compare_sub:"Le prix le plus bas par jour, uniquement de sources fiables",
-  deals_head:"Offres de voyage en vedette", back_home:"Retour à la recherche", back_to_home:"Retour à l'accueil", results_note:"Résultats triés par prix croissant, regroupés depuis plusieurs agences et compagnies aériennes",
+  deals_head:"Offres de voyage en vedette", back_home:"Retour à la recherche", back_to_home:"Retour à l'accueil", results_note:"Résultats triés par prix croissant",
   filters_title:"Filtrer les résultats", f_stops:"Escales", f_direct:"Direct", f_1stop:"1 escale", f_2stop:"2 escales ou plus",
   f_time:"Heure du vol", f_morning:"Matin", f_night:"Nuit", f_airlines:"Compagnies aériennes", f_duration:"Durée",
   f_price:"Fourchette de prix", f_experience:"Expérience de vol", f_no_overnight:"Sans escale de nuit", f_same_airline:"Voyage complet avec la même compagnie",
@@ -1822,10 +1826,11 @@ const I18N = {
   admin_title:"Panneau d'administration — commissions et suivi", admin_clicks:"Clics ce mois-ci", admin_bookings:"Réservations confirmées", admin_commission:"Commission totale",
   admin_partner:"Agence / compagnie aérienne", admin_click2:"Clics", admin_book2:"Réservations", admin_earn:"Commission",
   admin_note:"Données d'exemple affichées ici — une fois connecté aux partenaires de réservation réels, ces chiffres seront extraits en direct de leurs API.",
-  toast_alert:"Alerte de baisse de prix activée", stops_direct:"Direct", stops_n:"escale",
+  toast_alert:"Cette fonctionnalité est en cours de développement et sera bientôt activée", stops_direct:"Direct", stops_n:"escale",
   combined_results:"Vols (aller-retour)", total_price:"Prix total", continue_booking:"Réserver maintenant", manual_book_btn:"Réserver les vols sélectionnés", manual_select_out:"Choisir le vol aller", manual_select_in:"Choisir le vol retour",
   back_results:"Retour aux résultats", tdp_title:"Détails du voyage", price_opts_h:"Options de prix", price_opts_sub:"Les prix affichés incluent les taxes et frais de paiement",
   price_disclaimer:"⚠️ Prix estimé — le prix final est confirmé lors de la réservation sur le site du partenaire",
+  flights_real_disclaimer:"✅ Résultats réellement authentiques (horaires et numéros de vol réels via Duffel, actuellement en mode test)",
   corp_head:"Hôtels et événements", corp_sub:"Solutions prêtes à réserver directement — essayez la recherche de démonstration et le flux de contact vous-même",
   filters:"Filtres",
   hotels_head:"Hôtels dans le monde — comparez prix et équipements", hotels_sub:"Choisissez votre destination et vos dates, nous comparerons instantanément les meilleurs sites de réservation",
@@ -1858,7 +1863,7 @@ const I18N = {
   from:"کہاں سے", to:"کہاں تک", depart:"روانگی کی تاریخ", return:"واپسی کی تاریخ", search_btn:"پروازیں تلاش کریں",
   from_country:"ملکِ روانگی کی جھلکیاں", to_country:"ملکِ آمد کی جھلکیاں",
   compare_head:"بکنگ کے دن کی قیمتوں کا موازنہ کریں", compare_sub:"صرف معتبر ذرائع سے روزانہ کی کم ترین قیمت",
-  deals_head:"نمایاں سفری ڈیلز", back_home:"تلاش پر واپس جائیں", back_to_home:"ہوم پیج پر واپس جائیں", results_note:"نتائج کم ترین قیمت کے حساب سے ترتیب دیے گئے، متعدد ایجنسیوں اور ایئرلائنز سے اکٹھے کیے گئے",
+  deals_head:"نمایاں سفری ڈیلز", back_home:"تلاش پر واپس جائیں", back_to_home:"ہوم پیج پر واپس جائیں", results_note:"نتائج کم ترین قیمت کے حساب سے ترتیب دیے گئے",
   filters_title:"نتائج فلٹر کریں", f_stops:"سٹاپس", f_direct:"براہ راست", f_1stop:"1 سٹاپ", f_2stop:"2+ سٹاپس",
   f_time:"پرواز کا وقت", f_morning:"صبح", f_night:"رات", f_airlines:"ایئرلائنز", f_duration:"دورانیہ",
   f_price:"قیمت کی حد", f_experience:"پرواز کا تجربہ", f_no_overnight:"رات بھر کا سٹاپ نہیں", f_same_airline:"مکمل سفر ایک ہی ایئرلائن کے ساتھ",
@@ -1873,10 +1878,11 @@ const I18N = {
   admin_title:"ایڈمن پینل — کمیشن اور ٹریکنگ", admin_clicks:"اس ماہ کے کلکس", admin_bookings:"تصدیق شدہ بکنگز", admin_commission:"کل کمیشن",
   admin_partner:"ایجنسی / ایئرلائن", admin_click2:"کلکس", admin_book2:"بکنگز", admin_earn:"کمیشن",
   admin_note:"یہاں نمونہ ڈیٹا دکھایا گیا ہے — حقیقی بکنگ پارٹنرز سے منسلک ہونے کے بعد یہ اعداد و شمار براہ راست ان کے API سے حاصل کیے جائیں گے۔",
-  toast_alert:"قیمت میں کمی کا الرٹ سیٹ ہو گیا", stops_direct:"براہ راست", stops_n:"سٹاپ",
+  toast_alert:"یہ فیچر ابھی زیرِ تعمیر ہے اور جلد فعال کیا جائے گا", stops_direct:"براہ راست", stops_n:"سٹاپ",
   combined_results:"پروازیں (راؤنڈ ٹرپ)", total_price:"کل قیمت", continue_booking:"ابھی بک کریں", manual_book_btn:"منتخب پروازیں بک کریں", manual_select_out:"جانے کی پرواز منتخب کریں", manual_select_in:"واپسی کی پرواز منتخب کریں",
   back_results:"نتائج پر واپس جائیں", tdp_title:"سفر کی تفصیلات", price_opts_h:"قیمت کے اختیارات", price_opts_sub:"دکھائی گئی قیمتوں میں ٹیکس اور ادائیگی کے چارجز شامل ہیں",
   price_disclaimer:"⚠️ تخمینی قیمت — حتمی قیمت پارٹنر کی ویب سائٹ پر بکنگ مکمل کرتے وقت ظاہر ہوگی",
+  flights_real_disclaimer:"✅ حقیقی نتائج (Duffel کے ذریعے حقیقی اوقات اور فلائٹ نمبرز، فی الحال ٹیسٹ موڈ میں)",
   corp_head:"ہوٹلز اور تقریبات", corp_sub:"براہ راست بک کیے جا سکنے والے تیار حل — خود ڈیمو سرچ اور رابطہ آزمائیں",
   filters:"فلٹرز",
   hotels_head:"دنیا بھر کے ہوٹلز — قیمتوں اور سہولیات کا موازنہ کریں", hotels_sub:"اپنی منزل اور تاریخیں منتخب کریں، ہم فوری طور پر بہترین بکنگ سائٹس کا موازنہ کریں گے",
@@ -3041,24 +3047,57 @@ function renderCountryImgs(){
   document.getElementById('toImgs').innerHTML = to.imgs.map(cell).join('');
 }
 
-function buildCompareStrip(){
-  const days = [
-    {dow_ar:'الاثنين',dow_en:'Mon',dom:'17/8',p:2136,src:'Skyscanner',best:false},
-    {dow_ar:'الثلاثاء',dow_en:'Tue',dom:'18/8',p:2512,src:'Booking.com',best:false},
-    {dow_ar:'الأربعاء',dow_en:'Wed',dom:'19/8',p:2517,src:'Trip.com',best:false},
-    {dow_ar:'الخميس',dow_en:'Thu',dom:'20/8',p:1730,src:'Kiwi.com',best:false},
-    {dow_ar:'الجمعة',dow_en:'Fri',dom:'21/8',p:1540,src:'Expedia',best:false},
-    {dow_ar:'السبت',dow_en:'Sat',dom:'22/8',p:1326,src:'Skyscanner',best:true},
-    {dow_ar:'الأحد',dow_en:'Sun',dom:'23/8',p:1822,src:'Booking.com',best:false},
-    {dow_ar:'الاثنين',dow_en:'Mon',dom:'24/8',p:1347,src:'Trip.com',best:false},
-  ];
-  document.getElementById('compareStrip').innerHTML = days.map(d=>`
-    <div class="day-card ${d.best?'best':''}">
-      <div class="dow">${currentLang==='ar'?d.dow_ar:d.dow_en}</div>
-      <div class="dom">${d.dom}</div>
-      <div class="price">${fmtPrice(d.p)}</div>
-      <div class="src">${d.src}</div>
-    </div>`).join('');
+/* تحديث 19 أغسطس 2026 — الشريط ده كان قايمة أسعار وأسماء مواقع حجز (Skyscanner/Booking.com/...)
+   مكتوبة يدويًا بالكامل وثابتة (٢١٣٦، ٢٥١٢...)، منسوبة لمواقع حقيقية بالاسم من غير أي أساس فعلي —
+   ده بالظبط نفس مخاطرة نسب سعر مش حقيقي لعلامة تجارية حقيقية. الحل: ثمانية أيام حقيقية (تُحسب من
+   تاريخ اليوم الفعلي مش تواريخ ثابتة)، والأسعار تُجلب من Travelpayouts (v2/prices/week-matrix عبر
+   وسيط السيرفر) وهي أسعار حقيقية مسجّلة (cached) لنفس المسار المختار فعليًا في صندوق البحث — مش
+   منسوبة لأي علامة تجارية معيّنة، فقط "أرخص سعر مسجّل". لو الطلب فشل أو مفيش بيانات كافية لأي يوم،
+   بيفضل ذلك اليوم بعلامة "—" بدل رقم مختلق. */
+function dowLabel(iso){
+  const d = new Date(iso+'T12:00:00');
+  const AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return { ar: AR[d.getDay()], en: EN[d.getDay()] };
+}
+function domLabel(iso){
+  const [y,m,dd] = iso.split('-');
+  return `${dd}/${m}`;
+}
+async function buildCompareStrip(){
+  const el = document.getElementById('compareStrip');
+  if(!el) return;
+  const days = [];
+  // يبدأ من "اليوم نفسه" (i=0) مش بكرة، عشان أقدم تاريخ ظاهر في الشريط يساوي تاريخ اليوم الفعلي دايمًا
+  for(let i=0;i<8;i++){
+    const iso = isoDatePlusDays(i);
+    days.push({ iso, dow: dowLabel(iso), dom: domLabel(iso), p: null });
+  }
+  const render = ()=>{
+    let minIdx = -1, minVal = Infinity;
+    days.forEach((d,i)=>{ if(d.p!=null && d.p<minVal){ minVal=d.p; minIdx=i; } });
+    el.innerHTML = days.map((d,i)=>`
+      <div class="day-card ${i===minIdx?'best':''}">
+        <div class="dow">${currentLang==='ar'?d.dow.ar:d.dow.en}</div>
+        <div class="dom">${d.dom}</div>
+        <div class="price">${d.p!=null ? fmtPrice(d.p) : '—'}</div>
+        <div class="src">${d.p!=null ? (currentLang==='ar'?'أرخص سعر مسجّل':'Cheapest recorded price') : (currentLang==='ar'?'لا تتوفر بيانات':'No data yet')}</div>
+      </div>`).join('');
+  };
+  render();
+  try{
+    const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
+    const params = new URLSearchParams({ mode:'week-matrix', origin:fromAp.code, destination:toAp.code, depart_date:days[0].iso, currency:'usd' });
+    const res = await fetch('/api/tp-price?' + params.toString());
+    if(!res.ok) return;
+    const data = await res.json();
+    if(!data || data.success===false || !Array.isArray(data.data)) return;
+    const byDate = {};
+    data.data.forEach(row=>{ if(row && row.depart_date) byDate[row.depart_date] = row.value; });
+    const rate = RATES.USD || 0.272; // القيم بالدولار من Travelpayouts، نحوّلها لنفس عملة fmtPrice (AED)
+    days.forEach(d=>{ if(byDate[d.iso]!=null) d.p = byDate[d.iso] / rate; });
+    render();
+  }catch(_cmpErr){ /* فشل الاتصال بالوسيط — الشريط يفضل بعلامة "—" لأي يوم مش متاح بدل رقم مختلق */ }
 }
 
 /* ===== لينك حقيقي: هذه نفس المصفوفة التي تحررها لوحة التحكم (dealsData) في قسم "العروض المميزة" =====
@@ -3285,23 +3324,24 @@ const PARTNERS = [
 ];
 
 /* ============================================================
-   تحديث 18 أغسطس 2026 — تجهيز جاهز لربط سعر حقيقي (بدل معادلة التقدير) لـ Kiwi.com/Aviasales تحديدًا،
-   لأنهم الشريكان الوحيدان المربوطان فعليًا بعمولة حقيقية عبر Travelpayouts. معطّل تمامًا افتراضيًا
-   (TRAVELPAYOUTS_TOKEN فاضي) — الموقع يستمر بالسعر التقديري الحالي بدون أي تغيير في السلوك لحد ما
-   يُضاف توكن حقيقي. للحصول على التوكن: travelpayouts.com → حسابك → API Token (نفس حساب Kiwi/Aviasales).
+   تحديث 19 أغسطس 2026 — توكن Travelpayouts كان لحد دلوقتي مكتوب مباشرة في الكود (View Source
+   يكشفه لأي زائر). اتنقل لوسيط سيرفر api/tp-price.js بنفس نمط Duffel بالظبط — التوكن نفسه بقى
+   Environment Variable في Vercel باسم TP_TOKEN، مش موجود هنا خالص.
+   ⚠️ التوكن القديم اتكشف فعلاً وقت ما كان في الكود — لازم تعمل له Revoke/Update من لوحة
+   Travelpayouts (Profile → API token → Update token) عشان تلغي القديم وتاخد واحد جديد، وتحطه
+   في Vercel كـTP_TOKEN بدل ما تحطه في الكود.
    ============================================================ */
-const TRAVELPAYOUTS_TOKEN = '57f527d601fc7251d3088aaa274155cd';
 async function fetchLiveFlightPrice(originIata, destIata, depDateISO){
-  if (!TRAVELPAYOUTS_TOKEN || !originIata || !destIata || !depDateISO) return null;
+  if (!originIata || !destIata || !depDateISO) return null;
   try{
-    const month = depDateISO.slice(0,7); // Travelpayouts /prices/latest بيرجع أرخص سعر معروف للشهر ده
-    const url = `https://api.travelpayouts.com/v2/prices/latest?origin=${originIata}&destination=${destIata}&depart_date=${month}&currency=usd&token=${TRAVELPAYOUTS_TOKEN}`;
-    const res = await fetch(url);
+    const params = new URLSearchParams({ mode:'latest', origin:originIata, destination:destIata, depart_date:depDateISO, currency:'usd' });
+    const res = await fetch('/api/tp-price?' + params.toString());
+    if (!res.ok) return null;
     const data = await res.json();
     if (data && data.success && Array.isArray(data.data) && data.data.length) {
       return data.data[0].value; // بالدولار — يُحوَّل بالـRATES الحالية زي أي سعر تاني في الموقع
     }
-  }catch(_liveFxErr){ /* فشل الاتصال أو التوكن غير صالح — نرجع null ونستمر بالسعر التقديري كـfallback */ }
+  }catch(_liveFxErr){ /* فشل الاتصال بالوسيط — نرجع null ونستمر بالسعر التقديري كـfallback */ }
   return null;
 }
 /* يحدّث صف السعر في الصفحة بعد وصول السعر الحقيقي (بدون إعادة رسم كل القائمة)، ويزيل تنويه "تقديري"
@@ -3754,12 +3794,11 @@ function openTripDetails(){
   const retVal = tripType==='one' ? '' : document.getElementById('retDate').value;
   const estimatedBasePrice = fOut.price + (fIn ? fIn.price : 0);
   renderPriceOptionsList(estimatedBasePrice, fOut, fIn, fromAp, toAp, depVal, retVal, false);
-  // لو TRAVELPAYOUTS_TOKEN متضاف (راجع تعريفه فوق)، نحاول نجيب سعر حقيقي لـKiwi.com/Aviasales تحديدًا
-  // ونحدّث صفهم في القائمة لحظيًا؛ لو التوكن فاضي الدالة بترجع null فورًا ومفيش أي تأثير.
-  if (TRAVELPAYOUTS_TOKEN) {
-    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Kiwi.com', v));
-    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Aviasales', v));
-  }
+  // نحاول نجيب سعر حقيقي لـKiwi.com/Aviasales تحديدًا عبر وسيط السيرفر (api/tp-price.js) ونحدّث
+  // صفهم في القائمة لحظيًا؛ لو الوسيط فشل (توكن غير مضاف في Vercel أو خطأ اتصال) الدالة بترجع null
+  // فورًا ومفيش أي تأثير — الصف بيفضل بالسعر التقديري كـfallback.
+  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Kiwi.com', v));
+  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Aviasales', v));
   // تحديث 19 أغسطس 2026: محاولة جلب سعر أساس حقيقي فعلي من Duffel (عبر وسيط /api/duffel-search على
   // نفس السيرفر — التوكن محفوظ هناك وليس في هذا الملف). لو نجحت، نعيد رسم كل قائمة الأسعار على أساس
   // السعر الحقيقي ده بدل السعر العشوائي المولّد محليًا، ونوضّح للزائر إن السعر الأساسي بقى حقيقي.
@@ -3834,6 +3873,58 @@ async function fetchDuffelBasePrice(originIata, destIata, depDateISO, retDateISO
     return { priceAED: data.price / rate, currency: cur, airline: data.airline, live: !!data.live_mode };
   }catch(_duffelErr){ return null; } // فشل الاتصال بالوسيط — نستمر بالسعر التقديري الحالي كـfallback
 }
+
+/* تحديث 19 أغسطس 2026 — بدل ما نكتفي بجلب أرخص سعر بس من Duffel، نجيب قائمة رحلات حقيقية فعليًا
+   (شركة الطيران، رقم الرحلة، مواعيد الإقلاع/الوصول الحقيقية) ونستبدل بيها الرحلات المولّدة عشوائيًا
+   (genFlights) في نتائج البحث — بس لرحلة اتجاه واحد (one-way) حاليًا. رحلة الذهاب والعودة الحقيقية
+   بتتسعّر عند شركة الطيران كباقة واحدة مش قابلة للفصل والدمج الحر زي واجهة الاختيار اليدوي الحالية
+   (اختيار رحلة ذهاب من كارت + رحلة عودة من كارت تاني مختلف)، فالاستبدال الكامل بالبيانات الحقيقية
+   لسه محصور في one-way عشان منضلّلش الزائر بسعر مجموع غير دقيق لرحلتين من عرضين مختلفين. */
+async function fetchDuffelFlightList(originIata, destIata, depDateISO, retDateISO){
+  const badge = document.getElementById('resultsFlightsDisclaimer');
+  if (tripType !== 'one') return; // اترك الرحلات المولّدة تقديريًا لذهاب وعودة، والتنويه البرتقالي الافتراضي زي ما هو
+  try{
+    const params = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
+    const res = await fetch('/api/duffel-search?' + params.toString());
+    if(!res.ok) return;
+    const data = await res.json();
+    if(!data || !Array.isArray(data.flights) || !data.flights.length) return;
+    const mapped = data.flights.map((f,i)=>{
+      const seg0 = f.segments[0], segLast = f.segments[f.segments.length-1];
+      if(!seg0 || !seg0.departingAt || !segLast || !segLast.arrivingAt) return null;
+      const depDateObj = new Date(seg0.departingAt), arrDateObj = new Date(segLast.arrivingAt);
+      const dep = seg0.departingAt.slice(11,16);
+      const durHours = Math.max(0.5, (arrDateObj - depDateObj) / 3600000);
+      const cur = (f.currency||'USD').toUpperCase();
+      const rate = RATES[cur];
+      if(!rate) return null; // عملة مش موجودة عندنا — نتجاهل العرض ده بدل ما نحسب بسعر غلط
+      const connections = f.segments.slice(0,-1).map((seg, idx)=>{
+        const nextSeg = f.segments[idx+1];
+        const layoverMin = Math.max(0, Math.round((new Date(nextSeg.departingAt) - new Date(seg.arrivingAt)) / 60000));
+        const code = (seg.destination && seg.destination.code) || '';
+        const name = (seg.destination && seg.destination.name) || code;
+        const city = (seg.destination && seg.destination.city) || code;
+        return { airport:{ code, name_ar:name, name_en:name, city_ar:city, city_en:city }, layoverMin };
+      });
+      return {
+        id: 'duffel-'+f.offerId+'-'+i,
+        airline: f.airline || seg0.airline,
+        code: seg0.flightNumber || '',
+        stops: f.segments.length - 1,
+        morning: dep < '12:00',
+        dur: Math.round(durHours*10)/10,
+        price: f.price / rate,
+        connections,
+        aircraft: seg0.aircraft || '—',
+        dep,
+      };
+    }).filter(f=>f && f.price>0);
+    if(!mapped.length) return;
+    outbound = mapped.sort((a,b)=>a.price-b.price);
+    renderFlightLists();
+    if(badge){ badge.textContent = t('flights_real_disclaimer'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
+  }catch(_dflListErr){ /* فشل الاتصال — تفضل الرحلات المولّدة تقديريًا مع التنويه البرتقالي الافتراضي */ }
+}
 function closeTripDetails(){
   document.getElementById('tripDetailsPage').classList.remove('open');
   document.getElementById('resultsPage').classList.add('open');
@@ -3884,7 +3975,7 @@ function aiGenerateReply(msg){
   const ar = currentLang==='ar';
   if(/فندق|hotel|إقامة/.test(m)) return ar ? 'يمكنك البحث عن الفنادق من قسم "فنادق العالم" في الصفحة الرئيسية — اختر وجهتك وتواريخك وسأقارن لك بين أفضل المواقع فورًا.' : 'You can search hotels from the "Hotels" section on the homepage — pick your destination and dates and I\'ll compare the best sites for you.';
   if(/طيران|رحل|flight|فلايت/.test(m)) return ar ? 'استخدم مربع البحث في أعلى الصفحة الرئيسية — اختر من/إلى والتواريخ، وستظهر لك كل الرحلات المتاحة مرتبة حسب السعر.' : 'Use the search box at the top of the homepage — choose from/to and your dates, and all available flights will show up sorted by price.';
-  if(/سعر|عرض|خصم|price|deal/.test(m)) return ar ? 'تفقّد قسم "العروض المميزة" في الصفحة الرئيسية، أو فعّل تنبيه انخفاض السعر (🔔) على أي رحلة لتصلك رسالة إذا نزل سعرها.' : 'Check the "Featured Deals" section on the homepage, or turn on the price-drop bell (🔔) on any flight to get notified if it drops.';
+  if(/سعر|عرض|خصم|price|deal/.test(m)) return ar ? 'تفقّد قسم "العروض المميزة" في الصفحة الرئيسية للحصول على أفضل الأسعار الحالية.' : 'Check the "Featured Deals" section on the homepage for the current best prices.';
   if(/مناسب|قاعة|فرح|مؤتمر|wedding|conference/.test(m)) return ar ? 'قسم "فنادق ومناسبات" يضم قاعات أفراح ومؤتمرات وباقات رحلات جماعية جاهزة — تصفّحها من الصفحة الرئيسية.' : 'The "Hotels & Events" section has wedding halls, conference rooms, and group trip packages — browse it from the homepage.';
   return ar ? 'يمكنني مساعدتك في البحث عن رحلات الطيران، الفنادق، وقاعات المناسبات. جرّب أن تسألني مثلاً: "أريد فندق في دبي" أو "رحلة إلى إسطنبول".' : 'I can help you search flights, hotels, and event venues. Try asking me something like "I need a hotel in Dubai" or "flight to Istanbul".';
 }
@@ -3941,6 +4032,10 @@ function goResults(){
   document.getElementById('resultsPage').classList.add('open');
   window.scrollTo({top:0});
   renderFlightLists();
+  const flightsBadge = document.getElementById('resultsFlightsDisclaimer');
+  if(flightsBadge){ flightsBadge.textContent = t('price_disclaimer'); flightsBadge.style.color=''; flightsBadge.style.background=''; }
+  buildCompareStrip(); // نحدّث شريط "قارن أسعار أيام الحجز" بأسعار حقيقية لنفس المسار اللي اتبحث عنه فعليًا
+  fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
 }
 function goHome(){
   document.getElementById('resultsPage').classList.remove('open');
