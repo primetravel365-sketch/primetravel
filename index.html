@@ -3752,7 +3752,26 @@ function openTripDetails(){
   }
   const depVal = document.getElementById('depDate').value;
   const retVal = tripType==='one' ? '' : document.getElementById('retDate').value;
-  const basePrice = fOut.price + (fIn ? fIn.price : 0);
+  const estimatedBasePrice = fOut.price + (fIn ? fIn.price : 0);
+  renderPriceOptionsList(estimatedBasePrice, fOut, fIn, fromAp, toAp, depVal, retVal, false);
+  // لو TRAVELPAYOUTS_TOKEN متضاف (راجع تعريفه فوق)، نحاول نجيب سعر حقيقي لـKiwi.com/Aviasales تحديدًا
+  // ونحدّث صفهم في القائمة لحظيًا؛ لو التوكن فاضي الدالة بترجع null فورًا ومفيش أي تأثير.
+  if (TRAVELPAYOUTS_TOKEN) {
+    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Kiwi.com', v));
+    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Aviasales', v));
+  }
+  // تحديث 19 أغسطس 2026: محاولة جلب سعر أساس حقيقي فعلي من Duffel (عبر وسيط /api/duffel-search على
+  // نفس السيرفر — التوكن محفوظ هناك وليس في هذا الملف). لو نجحت، نعيد رسم كل قائمة الأسعار على أساس
+  // السعر الحقيقي ده بدل السعر العشوائي المولّد محليًا، ونوضّح للزائر إن السعر الأساسي بقى حقيقي.
+  fetchDuffelBasePrice(fromAp.code, toAp.code, depVal, retVal).then(real=>{
+    if (!real || !real.priceAED) return;
+    renderPriceOptionsList(real.priceAED, fOut, fIn, fromAp, toAp, depVal, retVal, true, real);
+  });
+  document.getElementById('resultsPage').classList.remove('open');
+  document.getElementById('tripDetailsPage').classList.add('open');
+  window.scrollTo({top:0});
+}
+function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retVal, isRealBase, realInfo){
   // إصلاح 18 أغسطس 2026: كانت كل الروابط تفتح الصفحة الرئيسية للشريك بدون وجهة/تواريخ — الآن
   // الشركاء اللي عندهم urlFn (رابط بحث حقيقي) يفتحوا على نتيجة بحث معبّاة فعلاً بالمطار والتاريخ.
   const otaOptions = PARTNERS.map((p,i)=>{
@@ -3787,15 +3806,33 @@ function openTripDetails(){
       window.open(site, '_blank', 'noopener'); // opens the provider's own official site
     };
   });
-  // لو TRAVELPAYOUTS_TOKEN متضاف (راجع تعريفه فوق)، نحاول نجيب سعر حقيقي لـKiwi.com/Aviasales تحديدًا
-  // ونحدّث صفهم في القائمة لحظيًا؛ لو التوكن فاضي الدالة بترجع null فورًا ومفيش أي تأثير.
-  if (TRAVELPAYOUTS_TOKEN) {
-    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Kiwi.com', v));
-    fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>updateLivePriceRow('Aviasales', v));
+  // تحديث السطر التوضيحي: لو السعر الأساسي بقى حقيقي فعلاً من Duffel، نستبدل تنويه "تقديري" برسالة
+  // أدق (السعر الأساسي حقيقي، والفروق بين الشركاء لسه تقديرية لحد ما نربط سعر حقيقي لكل شريك لوحده).
+  const disclaimerEl = document.querySelector('#priceOptionsList').closest('.price-options').querySelector('.price-disclaimer');
+  if (disclaimerEl) {
+    disclaimerEl.textContent = isRealBase
+      ? (currentLang==='ar'
+          ? `✅ السعر الأساسي حقيقي فعليًا (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}عبر Duffel${realInfo && !realInfo.live ? '، وضع تجريبي' : ''}) — الفروق بين شركات الحجز لسه تقديرية`
+          : `✅ Base price is real (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}via Duffel${realInfo && !realInfo.live ? ', test mode' : ''}) — per-partner differences are still estimated`)
+      : t('price_disclaimer');
   }
-  document.getElementById('resultsPage').classList.remove('open');
-  document.getElementById('tripDetailsPage').classList.add('open');
-  window.scrollTo({top:0});
+}
+/* تحديث 19 أغسطس 2026: جلب سعر أساس حقيقي من Duffel عبر وسيط سيرفر (/api/duffel-search) — التوكن
+   الحقيقي محفوظ على السيرفر (متغيّر بيئة Vercel) وليس هنا، عشان محدش يقدر ياخده من كود الصفحة. */
+async function fetchDuffelBasePrice(originIata, destIata, depDateISO, retDateISO){
+  if (!originIata || !destIata || !depDateISO) return null;
+  try{
+    const params = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
+    if (retDateISO) params.set('return_date', retDateISO);
+    const res = await fetch('/api/duffel-search?' + params.toString());
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || data.price == null) return null;
+    const cur = (data.currency||'USD').toUpperCase();
+    const rate = RATES[cur]; // RATES[x] = كام وحدة من العملة x مقابل 1 درهم
+    if (!rate) return null; // عملة مش موجودة عندنا — نتجاهل بدل ما نحسب بسعر غلط
+    return { priceAED: data.price / rate, currency: cur, airline: data.airline, live: !!data.live_mode };
+  }catch(_duffelErr){ return null; } // فشل الاتصال بالوسيط — نستمر بالسعر التقديري الحالي كـfallback
 }
 function closeTripDetails(){
   document.getElementById('tripDetailsPage').classList.remove('open');
@@ -3949,6 +3986,30 @@ function bindDateDisplay(inputId, displayId){
   inp.addEventListener('input', update);
   inp.addEventListener('change', update);
 }
+// تحديث 19 أغسطس 2026: كانت تواريخ البحث الافتراضية (رحلات الطيران والفنادق) مكتوبة يدويًا وثابتة
+// في كود HTML (value="2026-08-15")، فبمجرد ما التاريخ الفعلي عدّى عليها، بقت تظهر للزائر كتاريخ
+// ماضٍ! الحل: تُحسب ديناميكيًا من تاريخ اليوم الحقيقي لجهاز الزائر في كل مرة تُفتح فيها الصفحة،
+// وتُمنع أي تواريخ سابقة لليوم من الاختيار أصلًا (min) بدل رقم ثابت بيتقادم مع الوقت.
+function isoDatePlusDays(days){
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0,10);
+}
+function setDefaultDatesIfStale(){
+  const todayISO = isoDatePlusDays(0);
+  [
+    ['depDate', isoDatePlusDays(3)],
+    ['retDate', isoDatePlusDays(10)],
+    ['hotelCheckin', isoDatePlusDays(3)],
+    ['hotelCheckout', isoDatePlusDays(6)],
+  ].forEach(([id, defaultVal])=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
+    if(!el.value || el.value < todayISO) el.value = defaultVal; // لو القيمة المكتوبة في الكود فاتت، تُستبدل بتاريخ مستقبلي منطقي
+  });
+}
+setDefaultDatesIfStale();
 bindDateDisplay('depDate','depDateDisplay');
 bindDateDisplay('retDate','retDateDisplay');
 bindDateDisplay('hotelCheckin','hotelCheckinDisplay');
