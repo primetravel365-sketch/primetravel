@@ -4119,54 +4119,73 @@ async function fetchDuffelBasePrice(originIata, destIata, depDateISO, retDateISO
   }catch(_duffelErr){ return null; } // فشل الاتصال بالوسيط — نستمر بالسعر التقديري الحالي كـfallback
 }
 
-/* تحديث 19 أغسطس 2026 — بدل ما نكتفي بجلب أرخص سعر بس من Duffel، نجيب قائمة رحلات حقيقية فعليًا
-   (شركة الطيران، رقم الرحلة، مواعيد الإقلاع/الوصول الحقيقية) ونستبدل بيها الرحلات المولّدة عشوائيًا
-   (genFlights) في نتائج البحث — بس لرحلة اتجاه واحد (one-way) حاليًا. رحلة الذهاب والعودة الحقيقية
-   بتتسعّر عند شركة الطيران كباقة واحدة مش قابلة للفصل والدمج الحر زي واجهة الاختيار اليدوي الحالية
-   (اختيار رحلة ذهاب من كارت + رحلة عودة من كارت تاني مختلف)، فالاستبدال الكامل بالبيانات الحقيقية
-   لسه محصور في one-way عشان منضلّلش الزائر بسعر مجموع غير دقيق لرحلتين من عرضين مختلفين. */
+/* دالة مشتركة لتحويل رد Duffel/FlightAPI (شكل الرد نفسه فى الاتنين) لشكل الكارت الداخلي المستخدم
+   فى renderFlightLists — بدل تكرار نفس منطق التحويل 4 مرات (ذهاب/عودة × FlightAPI/Duffel). */
+function mapCarrierFlights(data, source, idTag){
+  if(!data || !Array.isArray(data.flights)) return [];
+  return data.flights.map((f,i)=>{
+    const seg0 = f.segments[0], segLast = f.segments[f.segments.length-1];
+    if(!seg0 || !seg0.departingAt || !segLast || !segLast.arrivingAt) return null;
+    const depDateObj = new Date(seg0.departingAt), arrDateObj = new Date(segLast.arrivingAt);
+    const dep = seg0.departingAt.slice(11,16);
+    const durHours = Math.max(0.5, (arrDateObj - depDateObj) / 3600000);
+    const cur = (f.currency||'USD').toUpperCase();
+    const rate = RATES[cur];
+    if(!rate) return null; // عملة مش موجودة عندنا — نتجاهل العرض ده بدل ما نحسب بسعر غلط
+    const connections = f.segments.slice(0,-1).map((seg, idx)=>{
+      const nextSeg = f.segments[idx+1];
+      const layoverMin = Math.max(0, Math.round((new Date(nextSeg.departingAt) - new Date(seg.arrivingAt)) / 60000));
+      const code = (seg.destination && seg.destination.code) || '';
+      const name = (seg.destination && seg.destination.name) || code;
+      const city = (seg.destination && seg.destination.city) || code;
+      return { airport:{ code, name_ar:name, name_en:name, city_ar:city, city_en:city }, layoverMin };
+    });
+    return {
+      id: source+'-'+idTag+'-'+f.offerId+'-'+i,
+      airline: f.airline || seg0.airline,
+      code: seg0.flightNumber || '',
+      stops: f.segments.length - 1,
+      morning: dep < '12:00',
+      dur: Math.round(durHours*10)/10,
+      price: f.price / rate,
+      connections,
+      aircraft: seg0.aircraft || '—',
+      dep,
+      source, // 'duffel' (وضع تجريبي حاليًا) أو 'flightapi' (حقيقي فعليًا) — مستخدم فى openTripDetails
+    };
+  }).filter(f=>f && f.price>0);
+}
+/* تحديث 20 أغسطس 2026 — بعد نقاش مع أحمد: بدل ما نجيب "باقة ذهاب وعودة" مقفولة السعر (زي ما كان
+   مخطط أول مرة)، بنعمل نداءين مستقلين لبحث اتجاه واحد حقيقي — واحد لرحلة الذهاب، وواحد لرحلة العودة
+   (بعكس المطار)، بالظبط زي أسلوب Wego الفعلي. بالطريقة دي المسافر لسه حر يختار أي رحلة ذهاب مع أي
+   رحلة عودة (زي ما كان دايمًا فى الواجهة)، وكل سعر لوحده حقيقي وقابل للحجز فعلًا. المجموع بيبقى
+   دقيق فى كل الحالات، ماعدا حالة واحدة نادرة: لو المسافر اختار نفس شركة الطيران للذهاب والعودة،
+   ممكن الشركة تدي خصم "باقة" خاص أرخص من مجموع تذكرتين منفصلتين — الفرق ده مش متاح نحسبه من غير
+   نداء باقة مقفول منفصل، فبنسيبه كفرصة نادرة مش عيب فى الحساب (السعر عندنا يبقى أعلى شوية فى
+   الحالة دي بس، مش أوطى — يعني مفيش خطر تضليل بسعر واطي وهمي). */
 async function fetchDuffelFlightList(originIata, destIata, depDateISO, retDateISO){
   const badge = document.getElementById('resultsFlightsDisclaimer');
-  if (tripType !== 'one') return; // اترك الرحلات المولّدة تقديريًا لذهاب وعودة، والتنويه البرتقالي الافتراضي زي ما هو
   try{
-    const params = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
-    const res = await fetch('/api/duffel-search?' + params.toString());
-    if(!res.ok) return;
-    const data = await res.json();
-    if(!data || !Array.isArray(data.flights) || !data.flights.length) return;
-    const mapped = data.flights.map((f,i)=>{
-      const seg0 = f.segments[0], segLast = f.segments[f.segments.length-1];
-      if(!seg0 || !seg0.departingAt || !segLast || !segLast.arrivingAt) return null;
-      const depDateObj = new Date(seg0.departingAt), arrDateObj = new Date(segLast.arrivingAt);
-      const dep = seg0.departingAt.slice(11,16);
-      const durHours = Math.max(0.5, (arrDateObj - depDateObj) / 3600000);
-      const cur = (f.currency||'USD').toUpperCase();
-      const rate = RATES[cur];
-      if(!rate) return null; // عملة مش موجودة عندنا — نتجاهل العرض ده بدل ما نحسب بسعر غلط
-      const connections = f.segments.slice(0,-1).map((seg, idx)=>{
-        const nextSeg = f.segments[idx+1];
-        const layoverMin = Math.max(0, Math.round((new Date(nextSeg.departingAt) - new Date(seg.arrivingAt)) / 60000));
-        const code = (seg.destination && seg.destination.code) || '';
-        const name = (seg.destination && seg.destination.name) || code;
-        const city = (seg.destination && seg.destination.city) || code;
-        return { airport:{ code, name_ar:name, name_en:name, city_ar:city, city_en:city }, layoverMin };
-      });
-      return {
-        id: 'duffel-'+f.offerId+'-'+i,
-        airline: f.airline || seg0.airline,
-        code: seg0.flightNumber || '',
-        stops: f.segments.length - 1,
-        morning: dep < '12:00',
-        dur: Math.round(durHours*10)/10,
-        price: f.price / rate,
-        connections,
-        aircraft: seg0.aircraft || '—',
-        dep,
-        source: 'duffel', // وضع تجريبي حاليًا بسبب حظر الإمارات — مستخدم فى openTripDetails تحت عشان يقرر هل يسمح لـfetchDuffelBasePrice يستبدل السعر ده ولا لأ
-      };
-    }).filter(f=>f && f.price>0);
-    if(!mapped.length) return;
-    outbound = mapped.sort((a,b)=>a.price-b.price);
+    const outParams = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
+    const outRes = await fetch('/api/duffel-search?' + outParams.toString());
+    if(!outRes.ok) return;
+    const outData = await outRes.json();
+    const mappedOut = mapCarrierFlights(outData, 'duffel', 'out').sort((a,b)=>a.price-b.price);
+    if(!mappedOut.length) return;
+
+    let mappedIn = null;
+    if(tripType!=='one'){
+      if(!retDateISO) return;
+      const inParams = new URLSearchParams({origin:destIata, destination:originIata, departure_date:retDateISO});
+      const inRes = await fetch('/api/duffel-search?' + inParams.toString());
+      if(!inRes.ok) return;
+      const inData = await inRes.json();
+      mappedIn = mapCarrierFlights(inData, 'duffel', 'in').sort((a,b)=>a.price-b.price);
+      if(!mappedIn.length) return;
+    }
+
+    outbound = mappedOut;
+    if(mappedIn) inbound = mappedIn;
     renderFlightLists();
     if(badge){ badge.textContent = t('flights_real_disclaimer'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
   }catch(_dflListErr){ /* فشل الاتصال — تفضل الرحلات المولّدة تقديريًا مع التنويه البرتقالي الافتراضي */ }
@@ -4176,49 +4195,31 @@ async function fetchDuffelFlightList(originIata, destIata, depDateISO, retDateIS
    بيرجع بس شركات معروفة، الأرخص أولًا). بنجربه هو الأول لأنه بيانات حقيقية 100% فعلًا (Duffel
    لسه فى وضع تجريبي بسبب حظر الإمارات فى الدفع). لو فشل (شبكة/تايم آوت/انتهاء الكريديت المجاني
    الشهري)، بيرجع false والدالة اللي بتناديه بترجع لـDuffel كخط دفاع تاني تلقائيًا.
-   ⚠️ كل نداء بيكلّف 2 كريديت من رصيد FlightAPI.io — استخدم بحرص أثناء التجربة المجانية (30 كريديت/شهر). */
+   ⚠️ لرحلة ذهاب وعودة، بيعمل نداءين مستقلين (ذهاب + عودة بعكس المطار) — يعني 4 كريديت لكل بحث
+   ذهاب وعودة بدل 2 لرحلة اتجاه واحد. استخدم بحرص أثناء التجربة المجانية (30 كريديت/شهر). */
 async function fetchFlightApiFlightList(originIata, destIata, depDateISO, retDateISO){
   const badge = document.getElementById('resultsFlightsDisclaimer');
-  if (tripType !== 'one') return false; // نفس قيد Duffel بالظبط: باقة ذهاب وعودة غير قابلة للفصل والدمج الحر
   try{
-    const params = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
-    const res = await fetch('/api/flightapi-search?' + params.toString());
-    if(!res.ok) return false;
-    const data = await res.json();
-    if(!data || !Array.isArray(data.flights) || !data.flights.length) return false;
-    const mapped = data.flights.map((f,i)=>{
-      const seg0 = f.segments[0], segLast = f.segments[f.segments.length-1];
-      if(!seg0 || !seg0.departingAt || !segLast || !segLast.arrivingAt) return null;
-      const depDateObj = new Date(seg0.departingAt), arrDateObj = new Date(segLast.arrivingAt);
-      const dep = seg0.departingAt.slice(11,16);
-      const durHours = Math.max(0.5, (arrDateObj - depDateObj) / 3600000);
-      const cur = (f.currency||'USD').toUpperCase();
-      const rate = RATES[cur];
-      if(!rate) return null; // عملة مش موجودة عندنا — نتجاهل العرض ده بدل ما نحسب بسعر غلط
-      const connections = f.segments.slice(0,-1).map((seg, idx)=>{
-        const nextSeg = f.segments[idx+1];
-        const layoverMin = Math.max(0, Math.round((new Date(nextSeg.departingAt) - new Date(seg.arrivingAt)) / 60000));
-        const code = (seg.destination && seg.destination.code) || '';
-        const name = (seg.destination && seg.destination.name) || code;
-        const city = (seg.destination && seg.destination.city) || code;
-        return { airport:{ code, name_ar:name, name_en:name, city_ar:city, city_en:city }, layoverMin };
-      });
-      return {
-        id: 'flightapi-'+f.offerId+'-'+i,
-        airline: f.airline || seg0.airline,
-        code: seg0.flightNumber || '',
-        stops: f.segments.length - 1,
-        morning: dep < '12:00',
-        dur: Math.round(durHours*10)/10,
-        price: f.price / rate,
-        connections,
-        aircraft: seg0.aircraft || '—',
-        dep,
-        source: 'flightapi', // بيانات حقيقية ولحظية فعلًا (مش وضع تجريبي) — مستخدم فى openTripDetails تحت عشان نمنع Duffel (وضع تجريبي) من إنه يستبدل السعر الحقيقي ده بسعر وهمي
-      };
-    }).filter(f=>f && f.price>0);
-    if(!mapped.length) return false;
-    outbound = mapped.sort((a,b)=>a.price-b.price);
+    const outParams = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
+    const outRes = await fetch('/api/flightapi-search?' + outParams.toString());
+    if(!outRes.ok) return false;
+    const outData = await outRes.json();
+    const mappedOut = mapCarrierFlights(outData, 'flightapi', 'out').sort((a,b)=>a.price-b.price);
+    if(!mappedOut.length) return false;
+
+    let mappedIn = null;
+    if(tripType!=='one'){
+      if(!retDateISO) return false; // مفيش تاريخ عودة — نرجع false عشان نرجع للتقديري بدل بحث ناقص
+      const inParams = new URLSearchParams({origin:destIata, destination:originIata, departure_date:retDateISO});
+      const inRes = await fetch('/api/flightapi-search?' + inParams.toString());
+      if(!inRes.ok) return false;
+      const inData = await inRes.json();
+      mappedIn = mapCarrierFlights(inData, 'flightapi', 'in').sort((a,b)=>a.price-b.price);
+      if(!mappedIn.length) return false;
+    }
+
+    outbound = mappedOut;
+    if(mappedIn) inbound = mappedIn;
     renderFlightLists();
     if(badge){ badge.textContent = t('flights_real_disclaimer_flightapi'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
     return true;
