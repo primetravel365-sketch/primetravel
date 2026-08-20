@@ -23,6 +23,14 @@ module.exports = async function handler(req, res) {
     if (req.method === 'OPTIONS') { res.status(200).end(); return; }
     if (req.method !== 'GET') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
+    // ⚠️ قفل حماية على مستوى السيرفر — أُضيف 20 أغسطس 2026. راجع نفس التعليق فى flightapi-search.js:
+    // القفل فى site.html مش كافي لوحده (الرابط ده عام وأي حد يقدر ينادي عليه مباشرة). القيمة
+    // الافتراضية "مقفول" لحد ما تضيف FLIGHTAPI_LIVE_ENABLED=true فى Vercel Environment Variables.
+    if (process.env.FLIGHTAPI_LIVE_ENABLED !== 'true') {
+      res.status(200).json({ flights: [], note: 'temporarily_disabled' });
+      return;
+    }
+
     const { iata, mode, year, month, day, page } = req.query || {};
     if (!iata) {
       res.status(400).json({ error: 'iata (airport code) is required' });
