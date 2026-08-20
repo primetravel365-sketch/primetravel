@@ -1686,6 +1686,7 @@ const I18N = {
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
   price_disclaimer:"⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك",
   flights_real_disclaimer:"✅ نتائج حقيقية فعليًا (مواعيد وأرقام رحلات حقيقية عبر Duffel، وضع تجريبي حاليًا)",
+  flights_real_disclaimer_flightapi:"✅ نتائج حقيقية فعليًا ولحظيًا (أسعار ومواعيد حقيقية عبر FlightAPI.io — شركات طيران موثوقة فقط)",
   maintenance_notice:"⚠️ الموقع حاليًا تحت التجربة والتطوير — بعض الأسعار والنتائج قد تكون تقديرية مؤقتًا",
   corp_head:"فنادق ومناسبات", corp_sub:"حلول جاهزة تُحجز مباشرة — جرّب البحث والتواصل التجريبي بنفسك",
   filters:"الفلاتر",
@@ -1740,6 +1741,7 @@ const I18N = {
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
   price_disclaimer:"⚠️ Estimated price — the final price is confirmed when you complete booking on the partner's site",
   flights_real_disclaimer:"✅ Genuinely real results (real times & flight numbers via Duffel, currently in test mode)",
+  flights_real_disclaimer_flightapi:"✅ Genuinely real, live results (real prices & times via FlightAPI.io — trusted airlines only)",
   maintenance_notice:"⚠️ This site is currently in testing/development — some prices and results may be temporarily estimated",
   corp_head:"Hotels & Events", corp_sub:"Ready-made solutions you can book directly — try the demo search and contact flow yourself",
   filters:"Filters",
@@ -1794,6 +1796,7 @@ const I18N = {
   back_results:"Sonuçlara dön", tdp_title:"Seyahat detayları", price_opts_h:"Fiyat seçenekleri", price_opts_sub:"Gösterilen fiyatlara vergiler ve ödeme ücretleri dahildir",
   price_disclaimer:"⚠️ Tahmini fiyat — kesin fiyat, ortağın sitesinde rezervasyon tamamlanırken onaylanır",
   flights_real_disclaimer:"✅ Gerçek sonuçlar (Duffel üzerinden gerçek saatler ve uçuş numaraları, şu anda test modunda)",
+  flights_real_disclaimer_flightapi:"✅ Gerçek ve anlık sonuçlar (FlightAPI.io üzerinden gerçek fiyatlar ve saatler — yalnızca güvenilir havayolları)",
   maintenance_notice:"⚠️ Bu site şu anda test/geliştirme aşamasındadır — bazı fiyat ve sonuçlar geçici olarak tahmini olabilir",
   corp_head:"Oteller ve Etkinlikler", corp_sub:"Doğrudan rezervasyon yapabileceğiniz hazır çözümler — demo aramayı ve iletişim akışını kendiniz deneyin",
   filters:"Filtreler",
@@ -1848,6 +1851,7 @@ const I18N = {
   back_results:"Retour aux résultats", tdp_title:"Détails du voyage", price_opts_h:"Options de prix", price_opts_sub:"Les prix affichés incluent les taxes et frais de paiement",
   price_disclaimer:"⚠️ Prix estimé — le prix final est confirmé lors de la réservation sur le site du partenaire",
   flights_real_disclaimer:"✅ Résultats réellement authentiques (horaires et numéros de vol réels via Duffel, actuellement en mode test)",
+  flights_real_disclaimer_flightapi:"✅ Résultats réels et en direct (prix et horaires réels via FlightAPI.io — compagnies aériennes fiables uniquement)",
   maintenance_notice:"⚠️ Ce site est actuellement en phase de test/développement — certains prix et résultats peuvent être temporairement estimés",
   corp_head:"Hôtels et événements", corp_sub:"Solutions prêtes à réserver directement — essayez la recherche de démonstration et le flux de contact vous-même",
   filters:"Filtres",
@@ -1902,6 +1906,7 @@ const I18N = {
   back_results:"نتائج پر واپس جائیں", tdp_title:"سفر کی تفصیلات", price_opts_h:"قیمت کے اختیارات", price_opts_sub:"دکھائی گئی قیمتوں میں ٹیکس اور ادائیگی کے چارجز شامل ہیں",
   price_disclaimer:"⚠️ تخمینی قیمت — حتمی قیمت پارٹنر کی ویب سائٹ پر بکنگ مکمل کرتے وقت ظاہر ہوگی",
   flights_real_disclaimer:"✅ حقیقی نتائج (Duffel کے ذریعے حقیقی اوقات اور فلائٹ نمبرز، فی الحال ٹیسٹ موڈ میں)",
+  flights_real_disclaimer_flightapi:"✅ حقیقی اور لائیو نتائج (FlightAPI.io کے ذریعے حقیقی قیمتیں اور اوقات — صرف قابلِ اعتماد ایئرلائنز)",
   maintenance_notice:"⚠️ یہ سائٹ فی الحال ٹیسٹنگ/ڈیولپمنٹ میں ہے — کچھ قیمتیں اور نتائج عارضی طور پر تخمینی ہو سکتے ہیں",
   corp_head:"ہوٹلز اور تقریبات", corp_sub:"براہ راست بک کیے جا سکنے والے تیار حل — خود ڈیمو سرچ اور رابطہ آزمائیں",
   filters:"فلٹرز",
@@ -3824,7 +3829,15 @@ function openTripDetails(){
   const depVal = document.getElementById('depDate').value;
   const retVal = tripType==='one' ? '' : document.getElementById('retDate').value;
   const estimatedBasePrice = fOut.price + (fIn ? fIn.price : 0);
-  renderPriceOptionsList(estimatedBasePrice, fOut, fIn, fromAp, toAp, depVal, retVal, false);
+  // ⚠️ إصلاح 20 أغسطس 2026: لو رحلة الذهاب (fOut) أصلًا سعرها حقيقي ولحظي جاي من FlightAPI.io
+  // (source==='flightapi')، يبقى السعر ده مش لازم يتستبدل بأي حاجة تانية — وبالتحديد لازم منمنعش
+  // Duffel (لسه فى وضع تجريبي/بيانات وهمية بسبب حظر الإمارات) من إنه "يكتسح" السعر الحقيقي ده
+  // برقم وهمي ويتوسم غلط إنه "حقيقي". من غير الإصلاح ده، كان ممكن يحصل بالظبط العكس اللي إحنا
+  // مشتركين في FlightAPI عشانه: زائر يشوف سعر حقيقي فعلًا في نتائج البحث، وبعدين لما يفتح تفاصيل
+  // الرحلة يتبدله رقم من Duffel التجريبي من غير ما حد ياخد باله.
+  const alreadyRealFromFlightApi = fOut.source === 'flightapi' && (!fIn || fIn.source === 'flightapi');
+  renderPriceOptionsList(estimatedBasePrice, fOut, fIn, fromAp, toAp, depVal, retVal,
+    alreadyRealFromFlightApi, alreadyRealFromFlightApi ? { airline: fOut.airline, live: true, source: 'flightapi' } : null);
   // نحاول نجيب سعر حقيقي لـKiwi.com/Aviasales تحديدًا عبر وسيط السيرفر (api/tp-price.js) ونحدّث
   // صفهم في القائمة لحظيًا؛ لو الوسيط فشل (توكن غير مضاف في Vercel أو خطأ اتصال) الدالة بترجع null
   // فورًا ومفيش أي تأثير — الصف بيفضل بالسعر التقديري كـfallback.
@@ -3835,16 +3848,18 @@ function openTripDetails(){
   let liveKiwiUSD = null, liveAviaUSD = null;
   fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveKiwiUSD = v; updateLivePriceRow('Kiwi.com', v); });
   fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveAviaUSD = v; updateLivePriceRow('Aviasales', v); });
-  // تحديث 19 أغسطس 2026: محاولة جلب سعر أساس حقيقي فعلي من Duffel (عبر وسيط /api/duffel-search على
-  // نفس السيرفر — التوكن محفوظ هناك وليس في هذا الملف). لو نجحت، نعيد رسم كل قائمة الأسعار على أساس
-  // السعر الحقيقي ده بدل السعر العشوائي المولّد محليًا، ونوضّح للزائر إن السعر الأساسي بقى حقيقي.
-  fetchDuffelBasePrice(fromAp.code, toAp.code, depVal, retVal).then(real=>{
-    if (!real || !real.priceAED) return;
-    renderPriceOptionsList(real.priceAED, fOut, fIn, fromAp, toAp, depVal, retVal, true, real);
-    // نعيد تطبيق أي سعر حقيقي كنا جبناه من Kiwi/Aviasales قبل كده، عشان الرسم الجديد ده ميمسحوش
-    if (liveKiwiUSD != null) updateLivePriceRow('Kiwi.com', liveKiwiUSD);
-    if (liveAviaUSD != null) updateLivePriceRow('Aviasales', liveAviaUSD);
-  });
+  // تحديث 19 أغسطس 2026 (مُقيَّد اعتبارًا من 20 أغسطس 2026): محاولة جلب سعر أساس حقيقي فعلي من
+  // Duffel (عبر وسيط /api/duffel-search) — لكن بس لو مفيش أصلًا سعر حقيقي جاهز من FlightAPI.io،
+  // عشان Duffel (وضع تجريبي) ميستبدلش سعر حقيقي فعلي بسعر وهمي زي ما شرحنا فوق.
+  if (!alreadyRealFromFlightApi) {
+    fetchDuffelBasePrice(fromAp.code, toAp.code, depVal, retVal).then(real=>{
+      if (!real || !real.priceAED) return;
+      renderPriceOptionsList(real.priceAED, fOut, fIn, fromAp, toAp, depVal, retVal, true, { ...real, source: 'duffel' });
+      // نعيد تطبيق أي سعر حقيقي كنا جبناه من Kiwi/Aviasales قبل كده، عشان الرسم الجديد ده ميمسحوش
+      if (liveKiwiUSD != null) updateLivePriceRow('Kiwi.com', liveKiwiUSD);
+      if (liveAviaUSD != null) updateLivePriceRow('Aviasales', liveAviaUSD);
+    });
+  }
   document.getElementById('resultsPage').classList.remove('open');
   document.getElementById('tripDetailsPage').classList.add('open');
   window.scrollTo({top:0});
@@ -3884,14 +3899,18 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
       window.open(site, '_blank', 'noopener'); // opens the provider's own official site
     };
   });
-  // تحديث السطر التوضيحي: لو السعر الأساسي بقى حقيقي فعلاً من Duffel، نستبدل تنويه "تقديري" برسالة
-  // أدق (السعر الأساسي حقيقي، والفروق بين الشركاء لسه تقديرية لحد ما نربط سعر حقيقي لكل شريك لوحده).
+  // تحديث السطر التوضيحي: لو السعر الأساسي بقى حقيقي فعلاً (من FlightAPI.io أو Duffel)، نستبدل
+  // تنويه "تقديري" برسالة أدق (السعر الأساسي حقيقي، والفروق بين الشركاء لسه تقديرية لحد ما نربط
+  // سعر حقيقي لكل شريك لوحده). إصلاح 20 أغسطس 2026: النص بقى يوضّح المصدر الفعلي (FlightAPI.io
+  // حقيقي ولحظي 100%، أو Duffel لسه وضع تجريبي) بدل ما يفترض دايمًا إنه Duffel.
   const disclaimerEl = document.querySelector('#priceOptionsList').closest('.price-options').querySelector('.price-disclaimer');
   if (disclaimerEl) {
+    const srcName = (realInfo && realInfo.source === 'flightapi') ? 'FlightAPI.io' : 'Duffel';
+    const isTestMode = !(realInfo && realInfo.live);
     disclaimerEl.textContent = isRealBase
       ? (currentLang==='ar'
-          ? `✅ السعر الأساسي حقيقي فعليًا (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}عبر Duffel${realInfo && !realInfo.live ? '، وضع تجريبي' : ''}) — الفروق بين شركات الحجز لسه تقديرية`
-          : `✅ Base price is real (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}via Duffel${realInfo && !realInfo.live ? ', test mode' : ''}) — per-partner differences are still estimated`)
+          ? `✅ السعر الأساسي حقيقي فعليًا (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}عبر ${srcName}${isTestMode ? '، وضع تجريبي' : ''}) — الفروق بين شركات الحجز لسه تقديرية`
+          : `✅ Base price is real (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}via ${srcName}${isTestMode ? ', test mode' : ''}) — per-partner differences are still estimated`)
       : t('price_disclaimer');
   }
 }
@@ -3956,6 +3975,7 @@ async function fetchDuffelFlightList(originIata, destIata, depDateISO, retDateIS
         connections,
         aircraft: seg0.aircraft || '—',
         dep,
+        source: 'duffel', // وضع تجريبي حاليًا بسبب حظر الإمارات — مستخدم فى openTripDetails تحت عشان يقرر هل يسمح لـfetchDuffelBasePrice يستبدل السعر ده ولا لأ
       };
     }).filter(f=>f && f.price>0);
     if(!mapped.length) return;
@@ -3963,6 +3983,59 @@ async function fetchDuffelFlightList(originIata, destIata, depDateISO, retDateIS
     renderFlightLists();
     if(badge){ badge.textContent = t('flights_real_disclaimer'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
   }catch(_dflListErr){ /* فشل الاتصال — تفضل الرحلات المولّدة تقديريًا مع التنويه البرتقالي الافتراضي */ }
+}
+/* تحديث 20 أغسطس 2026 — FlightAPI.io: مصدر بيانات طيران حقيقي فعليًا (مش وضع تجريبي زي Duffel
+   حاليًا)، مع فلترة شركات موثوقة وحد أقصى 8 نتائج جاهزة من السيرفر نفسه (api/flightapi-search.js
+   بيرجع بس شركات معروفة، الأرخص أولًا). بنجربه هو الأول لأنه بيانات حقيقية 100% فعلًا (Duffel
+   لسه فى وضع تجريبي بسبب حظر الإمارات فى الدفع). لو فشل (شبكة/تايم آوت/انتهاء الكريديت المجاني
+   الشهري)، بيرجع false والدالة اللي بتناديه بترجع لـDuffel كخط دفاع تاني تلقائيًا.
+   ⚠️ كل نداء بيكلّف 2 كريديت من رصيد FlightAPI.io — استخدم بحرص أثناء التجربة المجانية (30 كريديت/شهر). */
+async function fetchFlightApiFlightList(originIata, destIata, depDateISO, retDateISO){
+  const badge = document.getElementById('resultsFlightsDisclaimer');
+  if (tripType !== 'one') return false; // نفس قيد Duffel بالظبط: باقة ذهاب وعودة غير قابلة للفصل والدمج الحر
+  try{
+    const params = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
+    const res = await fetch('/api/flightapi-search?' + params.toString());
+    if(!res.ok) return false;
+    const data = await res.json();
+    if(!data || !Array.isArray(data.flights) || !data.flights.length) return false;
+    const mapped = data.flights.map((f,i)=>{
+      const seg0 = f.segments[0], segLast = f.segments[f.segments.length-1];
+      if(!seg0 || !seg0.departingAt || !segLast || !segLast.arrivingAt) return null;
+      const depDateObj = new Date(seg0.departingAt), arrDateObj = new Date(segLast.arrivingAt);
+      const dep = seg0.departingAt.slice(11,16);
+      const durHours = Math.max(0.5, (arrDateObj - depDateObj) / 3600000);
+      const cur = (f.currency||'USD').toUpperCase();
+      const rate = RATES[cur];
+      if(!rate) return null; // عملة مش موجودة عندنا — نتجاهل العرض ده بدل ما نحسب بسعر غلط
+      const connections = f.segments.slice(0,-1).map((seg, idx)=>{
+        const nextSeg = f.segments[idx+1];
+        const layoverMin = Math.max(0, Math.round((new Date(nextSeg.departingAt) - new Date(seg.arrivingAt)) / 60000));
+        const code = (seg.destination && seg.destination.code) || '';
+        const name = (seg.destination && seg.destination.name) || code;
+        const city = (seg.destination && seg.destination.city) || code;
+        return { airport:{ code, name_ar:name, name_en:name, city_ar:city, city_en:city }, layoverMin };
+      });
+      return {
+        id: 'flightapi-'+f.offerId+'-'+i,
+        airline: f.airline || seg0.airline,
+        code: seg0.flightNumber || '',
+        stops: f.segments.length - 1,
+        morning: dep < '12:00',
+        dur: Math.round(durHours*10)/10,
+        price: f.price / rate,
+        connections,
+        aircraft: seg0.aircraft || '—',
+        dep,
+        source: 'flightapi', // بيانات حقيقية ولحظية فعلًا (مش وضع تجريبي) — مستخدم فى openTripDetails تحت عشان نمنع Duffel (وضع تجريبي) من إنه يستبدل السعر الحقيقي ده بسعر وهمي
+      };
+    }).filter(f=>f && f.price>0);
+    if(!mapped.length) return false;
+    outbound = mapped.sort((a,b)=>a.price-b.price);
+    renderFlightLists();
+    if(badge){ badge.textContent = t('flights_real_disclaimer_flightapi'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
+    return true;
+  }catch(_faErr){ return false; } // فشل الاتصال — نرجع false عشان الدالة اللي بتناديه تجرب Duffel كخط دفاع تاني
 }
 function closeTripDetails(){
   document.getElementById('tripDetailsPage').classList.remove('open');
@@ -4080,7 +4153,11 @@ function goResults(){
   const flightsBadge = document.getElementById('resultsFlightsDisclaimer');
   if(flightsBadge){ flightsBadge.textContent = t('price_disclaimer'); flightsBadge.style.color=''; flightsBadge.style.background=''; }
   buildCompareStrip(); // نحدّث شريط "قارن أسعار أيام الحجز" بأسعار حقيقية لنفس المسار اللي اتبحث عنه فعليًا
-  fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
+  // تحديث 20 أغسطس 2026: نجرب FlightAPI.io الأول (بيانات حقيقية فعليًا، مش وضع تجريبي)، ولو فشل
+  // (شبكة/تايم آوت/كريديت خلص) نرجع لـDuffel تلقائيًا كخط دفاع تاني — بدون ما الزائر يحس بأي فرق.
+  fetchFlightApiFlightList(fromAp.code, toAp.code, depVal, retVal).then(success=>{
+    if(!success) fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
+  });
 }
 function goHome(){
   document.getElementById('resultsPage').classList.remove('open');
