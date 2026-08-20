@@ -206,6 +206,8 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .btn{padding:8px 16px; border-radius:9px; font-size:13px; font-weight:700; white-space:nowrap;}
 .btn-ghost{background:transparent; border:1px solid var(--border); color:var(--text);}
 .btn-primary{background:var(--blue); color:#fff;}
+/* أُضيف 20 أغسطس 2026 — حالة "مفعّل" لزراير تبديل مغادرة/وصول فى مودال جدول المطار */
+.sched-mode-btn.active{background:var(--blue); color:#fff; border-color:var(--blue);}
 .btn-gold{background:linear-gradient(135deg,var(--gold-l),var(--gold)); color:#221703; font-weight:800;}
 .icon-btn{width:34px; height:34px; border-radius:9px; background:var(--card); color:var(--dim); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); font-size:15px;}
 .icon-btn:hover{color:var(--text);}
@@ -938,6 +940,31 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     </div>
     <button class="btn btn-primary" id="trackerGoBtn" style="width:100%; padding:11px;" data-i18n="tracker_go">تتبع الآن</button>
     <p style="font-size:10.5px; color:var(--dim); text-align:center; margin-top:12px;" data-i18n="tracker_note">بيانات مباشرة حقيقية عبر Flightradar24 — يفتح في نافذة جديدة</p>
+    <!-- ⚠️ أُضيف 20 أغسطس 2026: صندوق يعرض حالة الرحلة الحقيقية (من FlightAPI.io) جوه الموقع نفسه،
+         بالإضافة لرابط Flightradar24 مش بديل عنه. يظهر بس لو FLIGHTAPI_REAL_SEARCH_ENABLED مفعّل
+         أو ?live_flights=1 فى الرابط (حماية كريديت FlightAPI المجاني). -->
+    <div id="trackerResultBox" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ============ AIRPORT SCHEDULE — أُضيف 20 أغسطس 2026: ميزة جديدة بالكامل تعرض جدول إقلاع/هبوط
+     حقيقي لأي مطار من مطارات الموقع عبر FlightAPI.io Airport Schedule API — ميزة تميّز عن مواقع
+     الميتاسيرش التانية. مقيّدة بنفس حماية الكريديت المطبّقة على باقي ميزات FlightAPI. ============ -->
+<div class="overlay" id="scheduleModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-head"><h3 data-i18n="schedule_title">جدول المطار</h3><button class="close-x" id="closeScheduleModal">✕</button></div>
+    <p style="font-size:12px; color:var(--dim); margin-bottom:14px;" data-i18n="schedule_sub">اختر المطار لمتابعة جدول الرحلات الحقيقي (مغادرة/وصول).</p>
+    <div class="field" style="margin-bottom:10px;">
+      <label style="display:block; font-size:12px; color:var(--dim); margin-bottom:5px;" data-i18n="schedule_airport">المطار</label>
+      <select id="scheduleAirportSel" style="width:100%; background:var(--card2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; color:var(--text); font-size:13px;"></select>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:14px;">
+      <button type="button" class="btn btn-ghost sched-mode-btn active" data-mode="dep" style="flex:1;" data-i18n="schedule_departures">🛫 مغادرة</button>
+      <button type="button" class="btn btn-ghost sched-mode-btn" data-mode="arr" style="flex:1;" data-i18n="schedule_arrivals">🛬 وصول</button>
+    </div>
+    <button class="btn btn-primary" id="scheduleGoBtn" style="width:100%; padding:11px;" data-i18n="schedule_go">عرض الجدول</button>
+    <div id="scheduleResultBox" style="margin-top:14px; max-height:340px; overflow-y:auto;"></div>
+    <p style="font-size:10.5px; color:var(--dim); text-align:center; margin-top:10px;" data-i18n="schedule_note">بيانات جدول حقيقية عبر FlightAPI.io</p>
   </div>
 </div>
 
@@ -950,6 +977,14 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <div class="eyebrow" data-i18n="eyebrow">المستشار الذكي لسفرك</div>
     <h1><span data-i18n="brand">PrimeTravel365</span> <span data-i18n="hero_h1">اكتشف العالم معنا</span></h1>
     <p data-i18n="hero_p">أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.</p>
+    <!-- ⚠️ أُضيف 20 أغسطس 2026: زرارَي "تتبع الطيران المباشر" و"جدول المطار" ظاهرين فى الصفحة
+         الرئيسية نفسها (مش بس فى الهيدر) — الواحد تحت التاني بالظبط زي ما اتطلب. نفس المودالات
+         الموجودة أصلًا (btnFlightTracker شغال بالـid بتاعه فى الهيدر، وهنا زرار تاني بـid مختلف
+         بيفتح نفس المودال؛ زرار جدول المطار جديد بالكامل). -->
+    <div class="hero-quick-tools" style="display:flex; flex-direction:column; gap:8px; max-width:280px; margin:16px auto 0;">
+      <button class="btn btn-ghost" id="btnFlightTrackerHome" style="display:flex; align-items:center; justify-content:center; gap:6px;" data-i18n="flight_tracker_btn">📡 تتبع الطيران المباشر</button>
+      <button class="btn btn-ghost" id="btnAirportSchedule" style="display:flex; align-items:center; justify-content:center; gap:6px;" data-i18n="airport_schedule_btn">🛫 جدول المطار</button>
+    </div>
   </section>
 
   <!-- ============ UNIFIED HERO SEARCH BOX — real, fully-functional forms (not a summary widget),
@@ -1678,13 +1713,20 @@ const I18N = {
   tracker_sub:"أدخل رقم الرحلة (مثال: TK1، EK203) لمتابعة موقعها المباشر فورًا.",
   tracker_flight_no:"رقم الرحلة", tracker_go:"تتبع الآن",
   tracker_note:"بيانات مباشرة حقيقية عبر Flightradar24 — يفتح في نافذة جديدة",
+  tracker_loading:"جارٍ جلب حالة الرحلة الحقيقية…", tracker_no_data:"محدش لقى بيانات لحظية لهذه الرحلة حاليًا — جرّب الخريطة المباشرة",
+  tracker_departure:"المغادرة", tracker_arrival:"الوصول",
+  airport_schedule_btn:"🛫 جدول المطار", schedule_title:"جدول المطار",
+  schedule_sub:"اختر المطار لمتابعة جدول الرحلات الحقيقي (مغادرة/وصول).", schedule_airport:"المطار",
+  schedule_departures:"🛫 مغادرة", schedule_arrivals:"🛬 وصول", schedule_go:"عرض الجدول",
+  schedule_note:"بيانات جدول حقيقية عبر FlightAPI.io", schedule_no_data:"مفيش بيانات جدول متاحة لهذا المطار حاليًا",
+  schedule_coming_soon:"الميزة دي قريبًا — لسه بنجهزها", schedule_loading:"جارٍ تحميل الجدول…",
   admin_title:"لوحة تحكم الإدارة — العمولات والتتبع", admin_clicks:"نقرات هذا الشهر", admin_bookings:"حجوزات مؤكدة", admin_commission:"إجمالي العمولات",
   admin_partner:"مكتب الحجز / شركة الطيران", admin_click2:"نقرات", admin_book2:"حجوزات", admin_earn:"العمولة",
   admin_note:"هذه بيانات توضيحية — عند الربط الفعلي بشركاء الحجز سيتم سحب هذه الأرقام تلقائيًا من واجهات API الخاصة بهم.",
   toast_alert:"هذه الميزة قيد التطوير حاليًا وستُفعَّل قريبًا", stops_direct:"مباشرة", stops_n:"توقف",
   combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن", manual_book_btn:"احجز الرحلتين المختارتين", manual_select_out:"اختر رحلة الذهاب", manual_select_in:"اختر رحلة العودة",
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
-  price_disclaimer:"⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك",
+  price_disclaimer:"⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك، وقد يختلف حسب سياسة الموقع نفسه (عروض ترويجية، خيارات الحقائب، أو إضافات أخرى)",
   flights_real_disclaimer:"✅ نتائج حقيقية فعليًا (مواعيد وأرقام رحلات حقيقية عبر Duffel، وضع تجريبي حاليًا)",
   flights_real_disclaimer_flightapi:"✅ نتائج حقيقية فعليًا ولحظيًا (أسعار ومواعيد حقيقية عبر FlightAPI.io — شركات طيران موثوقة فقط)",
   maintenance_notice:"⚠️ الموقع حاليًا تحت التجربة والتطوير — بعض الأسعار والنتائج قد تكون تقديرية مؤقتًا",
@@ -1733,13 +1775,20 @@ const I18N = {
   tracker_sub:"Enter the flight number (e.g. TK1, EK203) to follow its live position right now.",
   tracker_flight_no:"Flight number", tracker_go:"Track now",
   tracker_note:"Real live data via Flightradar24 — opens in a new tab",
+  tracker_loading:"Fetching real flight status…", tracker_no_data:"No live data found for this flight right now — try the live map",
+  tracker_departure:"Departure", tracker_arrival:"Arrival",
+  airport_schedule_btn:"🛫 Airport schedule", schedule_title:"Airport schedule",
+  schedule_sub:"Choose an airport to see its real flight schedule (departures/arrivals).", schedule_airport:"Airport",
+  schedule_departures:"🛫 Departures", schedule_arrivals:"🛬 Arrivals", schedule_go:"Show schedule",
+  schedule_note:"Real schedule data via FlightAPI.io", schedule_no_data:"No schedule data available for this airport right now",
+  schedule_coming_soon:"Coming soon — we're still setting this up", schedule_loading:"Loading schedule…",
   admin_title:"Admin panel — commissions and tracking", admin_clicks:"Clicks this month", admin_bookings:"Confirmed bookings", admin_commission:"Total commission",
   admin_partner:"Agency / airline", admin_click2:"Clicks", admin_book2:"Bookings", admin_earn:"Commission",
   admin_note:"Sample data shown here — once connected to real booking partners, these figures will be pulled live from their APIs.",
   toast_alert:"This feature is under development and will be enabled soon", stops_direct:"Direct", stops_n:"stop",
   combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now", manual_book_btn:"Book selected flights", manual_select_out:"Select outbound flight", manual_select_in:"Select return flight",
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
-  price_disclaimer:"⚠️ Estimated price — the final price is confirmed when you complete booking on the partner's site",
+  price_disclaimer:"⚠️ Estimated price — the final price is confirmed when you complete booking on the partner's site, and may vary based on that site's own policies (promotions, baggage options, or other add-ons)",
   flights_real_disclaimer:"✅ Genuinely real results (real times & flight numbers via Duffel, currently in test mode)",
   flights_real_disclaimer_flightapi:"✅ Genuinely real, live results (real prices & times via FlightAPI.io — trusted airlines only)",
   maintenance_notice:"⚠️ This site is currently in testing/development — some prices and results may be temporarily estimated",
@@ -1788,13 +1837,20 @@ const I18N = {
   tracker_sub:"Konumunu anında takip etmek için uçuş numarasını girin (örn. TK1, EK203).",
   tracker_flight_no:"Uçuş numarası", tracker_go:"Şimdi takip et",
   tracker_note:"Flightradar24 üzerinden gerçek canlı veri — yeni sekmede açılır",
+  tracker_loading:"Gerçek uçuş durumu alınıyor…", tracker_no_data:"Bu uçuş için şu anda canlı veri bulunamadı — canlı haritayı deneyin",
+  tracker_departure:"Kalkış", tracker_arrival:"Varış",
+  airport_schedule_btn:"🛫 Havalimanı programı", schedule_title:"Havalimanı programı",
+  schedule_sub:"Gerçek uçuş programını görmek için bir havalimanı seçin (kalkış/varış).", schedule_airport:"Havalimanı",
+  schedule_departures:"🛫 Kalkışlar", schedule_arrivals:"🛬 Varışlar", schedule_go:"Programı göster",
+  schedule_note:"FlightAPI.io üzerinden gerçek program verisi", schedule_no_data:"Şu anda bu havalimanı için program verisi yok",
+  schedule_coming_soon:"Yakında — hâlâ hazırlıyoruz", schedule_loading:"Program yükleniyor…",
   admin_title:"Yönetim paneli — komisyonlar ve takip", admin_clicks:"Bu ayki tıklamalar", admin_bookings:"Onaylanmış rezervasyonlar", admin_commission:"Toplam komisyon",
   admin_partner:"Acente / havayolu", admin_click2:"Tıklamalar", admin_book2:"Rezervasyonlar", admin_earn:"Komisyon",
   admin_note:"Burada örnek veriler gösterilmektedir — gerçek rezervasyon ortaklarına bağlandığında bu rakamlar API'lerinden canlı olarak çekilecektir.",
   toast_alert:"Bu özellik geliştirme aşamasında, yakında aktif olacak", stops_direct:"Direkt", stops_n:"aktarma",
   combined_results:"Uçuşlar (gidiş-dönüş)", total_price:"Toplam fiyat", continue_booking:"Şimdi rezervasyon yap", manual_book_btn:"Seçilen uçuşları rezerve et", manual_select_out:"Gidiş uçuşunu seçin", manual_select_in:"Dönüş uçuşunu seçin",
   back_results:"Sonuçlara dön", tdp_title:"Seyahat detayları", price_opts_h:"Fiyat seçenekleri", price_opts_sub:"Gösterilen fiyatlara vergiler ve ödeme ücretleri dahildir",
-  price_disclaimer:"⚠️ Tahmini fiyat — kesin fiyat, ortağın sitesinde rezervasyon tamamlanırken onaylanır",
+  price_disclaimer:"⚠️ Tahmini fiyat — kesin fiyat, ortağın sitesinde rezervasyon tamamlanırken onaylanır ve o sitenin kendi politikalarına göre değişebilir (promosyonlar, bagaj seçenekleri veya diğer ek hizmetler)",
   flights_real_disclaimer:"✅ Gerçek sonuçlar (Duffel üzerinden gerçek saatler ve uçuş numaraları, şu anda test modunda)",
   flights_real_disclaimer_flightapi:"✅ Gerçek ve anlık sonuçlar (FlightAPI.io üzerinden gerçek fiyatlar ve saatler — yalnızca güvenilir havayolları)",
   maintenance_notice:"⚠️ Bu site şu anda test/geliştirme aşamasındadır — bazı fiyat ve sonuçlar geçici olarak tahmini olabilir",
@@ -1843,13 +1899,20 @@ const I18N = {
   tracker_sub:"Entrez le numéro de vol (ex. TK1, EK203) pour suivre sa position en direct.",
   tracker_flight_no:"Numéro de vol", tracker_go:"Suivre maintenant",
   tracker_note:"Données en direct réelles via Flightradar24 — s'ouvre dans un nouvel onglet",
+  tracker_loading:"Récupération du statut réel du vol…", tracker_no_data:"Aucune donnée en direct trouvée pour ce vol actuellement — essayez la carte en direct",
+  tracker_departure:"Départ", tracker_arrival:"Arrivée",
+  airport_schedule_btn:"🛫 Horaires de l'aéroport", schedule_title:"Horaires de l'aéroport",
+  schedule_sub:"Choisissez un aéroport pour voir ses horaires de vols réels (départs/arrivées).", schedule_airport:"Aéroport",
+  schedule_departures:"🛫 Départs", schedule_arrivals:"🛬 Arrivées", schedule_go:"Afficher les horaires",
+  schedule_note:"Données d'horaires réelles via FlightAPI.io", schedule_no_data:"Aucune donnée d'horaires disponible pour cet aéroport actuellement",
+  schedule_coming_soon:"Bientôt disponible — encore en préparation", schedule_loading:"Chargement des horaires…",
   admin_title:"Panneau d'administration — commissions et suivi", admin_clicks:"Clics ce mois-ci", admin_bookings:"Réservations confirmées", admin_commission:"Commission totale",
   admin_partner:"Agence / compagnie aérienne", admin_click2:"Clics", admin_book2:"Réservations", admin_earn:"Commission",
   admin_note:"Données d'exemple affichées ici — une fois connecté aux partenaires de réservation réels, ces chiffres seront extraits en direct de leurs API.",
   toast_alert:"Cette fonctionnalité est en cours de développement et sera bientôt activée", stops_direct:"Direct", stops_n:"escale",
   combined_results:"Vols (aller-retour)", total_price:"Prix total", continue_booking:"Réserver maintenant", manual_book_btn:"Réserver les vols sélectionnés", manual_select_out:"Choisir le vol aller", manual_select_in:"Choisir le vol retour",
   back_results:"Retour aux résultats", tdp_title:"Détails du voyage", price_opts_h:"Options de prix", price_opts_sub:"Les prix affichés incluent les taxes et frais de paiement",
-  price_disclaimer:"⚠️ Prix estimé — le prix final est confirmé lors de la réservation sur le site du partenaire",
+  price_disclaimer:"⚠️ Prix estimé — le prix final est confirmé lors de la réservation sur le site du partenaire, et peut varier selon les propres politiques de ce site (promotions, options de bagages ou autres suppléments)",
   flights_real_disclaimer:"✅ Résultats réellement authentiques (horaires et numéros de vol réels via Duffel, actuellement en mode test)",
   flights_real_disclaimer_flightapi:"✅ Résultats réels et en direct (prix et horaires réels via FlightAPI.io — compagnies aériennes fiables uniquement)",
   maintenance_notice:"⚠️ Ce site est actuellement en phase de test/développement — certains prix et résultats peuvent être temporairement estimés",
@@ -1898,13 +1961,20 @@ const I18N = {
   tracker_sub:"فوری طور پر اس کی لائیو پوزیشن دیکھنے کے لیے پرواز کا نمبر درج کریں (مثلاً TK1، EK203)۔",
   tracker_flight_no:"پرواز کا نمبر", tracker_go:"ابھی ٹریک کریں",
   tracker_note:"Flightradar24 کے ذریعے حقیقی لائیو ڈیٹا — نئے ٹیب میں کھلتا ہے",
+  tracker_loading:"حقیقی پرواز کی صورتحال حاصل کی جا رہی ہے…", tracker_no_data:"اس پرواز کے لیے فی الحال کوئی لائیو ڈیٹا نہیں ملا — لائیو نقشہ آزمائیں",
+  tracker_departure:"روانگی", tracker_arrival:"آمد",
+  airport_schedule_btn:"🛫 ایئرپورٹ شیڈول", schedule_title:"ایئرپورٹ شیڈول",
+  schedule_sub:"حقیقی پرواز کا شیڈول دیکھنے کے لیے ایئرپورٹ منتخب کریں (روانگی/آمد)۔", schedule_airport:"ایئرپورٹ",
+  schedule_departures:"🛫 روانگی", schedule_arrivals:"🛬 آمد", schedule_go:"شیڈول دکھائیں",
+  schedule_note:"FlightAPI.io کے ذریعے حقیقی شیڈول ڈیٹا", schedule_no_data:"فی الحال اس ایئرپورٹ کے لیے کوئی شیڈول ڈیٹا دستیاب نہیں",
+  schedule_coming_soon:"جلد آ رہا ہے — ابھی تیار کر رہے ہیں", schedule_loading:"شیڈول لوڈ ہو رہا ہے…",
   admin_title:"ایڈمن پینل — کمیشن اور ٹریکنگ", admin_clicks:"اس ماہ کے کلکس", admin_bookings:"تصدیق شدہ بکنگز", admin_commission:"کل کمیشن",
   admin_partner:"ایجنسی / ایئرلائن", admin_click2:"کلکس", admin_book2:"بکنگز", admin_earn:"کمیشن",
   admin_note:"یہاں نمونہ ڈیٹا دکھایا گیا ہے — حقیقی بکنگ پارٹنرز سے منسلک ہونے کے بعد یہ اعداد و شمار براہ راست ان کے API سے حاصل کیے جائیں گے۔",
   toast_alert:"یہ فیچر ابھی زیرِ تعمیر ہے اور جلد فعال کیا جائے گا", stops_direct:"براہ راست", stops_n:"سٹاپ",
   combined_results:"پروازیں (راؤنڈ ٹرپ)", total_price:"کل قیمت", continue_booking:"ابھی بک کریں", manual_book_btn:"منتخب پروازیں بک کریں", manual_select_out:"جانے کی پرواز منتخب کریں", manual_select_in:"واپسی کی پرواز منتخب کریں",
   back_results:"نتائج پر واپس جائیں", tdp_title:"سفر کی تفصیلات", price_opts_h:"قیمت کے اختیارات", price_opts_sub:"دکھائی گئی قیمتوں میں ٹیکس اور ادائیگی کے چارجز شامل ہیں",
-  price_disclaimer:"⚠️ تخمینی قیمت — حتمی قیمت پارٹنر کی ویب سائٹ پر بکنگ مکمل کرتے وقت ظاہر ہوگی",
+  price_disclaimer:"⚠️ تخمینی قیمت — حتمی قیمت پارٹنر کی ویب سائٹ پر بکنگ مکمل کرتے وقت ظاہر ہوگی، اور اس ویب سائٹ کی اپنی پالیسیوں (پروموشنز، سامان کے اختیارات، یا دیگر اضافی سہولیات) کے مطابق مختلف ہو سکتی ہے",
   flights_real_disclaimer:"✅ حقیقی نتائج (Duffel کے ذریعے حقیقی اوقات اور فلائٹ نمبرز، فی الحال ٹیسٹ موڈ میں)",
   flights_real_disclaimer_flightapi:"✅ حقیقی اور لائیو نتائج (FlightAPI.io کے ذریعے حقیقی قیمتیں اور اوقات — صرف قابلِ اعتماد ایئرلائنز)",
   maintenance_notice:"⚠️ یہ سائٹ فی الحال ٹیسٹنگ/ڈیولپمنٹ میں ہے — کچھ قیمتیں اور نتائج عارضی طور پر تخمینی ہو سکتے ہیں",
@@ -2715,6 +2785,18 @@ function buildTicker(){
    البحث لسه بيانات وهمية (genHotels)، وبانتظار الاشتراك فى مصدر بيانات حقيقي
    (SerpApi Google Hotels أو غيره). لإعادة تفعيل الميزة، غيّر القيمة دي إلى true فقط. */
 const HOTEL_SEARCH_ENABLED = false;
+/* ============ حماية مؤقتة لرصيد FlightAPI.io المجاني — أُضيف 20 أغسطس 2026 ============
+   الرصيد المجاني محدود (30 كريديت/شهر = ~15 بحث فقط)، والموقع لسه تحت التطوير والاختبار
+   ومش جاهز لزوار خارجيين حقيقيين يستهلكوا الرصيد ده فى بحث تجريبي. لحد ما الاختبارات
+   تخلص (يوم أو يومين)، الزوار العاديين هياخدوا نتائج Duffel (وضع تجريبي، بيانات وهمية لكن
+   موسومة بأمانة) بدل FlightAPI الحقيقي، وده مبيكلفش أي كريديت. لإعادة تفعيل FlightAPI الحقيقي
+   لكل الزوار لما الموقع يبقى جاهز فعلًا للانطلاق، غيّر القيمة دي إلى true فقط.
+   ⚠️ عشان تقدر تختبر إنت بنفسك بالسعر الحقيقي فى نفس الوقت اللي الحماية دي شغالة للزوار
+   العاديين، ضيف ?live_flights=1 فى آخر رابط الموقع وانت بتفتحه (مثال:
+   primetravel365.com/?live_flights=1) — هيفعّل لك إنت بس FlightAPI الحقيقي فى المتصفح ده،
+   من غير ما يأثر على أي زائر تاني. راجع الشرط تحت فى goResults(). */
+const FLIGHTAPI_REAL_SEARCH_ENABLED = false;
+const FLIGHTAPI_FORCE_LIVE = new URLSearchParams(location.search).get('live_flights') === '1';
 const HOTEL_CITIES = []; // flattened from COUNTRIES so every airport city is also a hotel destination
 COUNTRIES.forEach((c,ci)=> c.airports.forEach((ap,ai)=> HOTEL_CITIES.push({
   cityAr:ap.city_ar, cityEn:ap.city_en, countryAr:c.name_ar, countryEn:c.name_en, iso2:c.code, ci, ai
@@ -3909,8 +3991,8 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
     const isTestMode = !(realInfo && realInfo.live);
     disclaimerEl.textContent = isRealBase
       ? (currentLang==='ar'
-          ? `✅ السعر الأساسي حقيقي فعليًا (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}عبر ${srcName}${isTestMode ? '، وضع تجريبي' : ''}) — الفروق بين شركات الحجز لسه تقديرية`
-          : `✅ Base price is real (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}via ${srcName}${isTestMode ? ', test mode' : ''}) — per-partner differences are still estimated`)
+          ? `✅ السعر الأساسي حقيقي فعليًا (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}عبر ${srcName}${isTestMode ? '، وضع تجريبي' : ''}) — الفروق بين شركات الحجز لسه تقديرية، وقد تختلف الأسعار النهائية حسب سياسة كل موقع (عروض، خيارات حقائب، أو إضافات أخرى)`
+          : `✅ Base price is real (${realInfo && realInfo.airline ? realInfo.airline+' — ' : ''}via ${srcName}${isTestMode ? ', test mode' : ''}) — per-partner differences are still estimated, and final prices may vary based on each site's own policies (promotions, baggage options, or other add-ons)`)
       : t('price_disclaimer');
   }
 }
@@ -4155,9 +4237,16 @@ function goResults(){
   buildCompareStrip(); // نحدّث شريط "قارن أسعار أيام الحجز" بأسعار حقيقية لنفس المسار اللي اتبحث عنه فعليًا
   // تحديث 20 أغسطس 2026: نجرب FlightAPI.io الأول (بيانات حقيقية فعليًا، مش وضع تجريبي)، ولو فشل
   // (شبكة/تايم آوت/كريديت خلص) نرجع لـDuffel تلقائيًا كخط دفاع تاني — بدون ما الزائر يحس بأي فرق.
-  fetchFlightApiFlightList(fromAp.code, toAp.code, depVal, retVal).then(success=>{
-    if(!success) fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
-  });
+  // ⚠️ حماية الكريديت المجاني: طول ما FLIGHTAPI_REAL_SEARCH_ENABLED = false، الزوار العاديين
+  // بياخدوا Duffel (تجريبي، مجاني) بس — من غير ما نستهلك كريديت FlightAPI فى بحث تجريبي عشوائي.
+  // إنت بس (لما تحط ?live_flights=1 فى الرابط) بتاخد FlightAPI الحقيقي عشان تكمل تجربتك.
+  if (FLIGHTAPI_REAL_SEARCH_ENABLED || FLIGHTAPI_FORCE_LIVE) {
+    fetchFlightApiFlightList(fromAp.code, toAp.code, depVal, retVal).then(success=>{
+      if(!success) fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
+    });
+  } else {
+    fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
+  }
 }
 function goHome(){
   document.getElementById('resultsPage').classList.remove('open');
@@ -4598,7 +4687,7 @@ document.getElementById('authTabSignup').onclick = ()=> setAuthMode('signup');
 /* ============ Live flight tracker (Flightradar24 deep-link) — members-only per request: a logged-out
    visitor gets sent to the normal sign-in box instead of the tracker, so this stays a perk exclusively
    for registered accounts (useful later if a paid/commission model is added on top of it). ============ */
-document.getElementById('btnFlightTracker').onclick = ()=>{
+function openTrackerModal(){
   if(!currentTraveler){
     showToast(currentLang==='ar' ? 'سجّل الدخول أولًا لاستخدام تتبع الطيران المباشر' : 'Sign in first to use the live flight tracker');
     openAuthModal('login');
@@ -4608,23 +4697,135 @@ document.getElementById('btnFlightTracker').onclick = ()=>{
   // navigating home without properly closing it), its z-index sits above regular overlays and would
   // silently hide the tracker window behind it — force it closed before opening the tracker.
   document.getElementById('adminApp').classList.remove('open');
+  document.getElementById('trackerResultBox').style.display = 'none';
+  document.getElementById('trackerResultBox').innerHTML = '';
   document.getElementById('trackerModal').classList.add('open');
   document.getElementById('trackerFlightNo').focus();
-};
+}
+// ⚠️ زرارين بيفتحوا نفس المودال بالظبط: واحد فى الهيدر (btnFlightTracker) وواحد فى الصفحة
+// الرئيسية (btnFlightTrackerHome) أُضيف 20 أغسطس 2026 — نفس السلوك بالظبط، مش ميزة تانية.
+document.getElementById('btnFlightTracker').onclick = openTrackerModal;
+const btnFlightTrackerHomeEl = document.getElementById('btnFlightTrackerHome');
+if (btnFlightTrackerHomeEl) btnFlightTrackerHomeEl.onclick = openTrackerModal;
 document.getElementById('closeTrackerModal').onclick = ()=> document.getElementById('trackerModal').classList.remove('open');
 document.getElementById('trackerModal').addEventListener('click', e=>{ if(e.target.id==='trackerModal') document.getElementById('trackerModal').classList.remove('open'); });
+/* تحديث 20 أغسطس 2026: بالإضافة لرابط Flightradar24 (زي ما كان بالظبط)، لو FlightAPI الحقيقي
+   مفعّل (FLIGHTAPI_REAL_SEARCH_ENABLED أو ?live_flights=1)، نجيب حالة الرحلة الفعلية (مطار
+   المغادرة/الوصول، المواعيد، البوابة) من موقعنا نفسه كمان عن طريق api/flightapi-track.js،
+   ونعرضها جوه المودال — ميزة تميّز إضافية، مش بديل عن رابط Flightradar24. */
+async function fetchFlightApiTrack(airlineCode, flightNum){
+  try{
+    const params = new URLSearchParams({ num: flightNum, name: airlineCode });
+    const res = await fetch('/api/flightapi-track?' + params.toString());
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(!data || (!data.departure && !data.arrival)) return null;
+    return data;
+  }catch(_trackErr){ return null; }
+}
+function renderTrackerResultHTML(info){
+  if(!info || (!info.departure && !info.arrival)){
+    return `<div style="text-align:center; padding:10px; font-size:11.5px; color:var(--dim);">${t('tracker_no_data')}</div>`;
+  }
+  const box = (label, o) => !o ? '' : `
+    <div style="flex:1; background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:9px; font-size:11px;">
+      <b style="font-size:11.5px;">${label}</b><br>
+      <span>${o.city || o.airport || ''} ${o.code ? '('+o.code+')' : ''}</span><br>
+      ${o.scheduledTime ? `<span>${o.scheduledTime}</span>` : ''}
+      ${o.terminal ? ` · T${o.terminal}` : ''}${o.gate ? ` · Gate ${o.gate}` : ''}
+    </div>`;
+  return `<div style="display:flex; gap:8px; margin-top:12px;">${box(t('tracker_departure'), info.departure)}${box(t('tracker_arrival'), info.arrival)}</div>`;
+}
 function goTrackFlight(){
   const raw = document.getElementById('trackerFlightNo').value.trim();
   if(!raw) return;
+  const code = raw.replace(/\s+/g, '').toUpperCase();
+  const resultBox = document.getElementById('trackerResultBox');
+  const wantsLiveTrack = (FLIGHTAPI_REAL_SEARCH_ENABLED || FLIGHTAPI_FORCE_LIVE) && resultBox;
+  if (wantsLiveTrack) {
+    const m = code.match(/^([A-Z]{2,3})(\d{1,4})$/); // مثلًا "TK1" → شركة TK + رقم 1، أو "EK203" → EK + 203
+    if (m) {
+      resultBox.style.display = '';
+      resultBox.innerHTML = `<div style="text-align:center; padding:10px; font-size:11.5px; color:var(--dim);">${t('tracker_loading')}</div>`;
+      fetchFlightApiTrack(m[1], m[2]).then(info=>{ resultBox.innerHTML = renderTrackerResultHTML(info); });
+    }
+  }
   // real Flightradar24 public flight-tracking deep link — genuine live position/ETA data, not
   // fabricated on our own site (same honest redirect pattern used for the OTA/hotel provider links)
-  const code = raw.replace(/\s+/g, '').toLowerCase();
-  window.open(`https://www.flightradar24.com/data/flights/${encodeURIComponent(code)}`, '_blank', 'noopener');
-  document.getElementById('trackerModal').classList.remove('open');
-  document.getElementById('trackerFlightNo').value = '';
+  const flatCode = code.toLowerCase();
+  window.open(`https://www.flightradar24.com/data/flights/${encodeURIComponent(flatCode)}`, '_blank', 'noopener');
+  // لو فيه نتيجة حقيقية بتتحمّل جوه المودال، سيبه مفتوح عشان الزائر يقدر يشوفها؛ غير كده اقفله زي الأول
+  if (!wantsLiveTrack) {
+    document.getElementById('trackerModal').classList.remove('open');
+    document.getElementById('trackerFlightNo').value = '';
+  }
 }
 document.getElementById('trackerGoBtn').onclick = goTrackFlight;
 document.getElementById('trackerFlightNo').addEventListener('keydown', e=>{ if(e.key==='Enter') goTrackFlight(); });
+
+/* ============================================================
+   AIRPORT SCHEDULE — ميزة جديدة بالكامل أُضيفت 20 أغسطس 2026: جدول إقلاع/هبوط حقيقي لأي مطار
+   من مطارات الموقع عبر FlightAPI.io (api/flightapi-schedule.js)، مقيّدة بنفس حماية الكريديت.
+   ============================================================ */
+const SCHEDULE_AIRPORTS = [];
+COUNTRIES.forEach(c => c.airports.forEach(ap => SCHEDULE_AIRPORTS.push({
+  code: ap.code, cityAr: ap.city_ar, cityEn: ap.city_en, countryAr: c.name_ar, countryEn: c.name_en,
+})));
+function buildScheduleAirportSelect(){
+  const sel = document.getElementById('scheduleAirportSel');
+  if (!sel) return;
+  sel.innerHTML = SCHEDULE_AIRPORTS.map(a=>`<option value="${a.code}">${currentLang==='ar' ? a.cityAr+' ('+a.code+') — '+a.countryAr : a.cityEn+' ('+a.code+') — '+a.countryEn}</option>`).join('');
+}
+let scheduleMode = 'dep';
+function openScheduleModal(){
+  buildScheduleAirportSelect();
+  document.getElementById('adminApp').classList.remove('open');
+  document.getElementById('scheduleResultBox').innerHTML = '';
+  document.getElementById('scheduleModal').classList.add('open');
+}
+const btnAirportScheduleEl = document.getElementById('btnAirportSchedule');
+if (btnAirportScheduleEl) btnAirportScheduleEl.onclick = openScheduleModal;
+document.getElementById('closeScheduleModal').onclick = ()=> document.getElementById('scheduleModal').classList.remove('open');
+document.getElementById('scheduleModal').addEventListener('click', e=>{ if(e.target.id==='scheduleModal') document.getElementById('scheduleModal').classList.remove('open'); });
+document.querySelectorAll('.sched-mode-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.sched-mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    scheduleMode = btn.getAttribute('data-mode');
+  };
+});
+async function fetchAirportSchedule(iata, mode){
+  try{
+    const params = new URLSearchParams({ iata, mode });
+    const res = await fetch('/api/flightapi-schedule?' + params.toString());
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(_schedErr){ return null; }
+}
+function renderScheduleResultsHTML(data){
+  if(!data || !Array.isArray(data.flights) || !data.flights.length){
+    return `<div style="text-align:center; padding:14px; font-size:11.5px; color:var(--dim);">${t('schedule_no_data')}</div>`;
+  }
+  return data.flights.map(f=>`
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 4px; border-bottom:1px solid var(--border); font-size:12px;">
+      <div style="font-weight:800; min-width:44px;">${f.time || '—'}</div>
+      <div style="flex:1; text-align:${currentLang==='ar'?'right':'left'};">
+        <b>${f.airline || ''}</b> ${f.flightNumber || ''}<br>
+        <span style="font-size:10.5px; color:var(--dim);">${f.city || ''} ${f.airportCode ? '('+f.airportCode+')' : ''}</span>
+      </div>
+    </div>`).join('');
+}
+document.getElementById('scheduleGoBtn').onclick = ()=>{
+  const iata = document.getElementById('scheduleAirportSel').value;
+  const resultBox = document.getElementById('scheduleResultBox');
+  if (!(FLIGHTAPI_REAL_SEARCH_ENABLED || FLIGHTAPI_FORCE_LIVE)) {
+    // حماية الكريديت: لو الميزة لسه مقفولة للزوار العاديين، نوضّح ده بدل ما نستهلك كريديت من غير داعي
+    resultBox.innerHTML = `<div style="text-align:center; padding:14px; font-size:11.5px; color:var(--dim);">${t('schedule_coming_soon')}</div>`;
+    return;
+  }
+  resultBox.innerHTML = `<div style="text-align:center; padding:14px; font-size:11.5px; color:var(--dim);">${t('schedule_loading')}</div>`;
+  fetchAirportSchedule(iata, scheduleMode).then(data=>{ resultBox.innerHTML = renderScheduleResultsHTML(data); });
+};
 
 function updateTravelerUI(){
   const loggedIn = !!currentTraveler;
