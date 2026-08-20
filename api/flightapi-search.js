@@ -18,6 +18,35 @@
 // (شبيه بشكل رد Skyscanner القديم) — الأسماء الحقيقية لشركات الطيران والمطارات بتتجاب عن طريق
 // جداول بحث (lookup) منفصلة (carriers/places) بالـid، مش مكتوبة مباشرة جوه كل segment.
 // ============================================================
+//
+// فلترة الشركات الموثوقة — أُضيفت 20 أغسطس 2026 بناءً على طلب المستخدم: بدل ما المسافر
+// يشوف 10 أسماء أو أكتر بأسعار متفرقة (زي ما بيحصل فى نتائج API الخام اللي بترجع كل شركة
+// طيران موجودة حتى لو غير معروفة/غير موثوقة السعر عندها)، بنعرض بس شركات معروفة وموثوقة،
+// وبحد أقصى 8 نتائج (الأرخص أولًا) — بالظبط زي شكل مواقع الميتاسيرش الكبيرة (Wego/Skyscanner).
+//
+// القايمة دي قابلة للتعديل بسهولة فى أي وقت — تقدر تضيف أو تشيل شركة براحتك.
+// المطابقة بتتم بمقارنة جزء من الاسم (lowercase) مش تطابق حرفي كامل، عشان تغطي فروقات
+// زي "Etihad" و"Etihad Airways" فى نفس الوقت.
+const TRUSTED_AIRLINE_KEYWORDS = [
+  // شركات الخليج والشرق الأوسط الأساسية
+  'emirates', 'etihad', 'qatar airways', 'turkish airlines', 'egyptair', 'saudia',
+  'gulf air', 'oman air', 'kuwait airways', 'jazeera', 'air arabia', 'flydubai',
+  'flynas', 'flyadeal', 'royal jordanian', 'wizz air', 'ajet', 'pegasus',
+  // شركات دولية كبرى (أوروبا/أمريكا/آسيا)
+  'british airways', 'lufthansa', 'air france', 'klm', 'swiss', 'austrian airlines',
+  'iberia', 'ita airways', 'finnair', 'sas', 'virgin atlantic', 'singapore airlines',
+  'cathay pacific', 'american airlines', 'united airlines', 'delta', 'air canada',
+  'qantas', 'air india', 'indigo', 'vistara', 'srilankan', 'pakistan international',
+  'philippine airlines', 'malaysia airlines', 'thai airways', 'china southern',
+  'china eastern', 'air china', 'japan airlines', 'all nippon', 'korean air', 'asiana',
+  'royal air maroc', 'ethiopian airlines', 'kenya airways', 'south african airways',
+  'azerbaijan airlines', 'uzbekistan airways', 'air astana',
+];
+function isTrustedAirline(name) {
+  const n = (name || '').toLowerCase();
+  return TRUSTED_AIRLINE_KEYWORDS.some(k => n.includes(k));
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -159,11 +188,18 @@ module.exports = async function handler(req, res) {
 
     if (!flights.length) { res.status(200).json({ price: null, note: 'no_priced_itineraries' }); return; }
 
+    // فلترة الشركات الموثوقة: بنستبعد أي رحلة (itinerary) لو أي جزء فيها (segment واحد ولو
+    // فى رحلة فيها توقف) شركته مش موجودة فى القايمة الموثوقة فوق. لو الفلترة قضت على كل
+    // النتائج (مثلاً مسار نادر مفيهوش غير شركات إقليمية صغيرة)، بنرجع للقايمة الأصلية كاملة
+    // بدل ما نرجع نتيجة فاضية للمسافر — الأفضلية للفلترة، لكن مش على حساب ظهور نتيجة أصلًا.
+    const trustedFlights = flights.filter(f => f.segments.every(seg => isTrustedAirline(seg.airline)));
+    const finalFlights = (trustedFlights.length > 0 ? trustedFlights : flights).slice(0, 8);
+
     res.status(200).json({
-      price: flights[0].price,
+      price: finalFlights[0].price,
       currency: cur,
-      airline: flights[0].airline,
-      flights: flights.slice(0, 15),
+      airline: finalFlights[0].airline,
+      flights: finalFlights,
     });
   } catch (err) {
     try { res.status(500).json({ error: String(err) }); } catch (_e2) { /* الرد اتبعت بالفعل */ }
