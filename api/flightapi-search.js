@@ -87,18 +87,6 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    // وضع تشخيص مؤقت (debug=raw) — بيرجع عينة من شكل الرد الخام زي ما هو، عشان نتأكد من
-    // أسماء الحقول الفعلية (زي كود الآياتا جوه places) قبل ما نعتمد على التخمين. هيتشال
-    // بعد التأكد، مش هيفضل فى النسخة النهائية.
-    if (req.query && req.query.debug === 'raw') {
-      res.status(200).json({
-        placesSample: (Array.isArray(json.places) ? json.places : []).slice(0, 5),
-        legsSample: (Array.isArray(json.legs) ? json.legs : []).slice(0, 3),
-        segmentsSample: (Array.isArray(json.segments) ? json.segments : []).slice(0, 3),
-      });
-      return;
-    }
-
     const itineraries = Array.isArray(json.itineraries) ? json.itineraries : [];
     if (!itineraries.length) { res.status(200).json({ price: null, note: 'no_itineraries' }); return; }
 
@@ -107,8 +95,11 @@ module.exports = async function handler(req, res) {
     // للبيانات الكاملة)، بنرجع بالـid نفسه كنص بدل ما نكسر الاستجابة.
     const carriersMap = {};
     (Array.isArray(json.carriers) ? json.carriers : []).forEach(c => { carriersMap[c.id] = c.name || c.id; });
+    // اتأكد من شكل بيانات places الحقيقي باختبار مباشر: كود المطار/المدينة موجود جوه
+    // حقل "display_code" (مش iata_code زي ما كان متوقع افتراضيًا)، مثال حقيقي:
+    // { id:13445, name:"Larnaca", type:"Airport", display_code:"LCA" }
     const placesMap = {};
-    (Array.isArray(json.places) ? json.places : []).forEach(p => { placesMap[p.id] = { name: p.name || p.id, city: (p.city_name || p.name || p.id) }; });
+    (Array.isArray(json.places) ? json.places : []).forEach(p => { placesMap[p.id] = { name: p.name || p.id, city: (p.city_name || p.name || p.id), code: p.display_code || null }; });
     const legsMap = {};
     (Array.isArray(json.legs) ? json.legs : []).forEach(l => { legsMap[l.id] = l; });
     const segmentsMap = {};
@@ -118,14 +109,19 @@ module.exports = async function handler(req, res) {
       const carrierName = carriersMap[seg.marketing_carrier_id] || '';
       const originInfo = placesMap[seg.origin_place_id] || null;
       const destInfo = placesMap[seg.destination_place_id] || null;
+      // كود المطار الحقيقي لكل segment لازم ييجي من placesMap نفسه (display_code)، مش من
+      // كود الرحلة الكامل (origin/destination الأصليين اللي جايين من الطلب) — لأن ده كان بيدي
+      // كود غلط لأي محطة توقف وسطية (مثلاً كان بيوريها DXB/CAI حتى لو المحطة عمّان فعليًا).
+      const originCode = (originInfo && originInfo.code) || fallbackOriginCode;
+      const destCode = (destInfo && destInfo.code) || fallbackDestCode;
       return {
         airline: carrierName,
         flightNumber: (seg.marketing_flight_number != null) ? String(seg.marketing_flight_number) : '',
         aircraft: '',
         departingAt: seg.departure,
         arrivingAt: seg.arrival,
-        origin: { code: fallbackOriginCode, name: (originInfo && originInfo.name) || fallbackOriginCode, city: (originInfo && originInfo.city) || fallbackOriginCode },
-        destination: { code: fallbackDestCode, name: (destInfo && destInfo.name) || fallbackDestCode, city: (destInfo && destInfo.city) || fallbackDestCode },
+        origin: { code: originCode, name: (originInfo && originInfo.name) || originCode, city: (originInfo && originInfo.city) || originCode },
+        destination: { code: destCode, name: (destInfo && destInfo.name) || destCode, city: (destInfo && destInfo.city) || destCode },
       };
     };
 
