@@ -55,6 +55,18 @@ module.exports = async function handler(req, res) {
     if (req.method === 'OPTIONS') { res.status(200).end(); return; }
     if (req.method !== 'GET') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
+    // ⚠️ قفل حماية على مستوى السيرفر — أُضيف 20 أغسطس 2026. مهم جدًا: علم FLIGHTAPI_REAL_SEARCH_ENABLED
+    // فى site.html بيوقف موقعنا من إنه هو نفسه ينادي الرابط ده، لكن الرابط ده لسه رابط عام (public URL)
+    // — أي حد يعرفه أو يشوفه فى كود الصفحة (View Source) يقدر ينادي عليه مباشرة من غير ما يمر
+    // بالموقع خالص ويستهلك كريديت. القفل ده هو الحماية الحقيقية اللي بتوقف الاستهلاك فعليًا مهما كان
+    // مصدر الطلب. القيمة الافتراضية "مقفول" (لو المتغيّر مش موجود أصلًا فى Vercel). لما تكون جاهز
+    // فعليًا (اختبار أو انطلاق)، ضيف Environment Variable جديد فى Vercel اسمه FLIGHTAPI_LIVE_ENABLED
+    // بقيمة true (Production + Preview) — بنفس خطوات إضافة FLIGHTAPI_KEY بالظبط.
+    if (process.env.FLIGHTAPI_LIVE_ENABLED !== 'true') {
+      res.status(200).json({ price: null, note: 'temporarily_disabled' });
+      return;
+    }
+
     const {
       origin, destination, departure_date, return_date,
       adults, children, infants, cabin_class, currency,
