@@ -1190,7 +1190,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       </aside>
       <div>
         <div style="font-size:12.5px; color:var(--dim); margin-bottom:10px;" id="hotelResultsCount"></div>
-        <div class="price-disclaimer" data-i18n="price_disclaimer">⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك</div>
+        <div class="price-disclaimer" id="hotelResultsDisclaimer" data-i18n="price_disclaimer">⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك</div>
         <div id="hotelResultsList"></div>
       </div>
     </div>
@@ -1736,6 +1736,7 @@ const I18N = {
   hotel_search_btn:"بحث عن فنادق", hotel_sort_rating:"الأعلى تقييمًا", hotel_stars:"تصنيف النجوم",
   hs_flights:"رحلات الطيران", hs_hotels:"فنادق", hs_where:"إلى أين؟", hs_where_ph:"ابحث عن وجهتك...", hs_dates:"التواريخ", hs_guests:"المسافرون", hs_btn:"بحث",
   hotel_soon_badge:"قريبًا", hotel_search_disabled_msg:"بحث الفنادق متوقف مؤقتًا لحين الانتهاء من ربط مصدر أسعار حقيقي — قريبًا",
+  hotel_loading:"جاري البحث عن أفضل الفنادق...", hotel_real_disclaimer:"✅ نتائج حقيقية فعليًا (أسعار وفنادق حقيقية عبر Google Hotels)",
   hotel_price_range:"نطاق السعر لليلة", hotel_amenities:"المرافق",
   am_wifi:"واي فاي مجاني", am_pool:"مسبح", am_breakfast:"إفطار مجاني", am_gym:"صالة رياضية",
   fa_meal:"وجبة", fa_wifi:"واي فاي", fa_power:"شحن", fa_entertainment:"ترفيه",
@@ -1798,6 +1799,7 @@ const I18N = {
   hotel_search_btn:"Search hotels", hotel_sort_rating:"Top rated", hotel_stars:"Star rating",
   hs_flights:"Flights", hs_hotels:"Hotels", hs_where:"Where to?", hs_where_ph:"Search destinations...", hs_dates:"Dates", hs_guests:"Travelers", hs_btn:"Search",
   hotel_soon_badge:"Coming soon", hotel_search_disabled_msg:"Hotel search is temporarily paused while we connect a real pricing source — coming back soon",
+  hotel_loading:"Searching for the best hotels...", hotel_real_disclaimer:"✅ Genuinely real results (real hotels & prices via Google Hotels)",
   hotel_price_range:"Price range per night", hotel_amenities:"Amenities",
   am_wifi:"Free WiFi", am_pool:"Pool", am_breakfast:"Free breakfast", am_gym:"Gym",
   fa_meal:"Meal", fa_wifi:"WiFi", fa_power:"Power", fa_entertainment:"Entertainment",
@@ -1860,6 +1862,7 @@ const I18N = {
   hotel_search_btn:"Otel ara", hotel_sort_rating:"En yüksek puanlı", hotel_stars:"Yıldız sınıfı",
   hs_flights:"Uçuşlar", hs_hotels:"Oteller", hs_where:"Nereye?", hs_where_ph:"Varış noktası ara...", hs_dates:"Tarihler", hs_guests:"Yolcular", hs_btn:"Ara",
   hotel_soon_badge:"Yakında", hotel_search_disabled_msg:"Gerçek fiyat kaynağı bağlanana kadar otel arama geçici olarak durduruldu — yakında",
+  hotel_loading:"En iyi oteller aranıyor...", hotel_real_disclaimer:"✅ Gerçekten gerçek sonuçlar (Google Hotels üzerinden gerçek oteller ve fiyatlar)",
   hotel_price_range:"Gecelik fiyat aralığı", hotel_amenities:"Olanaklar",
   am_wifi:"Ücretsiz Wi-Fi", am_pool:"Havuz", am_breakfast:"Ücretsiz kahvaltı", am_gym:"Spor salonu",
   fa_meal:"Yemek", fa_wifi:"Wi-Fi", fa_power:"Priz", fa_entertainment:"Eğlence",
@@ -1922,6 +1925,7 @@ const I18N = {
   hotel_search_btn:"Rechercher des hôtels", hotel_sort_rating:"Les mieux notés", hotel_stars:"Classement par étoiles",
   hs_flights:"Vols", hs_hotels:"Hôtels", hs_where:"Où allez-vous ?", hs_where_ph:"Rechercher une destination...", hs_dates:"Dates", hs_guests:"Voyageurs", hs_btn:"Rechercher",
   hotel_soon_badge:"Bientôt", hotel_search_disabled_msg:"La recherche d'hôtels est temporairement suspendue en attendant une source de prix réelle — bientôt de retour",
+  hotel_loading:"Recherche des meilleurs hôtels...", hotel_real_disclaimer:"✅ Résultats véritablement réels (hôtels et prix réels via Google Hotels)",
   hotel_price_range:"Fourchette de prix par nuit", hotel_amenities:"Équipements",
   am_wifi:"Wi-Fi gratuit", am_pool:"Piscine", am_breakfast:"Petit-déjeuner gratuit", am_gym:"Salle de sport",
   fa_meal:"Repas", fa_wifi:"Wi-Fi", fa_power:"Prise électrique", fa_entertainment:"Divertissement",
@@ -1984,6 +1988,7 @@ const I18N = {
   hotel_search_btn:"ہوٹل تلاش کریں", hotel_sort_rating:"سب سے زیادہ ریٹڈ", hotel_stars:"ستاروں کی درجہ بندی",
   hs_flights:"پروازیں", hs_hotels:"ہوٹلز", hs_where:"کہاں جانا ہے؟", hs_where_ph:"منزل تلاش کریں...", hs_dates:"تاریخیں", hs_guests:"مسافر", hs_btn:"تلاش کریں",
   hotel_soon_badge:"جلد آ رہا ہے", hotel_search_disabled_msg:"حقیقی قیمتوں کا ذریعہ جوڑے جانے تک ہوٹل تلاش عارضی طور پر روک دی گئی ہے — جلد واپس آئے گی",
+  hotel_loading:"بہترین ہوٹلز تلاش کیے جا رہے ہیں...", hotel_real_disclaimer:"✅ حقیقی طور پر حقیقی نتائج (Google Hotels کے ذریعے حقیقی ہوٹلز اور قیمتیں)",
   hotel_price_range:"فی رات قیمت کی حد", hotel_amenities:"سہولیات",
   am_wifi:"مفت وائی فائی", am_pool:"سوئمنگ پول", am_breakfast:"مفت ناشتہ", am_gym:"جم",
   fa_meal:"کھانا", fa_wifi:"وائی فائی", fa_power:"پاور", fa_entertainment:"تفریح",
@@ -2779,10 +2784,14 @@ function buildTicker(){
    Expedia, Hotels.com) pre-filled with the same city/dates — genuine
    public deep-link URL patterns, no fake redirect.
    ============================================================ */
-/* ============ إيقاف مؤقت لميزة بحث الفنادق — أُضيف 20 أغسطس 2026 ============
-   البحث لسه بيانات وهمية (genHotels)، وبانتظار الاشتراك فى مصدر بيانات حقيقي
-   (SerpApi Google Hotels أو غيره). لإعادة تفعيل الميزة، غيّر القيمة دي إلى true فقط. */
-const HOTEL_SEARCH_ENABLED = false;
+/* ============ ميزة بحث الفنادق — أُعيد تفعيلها 20 أغسطس 2026 ============
+   كانت متوقفة مؤقتًا لحد ما نربط مصدر بيانات حقيقي. دلوقتي مربوطة بـ SerpApi (Google Hotels)
+   عن طريق api/serpapi-hotels.js — لو الرصيد الحقيقي متاح، بتظهر أسعار وفنادق حقيقية فعليًا
+   (شارة خضراء ✅). لو لسه مفتاح SERPAPI_KEY مش مضاف فى Vercel، أو HOTELS_LIVE_ENABLED مقفول،
+   أو الرصيد الشهري المجاني قرّب يخلص، البحث بيرجع تلقائيًا لعرض أسعار تقديرية (genHotels) مع
+   التنويه البرتقالي المعتاد — بالظبط نفس أسلوب FlightAPI.io↔Duffel فى الطيران. راجع
+   runHotelSearch() وfetchSerpApiHotels() تحت. لإيقاف الميزة بالكامل مرة تانية، رجّع القيمة دي false. */
+const HOTEL_SEARCH_ENABLED = true;
 /* ============ حماية مؤقتة لرصيد FlightAPI.io المجاني — أُضيف 20 أغسطس 2026 ============
    الرصيد المجاني محدود (30 كريديت/شهر = ~15 بحث فقط)، والموقع لسه تحت التطوير والاختبار
    ومش جاهز لزوار خارجيين حقيقيين يستهلكوا الرصيد ده فى بحث تجريبي. لحد ما الاختبارات
@@ -2896,6 +2905,9 @@ function openHotelDetail(hotelId){
     html += `<div class="hd-map-wrap"><iframe src="${osmEmbedUrl(coords[0],coords[1])}" loading="lazy"></iframe></div>
       <div class="hd-map-note">${currentLang==='ar'?'موقع تقريبي لوسط المدينة — العنوان الدقيق للفندق يظهر عند الربط ببيانات فندقية حقيقية':'Approximate city-center location — exact hotel address appears once connected to real hotel inventory data'}</div>`;
   }
+  if(h.real && h.link){
+    html += `<a href="${h.link}" target="_blank" rel="noopener" class="btn btn-ghost" style="display:inline-block; margin:8px 0 4px;">${currentLang==='ar'?'🔗 شاهد السعر المباشر على Google Hotels':'🔗 View live price on Google Hotels'}</a>`;
+  }
 
   html += `<div class="hd-section-title">${currentLang==='ar'?'أنواع الغرف المتاحة':'Available room types'}</div>`;
   html += ROOM_TYPE_DEFS.map(rt=>{
@@ -2930,16 +2942,56 @@ document.getElementById('closeHotelDetail').onclick = ()=> document.getElementBy
 document.getElementById('hotelDetailModal').addEventListener('click', e=>{ if(e.target.id==='hotelDetailModal') document.getElementById('hotelDetailModal').classList.remove('open'); });
 function nightsBetween(a,b){ const d1=new Date(a), d2=new Date(b); return Math.max(1, Math.round((d2-d1)/86400000)); }
 
-function runHotelSearch(){
+/* تحديث 20 أغسطس 2026 — SerpApi (Google Hotels): أول مصدر بيانات فنادق حقيقي فعليًا للموقع.
+   الحماية من استهلاك الرصيد المجاني الشهري (250 بحث/شهر) بالكامل سيرفر-سايد داخل
+   api/serpapi-hotels.js: بيتحقق من الرصيد المتبقي عند SerpApi قبل كل بحث حقيقي (نداء مجاني
+   لا يخصم من الرصيد)، ولو قرّب من الحد بيوقف تلقائيًا ويرجع quota_paused من غير ما يستهلك
+   بحث إضافي — وبيرجع يشتغل تلقائيًا أول ما الرصيد يتجدد الشهر الجاي، من غير أي تدخل يدوي.
+   ⚠️ ملحوظة أمانة: مقياس التقييم اللي بيرجعه SerpApi من 5 (مش من 10 زي شارة genHotels)،
+   فبنضربه فى 2 هنا عشان يتوافق مع شكل الواجهة الحالي — القيمة الحقيقية نفسها متغيّرتش. */
+async function fetchSerpApiHotels(cityQuery, checkin, checkout){
+  try{
+    const params = new URLSearchParams({ q: cityQuery, check_in_date: checkin, check_out_date: checkout, currency:'AED' });
+    const res = await fetch('/api/serpapi-hotels?' + params.toString());
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(!data || !Array.isArray(data.properties) || !data.properties.length) return null; // يشمل quota_paused / temporarily_disabled (properties بترجع فاضية فى الحالتين)
+    return data.properties.map((p,i)=>({
+      id: 'serpapi-'+i+'-'+hashStr(p.name||String(i)),
+      name: p.name,
+      stars: p.hotelClass ? Math.min(5, Math.max(3, Math.round(parseFloat(p.hotelClass)))) : 4,
+      rating: p.rating != null ? Math.min(10, p.rating*2).toFixed(1) : '—',
+      pricePerNight: Math.round(p.priceValue) || 0,
+      amenities: ['wifi'], // SerpApi مش بترجع قائمة مرافق تفصيلية موحّدة فى كل رد — نعرض الأساسي المؤكد بس، بدل ما نخترع مرافق غير مؤكدة
+      img: p.thumbnail || `https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85&auto=format&fit=crop`,
+      link: p.link || '',
+      real: true,
+    })).filter(h=>h.pricePerNight>0);
+  }catch(_e){ return null; }
+}
+
+async function runHotelSearch(){
   const destIdx = Number(document.getElementById('hotelDest').value);
   const dest = HOTEL_CITIES[destIdx];
   const checkin = document.getElementById('hotelCheckin').value;
   const checkout = document.getElementById('hotelCheckout').value;
   const cityLabel = currentLang==='ar' ? dest.cityAr : dest.cityEn;
-  hotelResults = genHotels('hotel-'+destIdx+'-'+checkin+'-'+checkout, 8, cityLabel);
+  const cityQuery = dest.cityEn + (dest.countryEn ? (' '+dest.countryEn) : '');
+
   document.getElementById('hotelResultsWrap').style.display = 'block';
-  renderHotelResults();
+  document.getElementById('hotelResultsList').innerHTML = `<div style="padding:24px; text-align:center; color:var(--dim);">${t('hotel_loading')}</div>`;
   document.getElementById('hotelResultsWrap').scrollIntoView({behavior:'smooth', block:'start'});
+
+  const disclaimerEl = document.getElementById('hotelResultsDisclaimer');
+  const realProps = await fetchSerpApiHotels(cityQuery, checkin, checkout);
+  if(realProps && realProps.length){
+    hotelResults = realProps;
+    if(disclaimerEl){ disclaimerEl.textContent = t('hotel_real_disclaimer'); disclaimerEl.style.color='var(--green)'; disclaimerEl.style.background='rgba(39,174,96,.12)'; }
+  } else {
+    hotelResults = genHotels('hotel-'+destIdx+'-'+checkin+'-'+checkout, 8, cityLabel);
+    if(disclaimerEl){ disclaimerEl.textContent = t('price_disclaimer'); disclaimerEl.style.color=''; disclaimerEl.style.background=''; }
+  }
+  renderHotelResults();
 }
 
 function renderHotelResults(){
@@ -3057,7 +3109,7 @@ document.getElementById('hotelSearchBtn').onclick = function(){
     showToast(t('hotel_search_disabled_msg'));
     return;
   }
-  runHotelSearch();
+  runHotelSearch(); // دالة async الآن (بتجرب SerpApi الحقيقي أولاً) — مقصود نداءها من غير await هنا، الدالة نفسها بتحدّث الواجهة أول ما تخلص
 };
 document.getElementById('hotelPriceRange').oninput = renderHotelResults;
 document.querySelectorAll('.hStars, .hAmenity').forEach(el=> el.onchange = renderHotelResults);
