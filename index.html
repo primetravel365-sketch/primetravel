@@ -182,7 +182,8 @@ button{font-family:inherit; cursor:pointer; border:none;}
   .logo .logo-name{font-size:16.5px;}
   .auth-row{order:2; margin-inline-start:auto;}
   .auth-row .btn{padding:7px 11px; font-size:12px;}
-  #btnFlightTracker{order:2; font-size:11.5px; padding:7px 10px; white-space:nowrap;}
+  .flight-tools-col{order:2; flex-shrink:0;}
+  #btnFlightTracker, #btnAirportSchedule{font-size:11.5px; padding:7px 10px; white-space:nowrap;}
   .nav-row{order:3; width:100%; flex-direction:column; align-items:flex-start; gap:8px; min-height:32px; display:flex !important; visibility:visible !important; opacity:1 !important;}
   .nav-links{width:100%; display:flex !important; flex-wrap:wrap; gap:6px; visibility:visible !important; opacity:1 !important;}
   .nav-tools{width:100%; display:flex !important; flex-wrap:wrap; gap:6px;}
@@ -881,10 +882,15 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
       <span id="travelerGreeting" style="font-size:13px; font-weight:700;"></span>
       <button class="btn btn-ghost" id="btnTravelerLogout" data-i18n="logout">تسجيل الخروج</button>
     </div>
-    <!-- Live flight tracker — sits after the auth buttons so in RTL it lands at the far LEFT edge of the
-         header as requested. Real deep-link to Flightradar24's public tracking page (no fabricated data
-         — same honest deep-link pattern already used for the OTA/hotel provider redirects elsewhere). -->
-    <button class="btn btn-ghost" id="btnFlightTracker" style="flex-shrink:0; display:flex; align-items:center; gap:6px;" data-i18n="flight_tracker_btn">📡 تتبع الطيران المباشر</button>
+    <!-- Live flight tracker + airport schedule — يتحطوا مع بعض جوه عمود واحد بعد أزرار الدخول
+         فى الـDOM، عشان يفضلوا فى نفس الركن (شمال الصفحة) فى أي لغة زي ما كانوا بالظبط قبل كده
+         (آخر عنصر فى الهيدر = الطرف الأيسر بصريًا سواء عربي RTL أو إنجليزي LTR). تعديل 20 أغسطس
+         2026: جدول المطار بقى تحت تتبع الطيران فى نفس العمود ده (اتشال من نص الصفحة الرئيسية)،
+         ولون الكتابة أسود بدل الأبيض بناءً على الطلب. -->
+    <div class="flight-tools-col" style="display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+      <button class="btn btn-ghost" id="btnFlightTracker" style="display:flex; align-items:center; gap:6px; color:#111318; background:rgba(255,255,255,.92); border-color:rgba(255,255,255,.5);" data-i18n="flight_tracker_btn">📡 تتبع الطيران المباشر</button>
+      <button class="btn btn-ghost" id="btnAirportSchedule" style="display:flex; align-items:center; gap:6px; color:#111318; background:rgba(255,255,255,.92); border-color:rgba(255,255,255,.5);" data-i18n="airport_schedule_btn">🛫 جدول المطار</button>
+    </div>
   </div>
   <div class="ticker-bar">
     <div class="ticker-track" id="tickerTrack"></div>
@@ -977,14 +983,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <div class="eyebrow" data-i18n="eyebrow">المستشار الذكي لسفرك</div>
     <h1><span data-i18n="brand">PrimeTravel365</span> <span data-i18n="hero_h1">اكتشف العالم معنا</span></h1>
     <p data-i18n="hero_p">أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.</p>
-    <!-- ⚠️ أُضيف 20 أغسطس 2026: زرارَي "تتبع الطيران المباشر" و"جدول المطار" ظاهرين فى الصفحة
-         الرئيسية نفسها (مش بس فى الهيدر) — الواحد تحت التاني بالظبط زي ما اتطلب. نفس المودالات
-         الموجودة أصلًا (btnFlightTracker شغال بالـid بتاعه فى الهيدر، وهنا زرار تاني بـid مختلف
-         بيفتح نفس المودال؛ زرار جدول المطار جديد بالكامل). -->
-    <div class="hero-quick-tools" style="display:flex; flex-direction:column; gap:8px; max-width:280px; margin:16px auto 0;">
-      <button class="btn btn-ghost" id="btnFlightTrackerHome" style="display:flex; align-items:center; justify-content:center; gap:6px;" data-i18n="flight_tracker_btn">📡 تتبع الطيران المباشر</button>
-      <button class="btn btn-ghost" id="btnAirportSchedule" style="display:flex; align-items:center; justify-content:center; gap:6px;" data-i18n="airport_schedule_btn">🛫 جدول المطار</button>
-    </div>
   </section>
 
   <!-- ============ UNIFIED HERO SEARCH BOX — real, fully-functional forms (not a summary widget),
@@ -4702,11 +4700,7 @@ function openTrackerModal(){
   document.getElementById('trackerModal').classList.add('open');
   document.getElementById('trackerFlightNo').focus();
 }
-// ⚠️ زرارين بيفتحوا نفس المودال بالظبط: واحد فى الهيدر (btnFlightTracker) وواحد فى الصفحة
-// الرئيسية (btnFlightTrackerHome) أُضيف 20 أغسطس 2026 — نفس السلوك بالظبط، مش ميزة تانية.
 document.getElementById('btnFlightTracker').onclick = openTrackerModal;
-const btnFlightTrackerHomeEl = document.getElementById('btnFlightTrackerHome');
-if (btnFlightTrackerHomeEl) btnFlightTrackerHomeEl.onclick = openTrackerModal;
 document.getElementById('closeTrackerModal').onclick = ()=> document.getElementById('trackerModal').classList.remove('open');
 document.getElementById('trackerModal').addEventListener('click', e=>{ if(e.target.id==='trackerModal') document.getElementById('trackerModal').classList.remove('open'); });
 /* تحديث 20 أغسطس 2026: بالإضافة لرابط Flightradar24 (زي ما كان بالظبط)، لو FlightAPI الحقيقي
