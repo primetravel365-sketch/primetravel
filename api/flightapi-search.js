@@ -1,4 +1,3 @@
-
 // ============================================================
 // وسيط (Serverless Proxy) بين موقع PrimeTravel365 وFlightAPI.io — مصدر بيانات طيران حقيقي
 // إضافي/بديل عن Duffel (اللي لسه عالق في وضع Test Mode بسبب حظر الإمارات في Duffel Payments).
@@ -85,6 +84,18 @@ module.exports = async function handler(req, res) {
     const json = await apiRes.json();
     if (!apiRes.ok) {
       res.status(apiRes.status).json({ error: (json && (json.message || json.error)) || 'FlightAPI.io error' });
+      return;
+    }
+
+    // وضع تشخيص مؤقت (debug=raw) — بيرجع عينة من شكل الرد الخام زي ما هو، عشان نتأكد من
+    // أسماء الحقول الفعلية (زي كود الآياتا جوه places) قبل ما نعتمد على التخمين. هيتشال
+    // بعد التأكد، مش هيفضل فى النسخة النهائية.
+    if (req.query && req.query.debug === 'raw') {
+      res.status(200).json({
+        placesSample: (Array.isArray(json.places) ? json.places : []).slice(0, 5),
+        legsSample: (Array.isArray(json.legs) ? json.legs : []).slice(0, 3),
+        segmentsSample: (Array.isArray(json.segments) ? json.segments : []).slice(0, 3),
+      });
       return;
     }
 
