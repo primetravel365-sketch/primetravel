@@ -1323,6 +1323,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
     <h3 data-i18n="price_opts_h">خيارات الأسعار</h3>
     <div class="sub" data-i18n="price_opts_sub">الأسعار المعروضة تشمل الضرائب ورسوم الدفع</div>
     <div class="price-disclaimer" data-i18n="price_disclaimer">⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك</div>
+    <div class="price-disclaimer" style="background:rgba(47,111,237,.08); color:var(--blue-l); margin-top:6px;" data-i18n="ota_policy_note">ℹ️ الأسعار الأقل عند مواقع الحجز غالبًا ما تأتي مع سياسات تغيير/استرداد أضيق من الحجز المباشر مع شركة الطيران — قارن السياسة كمان مش السعر بس</div>
     <div id="priceOptionsList"></div>
   </div>
 </div>
@@ -1725,6 +1726,7 @@ const I18N = {
   combined_results:"الرحلات (ذهاب وعودة)", total_price:"السعر الإجمالي", continue_booking:"احجز الآن", manual_book_btn:"احجز الرحلتين المختارتين", manual_select_out:"اختر رحلة الذهاب", manual_select_in:"اختر رحلة العودة",
   back_results:"عودة للنتائج", tdp_title:"تفاصيل الرحلة", price_opts_h:"خيارات الأسعار", price_opts_sub:"الأسعار المعروضة تشمل الضرائب ورسوم الدفع",
   price_disclaimer:"⚠️ سعر تقديري — السعر النهائي يُؤكَّد عند إتمام الحجز فعليًا على موقع الشريك، وقد يختلف حسب سياسة الموقع نفسه (عروض ترويجية، خيارات الحقائب، أو إضافات أخرى)",
+  ota_policy_note:"ℹ️ الأسعار الأقل عند مواقع الحجز غالبًا ما تأتي مع سياسات تغيير/استرداد أضيق من الحجز المباشر مع شركة الطيران — قارن السياسة كمان مش السعر بس",
   flights_real_disclaimer:"✅ نتائج حقيقية فعليًا (مواعيد وأرقام رحلات حقيقية عبر Duffel، وضع تجريبي حاليًا)",
   flights_real_disclaimer_flightapi:"✅ نتائج حقيقية فعليًا ولحظيًا (أسعار ومواعيد حقيقية عبر FlightAPI.io — شركات طيران موثوقة فقط)",
   maintenance_notice:"⚠️ الموقع حاليًا تحت التجربة والتطوير — بعض الأسعار والنتائج قد تكون تقديرية مؤقتًا",
@@ -1788,6 +1790,7 @@ const I18N = {
   combined_results:"Flights (round trip)", total_price:"Total price", continue_booking:"Book now", manual_book_btn:"Book selected flights", manual_select_out:"Select outbound flight", manual_select_in:"Select return flight",
   back_results:"Back to results", tdp_title:"Trip details", price_opts_h:"Price options", price_opts_sub:"Prices shown include taxes and payment fees",
   price_disclaimer:"⚠️ Estimated price — the final price is confirmed when you complete booking on the partner's site, and may vary based on that site's own policies (promotions, baggage options, or other add-ons)",
+  ota_policy_note:"ℹ️ Lower prices on booking sites often come with tighter change/refund policies than booking directly with the airline — compare the policy, not just the price",
   flights_real_disclaimer:"✅ Genuinely real results (real times & flight numbers via Duffel, currently in test mode)",
   flights_real_disclaimer_flightapi:"✅ Genuinely real, live results (real prices & times via FlightAPI.io — trusted airlines only)",
   maintenance_notice:"⚠️ This site is currently in testing/development — some prices and results may be temporarily estimated",
@@ -1851,6 +1854,7 @@ const I18N = {
   combined_results:"Uçuşlar (gidiş-dönüş)", total_price:"Toplam fiyat", continue_booking:"Şimdi rezervasyon yap", manual_book_btn:"Seçilen uçuşları rezerve et", manual_select_out:"Gidiş uçuşunu seçin", manual_select_in:"Dönüş uçuşunu seçin",
   back_results:"Sonuçlara dön", tdp_title:"Seyahat detayları", price_opts_h:"Fiyat seçenekleri", price_opts_sub:"Gösterilen fiyatlara vergiler ve ödeme ücretleri dahildir",
   price_disclaimer:"⚠️ Tahmini fiyat — kesin fiyat, ortağın sitesinde rezervasyon tamamlanırken onaylanır ve o sitenin kendi politikalarına göre değişebilir (promosyonlar, bagaj seçenekleri veya diğer ek hizmetler)",
+  ota_policy_note:"ℹ️ Rezervasyon sitelerindeki daha düşük fiyatlar genellikle havayoluyla doğrudan rezervasyona göre daha sıkı değişiklik/iade politikalarıyla gelir — sadece fiyatı değil, politikayı da karşılaştırın",
   flights_real_disclaimer:"✅ Gerçek sonuçlar (Duffel üzerinden gerçek saatler ve uçuş numaraları, şu anda test modunda)",
   flights_real_disclaimer_flightapi:"✅ Gerçek ve anlık sonuçlar (FlightAPI.io üzerinden gerçek fiyatlar ve saatler — yalnızca güvenilir havayolları)",
   maintenance_notice:"⚠️ Bu site şu anda test/geliştirme aşamasındadır — bazı fiyat ve sonuçlar geçici olarak tahmini olabilir",
@@ -1914,6 +1918,7 @@ const I18N = {
   combined_results:"Vols (aller-retour)", total_price:"Prix total", continue_booking:"Réserver maintenant", manual_book_btn:"Réserver les vols sélectionnés", manual_select_out:"Choisir le vol aller", manual_select_in:"Choisir le vol retour",
   back_results:"Retour aux résultats", tdp_title:"Détails du voyage", price_opts_h:"Options de prix", price_opts_sub:"Les prix affichés incluent les taxes et frais de paiement",
   price_disclaimer:"⚠️ Prix estimé — le prix final est confirmé lors de la réservation sur le site du partenaire, et peut varier selon les propres politiques de ce site (promotions, options de bagages ou autres suppléments)",
+  ota_policy_note:"ℹ️ Les prix plus bas sur les sites de réservation s'accompagnent souvent de politiques de changement/remboursement plus strictes qu'une réservation directe auprès de la compagnie — comparez aussi la politique, pas seulement le prix",
   flights_real_disclaimer:"✅ Résultats réellement authentiques (horaires et numéros de vol réels via Duffel, actuellement en mode test)",
   flights_real_disclaimer_flightapi:"✅ Résultats réels et en direct (prix et horaires réels via FlightAPI.io — compagnies aériennes fiables uniquement)",
   maintenance_notice:"⚠️ Ce site est actuellement en phase de test/développement — certains prix et résultats peuvent être temporairement estimés",
@@ -1977,6 +1982,7 @@ const I18N = {
   combined_results:"پروازیں (راؤنڈ ٹرپ)", total_price:"کل قیمت", continue_booking:"ابھی بک کریں", manual_book_btn:"منتخب پروازیں بک کریں", manual_select_out:"جانے کی پرواز منتخب کریں", manual_select_in:"واپسی کی پرواز منتخب کریں",
   back_results:"نتائج پر واپس جائیں", tdp_title:"سفر کی تفصیلات", price_opts_h:"قیمت کے اختیارات", price_opts_sub:"دکھائی گئی قیمتوں میں ٹیکس اور ادائیگی کے چارجز شامل ہیں",
   price_disclaimer:"⚠️ تخمینی قیمت — حتمی قیمت پارٹنر کی ویب سائٹ پر بکنگ مکمل کرتے وقت ظاہر ہوگی، اور اس ویب سائٹ کی اپنی پالیسیوں (پروموشنز، سامان کے اختیارات، یا دیگر اضافی سہولیات) کے مطابق مختلف ہو سکتی ہے",
+  ota_policy_note:"ℹ️ بکنگ سائٹس پر کم قیمتیں اکثر ایئرلائن سے براہ راست بکنگ کے مقابلے میں سخت تبدیلی/رقم واپسی کی پالیسیوں کے ساتھ آتی ہیں — صرف قیمت نہیں، پالیسی بھی دیکھیں",
   flights_real_disclaimer:"✅ حقیقی نتائج (Duffel کے ذریعے حقیقی اوقات اور فلائٹ نمبرز، فی الحال ٹیسٹ موڈ میں)",
   flights_real_disclaimer_flightapi:"✅ حقیقی اور لائیو نتائج (FlightAPI.io کے ذریعے حقیقی قیمتیں اور اوقات — صرف قابلِ اعتماد ایئرلائنز)",
   maintenance_notice:"⚠️ یہ سائٹ فی الحال ٹیسٹنگ/ڈیولپمنٹ میں ہے — کچھ قیمتیں اور نتائج عارضی طور پر تخمینی ہو سکتے ہیں",
@@ -3750,7 +3756,15 @@ function attachFlightEvents(){
     };
   });
   document.querySelectorAll('[data-alert]').forEach(row=>{
-    row.onclick = (e)=>{ e.stopPropagation(); showToast(t('toast_alert')); document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open')); };
+    row.onclick = (e)=>{
+      e.stopPropagation();
+      document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open'));
+      const raw = row.getAttribute('data-alert') || '';
+      // تحديث 20 أغسطس 2026: تنبيهات السعر عبر الإيميل بقت حقيقية فعليًا (بتتخزن فى Supabase
+      // وتتفحص لاحقًا من مهمة مجدولة) — واتساب لسه "قيد التطوير" بأمانة زي ما كان لحد ما نبنيه.
+      if(!raw.startsWith('email-')){ showToast(t('toast_alert')); return; }
+      savePriceAlertEmail(raw.replace('email-',''));
+    };
   });
   // زر "حجز" على كل كارت — لرحلة ذهاب فقط: يعمل فورًا (نفس إصلاح باگ "حجز الآن" الأصلي). لرحلة
   // ذهاب وعودة: يبقى مقفول (disabled) لحد ما المسافر يحدد نفس الرحلتين بالضبط عبر الـ checkbox —
@@ -3789,6 +3803,47 @@ function attachFlightEvents(){
     };
   });
   document.addEventListener('click', ()=>document.querySelectorAll('.popover.open').forEach(p=>p.classList.remove('open')), {once:true});
+}
+/* تحديث 20 أغسطس 2026 — تنبيه انخفاض السعر عبر الإيميل، حقيقي فعليًا: بيتسجل مباشرة فى جدول
+   price_alerts فى Supabase (نفس أسلوب trackClick تمامًا — كتابة مباشرة من المتصفح بمفتاح anon
+   محمي بـRLS يسمح بالإدخال فقط). التنبيه مربوط بالرحلة (leg) اللي ضغط عليها المستخدم تحديدًا:
+   لو كانت رحلة عودة (موجودة فى inbound)، الاتجاه والتاريخ بيتعكسوا تلقائيًا (وجهة→أصل، retDate)
+   بما يتوافق مع أسلوب البحث المستقل لكل رحلة اللي اتفقنا عليه. المهمة المجدولة اللي هتراجع
+   السعر لاحقًا وتبعت الإيميل الفعلي لسه محتاجة بناء (api/check-price-alerts.js). */
+async function savePriceAlertEmail(fid){
+  const f = outbound.find(x=>x.id===fid) || (typeof inbound!=='undefined' ? inbound.find(x=>x.id===fid) : null);
+  if(!f){ showToast(t('toast_alert')); return; }
+  const isReturn = typeof inbound!=='undefined' && inbound.some(x=>x.id===fid);
+  const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
+  const depVal = document.getElementById('depDate').value;
+  const retVal = document.getElementById('retDate') ? document.getElementById('retDate').value : '';
+  const origin = isReturn ? toAp.code : fromAp.code;
+  const destination = isReturn ? fromAp.code : toAp.code;
+  const departDate = isReturn ? retVal : depVal;
+
+  const promptMsg = currentLang==='ar'
+    ? 'أدخل بريدك الإلكتروني لتنبيهك لو السعر نزل تحت السعر الحالي:'
+    : 'Enter your email to get notified if the price drops below the current price:';
+  const contactValue = window.prompt(promptMsg, '');
+  if(!contactValue || !contactValue.includes('@')) return;
+
+  try{
+    if(!sb) throw new Error('Supabase client not ready');
+    const { error } = await sb.from('price_alerts').insert({
+      contact_method: 'email',
+      contact_value: contactValue.trim(),
+      origin, destination,
+      depart_date: departDate || null,
+      target_price: f.price,
+      currency: currentCurrency,
+      active: true,
+    });
+    if(error) throw error;
+    showToast(currentLang==='ar' ? '✅ تم تفعيل التنبيه — هنبعتلك إيميل لو السعر نزل' : '✅ Alert activated — we\'ll email you if the price drops');
+  }catch(_alertErr){
+    console.error('price_alerts insert failed:', _alertErr);
+    showToast(currentLang==='ar' ? '⚠️ حصل خطأ فى تفعيل التنبيه، حاول تاني لاحقًا' : '⚠️ Could not activate the alert, please try again later');
+  }
 }
 // يحدّث حالة تفعيل/تعطيل كل زر "حجز" على كل الكروت المعروضة (بما فيها الكارت المخصص لو موجود)
 // حسب تطابقه بالظبط مع الاختيار الحالي — بدون إعادة رسم كامل القائمة.
