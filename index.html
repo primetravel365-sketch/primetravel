@@ -959,7 +959,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
   <div class="hero-search-shell">
     <div class="hero-search-tabs">
       <button class="hs-tab active" data-hs="flights">✈️ <span data-i18n="hs_flights">رحلات الطيران</span></button>
-      <button class="hs-tab" data-hs="hotels">🏨 <span data-i18n="hs_hotels">فنادق</span></button>
+      <button class="hs-tab" data-hs="hotels" id="hsHotelsTab" style="opacity:.6;">🏨 <span data-i18n="hs_hotels">فنادق</span> <span style="font-size:9.5px; font-weight:900; background:var(--gold); color:#221703; border-radius:6px; padding:1px 5px; margin-inline-start:3px;" data-i18n="hotel_soon_badge">قريبًا</span></button>
     </div>
     <div id="heroFlightForm">
       <div class="search-block" style="margin-bottom:0;">
@@ -1694,6 +1694,7 @@ const I18N = {
   hg_1_1:"غرفة واحدة، ضيف واحد", hg_1_2:"غرفة واحدة، ضيفان", hg_2_4:"غرفتان، 4 ضيوف", hg_3_6:"3 غرف، 6 ضيوف",
   hotel_search_btn:"بحث عن فنادق", hotel_sort_rating:"الأعلى تقييمًا", hotel_stars:"تصنيف النجوم",
   hs_flights:"رحلات الطيران", hs_hotels:"فنادق", hs_where:"إلى أين؟", hs_where_ph:"ابحث عن وجهتك...", hs_dates:"التواريخ", hs_guests:"المسافرون", hs_btn:"بحث",
+  hotel_soon_badge:"قريبًا", hotel_search_disabled_msg:"بحث الفنادق متوقف مؤقتًا لحين الانتهاء من ربط مصدر أسعار حقيقي — قريبًا",
   hotel_price_range:"نطاق السعر لليلة", hotel_amenities:"المرافق",
   am_wifi:"واي فاي مجاني", am_pool:"مسبح", am_breakfast:"إفطار مجاني", am_gym:"صالة رياضية",
   fa_meal:"وجبة", fa_wifi:"واي فاي", fa_power:"شحن", fa_entertainment:"ترفيه",
@@ -1747,6 +1748,7 @@ const I18N = {
   hg_1_1:"1 room, 1 guest", hg_1_2:"1 room, 2 guests", hg_2_4:"2 rooms, 4 guests", hg_3_6:"3 rooms, 6 guests",
   hotel_search_btn:"Search hotels", hotel_sort_rating:"Top rated", hotel_stars:"Star rating",
   hs_flights:"Flights", hs_hotels:"Hotels", hs_where:"Where to?", hs_where_ph:"Search destinations...", hs_dates:"Dates", hs_guests:"Travelers", hs_btn:"Search",
+  hotel_soon_badge:"Coming soon", hotel_search_disabled_msg:"Hotel search is temporarily paused while we connect a real pricing source — coming back soon",
   hotel_price_range:"Price range per night", hotel_amenities:"Amenities",
   am_wifi:"Free WiFi", am_pool:"Pool", am_breakfast:"Free breakfast", am_gym:"Gym",
   fa_meal:"Meal", fa_wifi:"WiFi", fa_power:"Power", fa_entertainment:"Entertainment",
@@ -1800,6 +1802,7 @@ const I18N = {
   hg_1_1:"1 oda, 1 misafir", hg_1_2:"1 oda, 2 misafir", hg_2_4:"2 oda, 4 misafir", hg_3_6:"3 oda, 6 misafir",
   hotel_search_btn:"Otel ara", hotel_sort_rating:"En yüksek puanlı", hotel_stars:"Yıldız sınıfı",
   hs_flights:"Uçuşlar", hs_hotels:"Oteller", hs_where:"Nereye?", hs_where_ph:"Varış noktası ara...", hs_dates:"Tarihler", hs_guests:"Yolcular", hs_btn:"Ara",
+  hotel_soon_badge:"Yakında", hotel_search_disabled_msg:"Gerçek fiyat kaynağı bağlanana kadar otel arama geçici olarak durduruldu — yakında",
   hotel_price_range:"Gecelik fiyat aralığı", hotel_amenities:"Olanaklar",
   am_wifi:"Ücretsiz Wi-Fi", am_pool:"Havuz", am_breakfast:"Ücretsiz kahvaltı", am_gym:"Spor salonu",
   fa_meal:"Yemek", fa_wifi:"Wi-Fi", fa_power:"Priz", fa_entertainment:"Eğlence",
@@ -1853,6 +1856,7 @@ const I18N = {
   hg_1_1:"1 chambre, 1 voyageur", hg_1_2:"1 chambre, 2 voyageurs", hg_2_4:"2 chambres, 4 voyageurs", hg_3_6:"3 chambres, 6 voyageurs",
   hotel_search_btn:"Rechercher des hôtels", hotel_sort_rating:"Les mieux notés", hotel_stars:"Classement par étoiles",
   hs_flights:"Vols", hs_hotels:"Hôtels", hs_where:"Où allez-vous ?", hs_where_ph:"Rechercher une destination...", hs_dates:"Dates", hs_guests:"Voyageurs", hs_btn:"Rechercher",
+  hotel_soon_badge:"Bientôt", hotel_search_disabled_msg:"La recherche d'hôtels est temporairement suspendue en attendant une source de prix réelle — bientôt de retour",
   hotel_price_range:"Fourchette de prix par nuit", hotel_amenities:"Équipements",
   am_wifi:"Wi-Fi gratuit", am_pool:"Piscine", am_breakfast:"Petit-déjeuner gratuit", am_gym:"Salle de sport",
   fa_meal:"Repas", fa_wifi:"Wi-Fi", fa_power:"Prise électrique", fa_entertainment:"Divertissement",
@@ -1906,6 +1910,7 @@ const I18N = {
   hg_1_1:"1 کمرہ، 1 مہمان", hg_1_2:"1 کمرہ، 2 مہمان", hg_2_4:"2 کمرے، 4 مہمان", hg_3_6:"3 کمرے، 6 مہمان",
   hotel_search_btn:"ہوٹل تلاش کریں", hotel_sort_rating:"سب سے زیادہ ریٹڈ", hotel_stars:"ستاروں کی درجہ بندی",
   hs_flights:"پروازیں", hs_hotels:"ہوٹلز", hs_where:"کہاں جانا ہے؟", hs_where_ph:"منزل تلاش کریں...", hs_dates:"تاریخیں", hs_guests:"مسافر", hs_btn:"تلاش کریں",
+  hotel_soon_badge:"جلد آ رہا ہے", hotel_search_disabled_msg:"حقیقی قیمتوں کا ذریعہ جوڑے جانے تک ہوٹل تلاش عارضی طور پر روک دی گئی ہے — جلد واپس آئے گی",
   hotel_price_range:"فی رات قیمت کی حد", hotel_amenities:"سہولیات",
   am_wifi:"مفت وائی فائی", am_pool:"سوئمنگ پول", am_breakfast:"مفت ناشتہ", am_gym:"جم",
   fa_meal:"کھانا", fa_wifi:"وائی فائی", fa_power:"پاور", fa_entertainment:"تفریح",
@@ -2701,6 +2706,10 @@ function buildTicker(){
    Expedia, Hotels.com) pre-filled with the same city/dates — genuine
    public deep-link URL patterns, no fake redirect.
    ============================================================ */
+/* ============ إيقاف مؤقت لميزة بحث الفنادق — أُضيف 20 أغسطس 2026 ============
+   البحث لسه بيانات وهمية (genHotels)، وبانتظار الاشتراك فى مصدر بيانات حقيقي
+   (SerpApi Google Hotels أو غيره). لإعادة تفعيل الميزة، غيّر القيمة دي إلى true فقط. */
+const HOTEL_SEARCH_ENABLED = false;
 const HOTEL_CITIES = []; // flattened from COUNTRIES so every airport city is also a hotel destination
 COUNTRIES.forEach((c,ci)=> c.airports.forEach((ap,ai)=> HOTEL_CITIES.push({
   cityAr:ap.city_ar, cityEn:ap.city_en, countryAr:c.name_ar, countryEn:c.name_en, iso2:c.code, ci, ai
@@ -2958,7 +2967,13 @@ function openHotelProviders(hotelId, roomPrice){
   panel.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
-document.getElementById('hotelSearchBtn').onclick = runHotelSearch;
+document.getElementById('hotelSearchBtn').onclick = function(){
+  if(!HOTEL_SEARCH_ENABLED){
+    showToast(t('hotel_search_disabled_msg'));
+    return;
+  }
+  runHotelSearch();
+};
 document.getElementById('hotelPriceRange').oninput = renderHotelResults;
 document.querySelectorAll('.hStars, .hAmenity').forEach(el=> el.onchange = renderHotelResults);
 document.querySelectorAll('#hotelSortTabs .sort-tab').forEach(btn=>{
@@ -4080,9 +4095,13 @@ function goHome(){
    ============================================================ */
 document.querySelectorAll('.hs-tab').forEach(btn=>{
   btn.onclick = ()=>{
+    const mode = btn.getAttribute('data-hs');
+    if(mode==='hotels' && !HOTEL_SEARCH_ENABLED){
+      showToast(t('hotel_search_disabled_msg'));
+      return;
+    }
     document.querySelectorAll('.hs-tab').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    const mode = btn.getAttribute('data-hs');
     document.getElementById('heroFlightForm').style.display = mode==='flights' ? 'block' : 'none';
     document.getElementById('heroHotelForm').style.display = mode==='hotels' ? 'block' : 'none';
   };
