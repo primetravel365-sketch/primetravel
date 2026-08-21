@@ -16,10 +16,22 @@
 // ⚠️ حماية استهلاك: نفس فلسفة باقي ميزات FlightAPI.io بالظبط — المهمة دي بتحترم قفل
 // FLIGHTAPI_LIVE_ENABLED الموجود بالفعل. لو مقفول (الوضع الافتراضي الحالي)، المهمة بترجع فورًا
 // من غير ما تستهلك ولا كريديت واحد — نفس الحماية المطبّقة على البحث والتتبع وجدول المطار.
+//
+// 🔐 التحقق من CRON_SECRET (أُضيف 21 أغسطس 2026): بندعم طريقتين حتى ما نضطرش نحط السر
+// كنص صريح جوه vercel.json (اللي بيتحفظ فى تاريخ الـgit ويفضل موجود للأبد حتى لو اتشال بعدين):
+//   1) Header — Vercel نفسه بيبعت "Authorization: Bearer <CRON_SECRET>" تلقائي مع كل استدعاء
+//      Cron Job معرّف فى vercel.json طالما متغير CRON_SECRET مضاف فى الإعدادات. الطريقة دي
+//      آمنة 100% لأن السر نفسه مش مكتوب فى أي ملف بالمستودع.
+//   2) Query param (?secret=...) — للاختبار اليدوي بس (تكتبه بنفسك فى المتصفح وقت الحاجة)،
+//      مش موجود فى أي ملف محفوظ فى الريبو.
 // ============================================================
 module.exports = async function handler(req, res) {
   try {
-    if ((req.query && req.query.secret) !== process.env.CRON_SECRET || !process.env.CRON_SECRET) {
+    const expectedSecret = process.env.CRON_SECRET;
+    const authHeader = req.headers && req.headers.authorization;
+    const querySecret = req.query && req.query.secret;
+    const authorized = !!expectedSecret && (authHeader === `Bearer ${expectedSecret}` || querySecret === expectedSecret);
+    if (!authorized) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
