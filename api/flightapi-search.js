@@ -9,7 +9,8 @@
 // (اتحط بالفعل بتاريخ 20 أغسطس 2026 — راجع Project Settings → Environment Variables)
 //
 // ⚠️ تنبيه استهلاك: باقة التجربة المجانية فيها 30 كريديت بس (كل بحث = 2 كريديت = 15 بحث تجريبي
-// إجمالي). اختبر بعدد قليل من عمليات البحث الأول قبل ما تعتمد عليه بشكل موسّع على الموقع الحي.
+// إجمالي)، وهي تجربة لمرة واحدة (صالحة 30 يوم من التفعيل) مش رصيد شهري متجدد زي SerpApi —
+// راجع claude/flightapi-io-research-2026-08-19.md للتفاصيل الكاملة قبل أي قرار ترقية.
 //
 // مرجع التوثيق الرسمي (بتاريخ الإنشاء):
 //   One-way: https://api.flightapi.io/onewaytrip/<key>/<from>/<to>/<date>/<adults>/<children>/<infants>/<cabin>/<currency>
@@ -46,6 +47,55 @@ function isTrustedAirline(name) {
   const n = (name || '').toLowerCase();
   return TRUSTED_AIRLINE_KEYWORDS.some(k => n.includes(k));
 }
+
+// ============================================================
+// ⚠️ كاش نتائج البحث — أُضيف 21 أغسطس 2026 بناءً على طلب صريح من أحمد لتقليل استهلاك
+// كريديت FlightAPI.io المحدود (سواء الـ30 كريديت الحاليين، أو الـ30,000 الشهرية لو اشتركنا
+// لاحقًا). أسعار الطيران عمليًا مش بتتغير كل دقيقة، فمفيش داعي نستهلك كريديت جديد لو حد
+// بحث عن نفس المسار (نفس origin/destination/date/cabin/currency) خلال آخر 35 دقيقة —
+// بنرجّع نفس النتيجة المحفوظة بدل ما ننادي FlightAPI.io تاني.
+//
+// محفوظ فى جدول Supabase منفصل (flightapi_search_cache) بدل الذاكرة المؤقتة للسيرفر
+// (زي كاش SerpApi)، لأن دوال Vercel بتترستارت باستمرار والذاكرة المؤقتة مش موثوقة كفاية
+// لهدف "توفير كريديت حقيقي" — الجدول محمي بالكامل (RLS من غير أي policy لـanon)، والوصول
+// بس عن طريق SUPABASE_SERVICE_ROLE_KEY من السيرفر.
+//
+// ⚠️ لو SUPABASE_SERVICE_ROLE_KEY لسه مش مضاف فى Vercel، الكاش بيتخطى نفسه تلقائيًا (fail-open)
+// والموقع بيكمل يشتغل بنفس السلوك الحالي (نداء حقيقي فى كل مرة) من غير أي كسر — أول ما
+// المفتاح يتضاف، الكاش بيشتغل تلقائيًا من غير أي تعديل تاني فى الكود.
+const CACHE_TTL_MINUTES = 35;
+const SUPABASE_URL = 'https://pvspphmdonxvsgicmylp.supabase.co';
+
+function buildCacheKey(origin, destination, departure_date, return_date, cabin, currency) {
+  return [origin, destination, departure_date, return_date || '', cabin, currency].join('|').toLowerCase();
+}
+
+async function readCache(cacheKey, serviceKey) {
+  if (!serviceKey) return null;
+  try {
+    const cutoff = new Date(Date.now() - CACHE_TTL_MINUTES * 60000).toISOString();
+    const url = `${SUPABASE_URL}/rest/v1/flightapi_search_cache?cache_key=eq.${encodeURIComponent(cacheKey)}&created_at=gte.${encodeURIComponent(cutoff)}&select=response&limit=1`;
+    const r = await fetch(url, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    return (Array.isArray(rows) && rows[0] && rows[0].response) || null;
+  } catch (_cacheReadErr) { return null; } // أي فشل فى الكاش — نكمل عادي بنداء حقيقي، مش نوقف الموقع
+}
+
+async function writeCache(cacheKey, responseObj, serviceKey) {
+  if (!serviceKey) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/flightapi_search_cache`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates', // upsert: لو نفس cache_key موجود، يحدّثه بدل ما يفشل
+      },
+      body: JSON.stringify({ cache_key: cacheKey, response: responseObj, created_at: new Date().toISOString() }),
+    });
+  } catch (_cacheWriteErr) { /* فشل الكتابة فى الكاش مش لازم يوقف الرد اللي إحنا أصلًا رجّعناه */ }
+}
+// ============================================================
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -88,6 +138,18 @@ module.exports = async function handler(req, res) {
     const inf = infants || '0';
     const cabin = cabin_class || 'Economy';
     const cur = (currency || 'USD').toUpperCase();
+
+    // ⚠️ فحص الكاش الأول — قبل أي نداء حقيقي لـFlightAPI.io. المفتاح مبني على نفس البارامترات
+    // المؤثرة على السعر (المسار + التاريخ + الدرجة + العملة) — البالغين/الأطفال/الرضع مش داخلين
+    // فى المفتاح حاليًا لأن الموقع بيعرض سعر البالغ الواحد أساسًا؛ لو ده اتغيّر مستقبلًا لازم
+    // نضيفهم للمفتاح كمان.
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const cacheKey = buildCacheKey(origin, destination, departure_date, return_date, cabin, cur);
+    const cached = await readCache(cacheKey, serviceKey);
+    if (cached) {
+      res.status(200).json(cached);
+      return;
+    }
 
     let url;
     if (return_date) {
@@ -207,12 +269,17 @@ module.exports = async function handler(req, res) {
     const trustedFlights = flights.filter(f => f.segments.every(seg => isTrustedAirline(seg.airline)));
     const finalFlights = (trustedFlights.length > 0 ? trustedFlights : flights).slice(0, 8);
 
-    res.status(200).json({
+    const responseBody = {
       price: finalFlights[0].price,
       currency: cur,
       airline: finalFlights[0].airline,
       flights: finalFlights,
-    });
+    };
+
+    res.status(200).json(responseBody);
+    // بنكتب فى الكاش بعد الرد عشان منأخرش الاستجابة للزائر — فشل الكتابة (لو حصل) مش بيأثر
+    // على الرد اللي اتبعت أصلًا.
+    writeCache(cacheKey, responseBody, serviceKey);
   } catch (err) {
     try { res.status(500).json({ error: String(err) }); } catch (_e2) { /* الرد اتبعت بالفعل */ }
   }
