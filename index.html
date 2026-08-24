@@ -3128,7 +3128,10 @@ document.querySelectorAll('#hotelSortTabs .sort-tab').forEach(btn=>{
   };
 });
 
-let fromIdx = 3, fromApIdx = 0, toIdx = 0, toApIdx = 1; // default: Egypt/Cairo → UAE/Dubai
+// إصلاح 25 أغسطس 2026 (بطلب أحمد): كان فيه بلد/مطار افتراضي مضروب فى الكود (مصر→الإمارات) بيظهر
+// للزائر من غير ما يختاره — بيوهم إنه نتيجة بحث فعلية. دلوقتي الحقلين يفضلوا فاضيين تمامًا لحد ما
+// الزائر يختار بنفسه؛ null معناها "لسه محددش".
+let fromIdx = null, fromApIdx = null, toIdx = null, toApIdx = null;
 function flagImgUrl(iso2){ return iso2 ? `https://flagcdn.com/w40/${iso2.toLowerCase()}.png` : ''; }
 function selAirport(countryIdx, apIdx){ return COUNTRIES[countryIdx].airports[apIdx]; }
 function airportLabel(country, ap){
@@ -3172,12 +3175,24 @@ function setupFlagInput(inputId, ddId, which, wrapId){
   });
 }
 function renderFlagDisplays(){
-  const fromC = COUNTRIES[fromIdx], toC = COUNTRIES[toIdx];
-  const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
-  document.getElementById('fromFlagIcon').src = flagImgUrl(fromC.code);
-  document.getElementById('fromDisplay').value = airportLabel(fromC, fromAp);
-  document.getElementById('toFlagIcon').src = flagImgUrl(toC.code);
-  document.getElementById('toDisplay').value = airportLabel(toC, toAp);
+  const fromIcon = document.getElementById('fromFlagIcon'), fromDisp = document.getElementById('fromDisplay');
+  const toIcon = document.getElementById('toFlagIcon'), toDisp = document.getElementById('toDisplay');
+  if(fromIdx==null){
+    fromIcon.style.visibility = 'hidden'; fromIcon.src = '';
+    fromDisp.value = ''; fromDisp.placeholder = currentLang==='ar' ? 'من أين؟' : 'From where?';
+  } else {
+    const fromC = COUNTRIES[fromIdx], fromAp = selAirport(fromIdx, fromApIdx);
+    fromIcon.style.visibility = ''; fromIcon.src = flagImgUrl(fromC.code);
+    fromDisp.value = airportLabel(fromC, fromAp);
+  }
+  if(toIdx==null){
+    toIcon.style.visibility = 'hidden'; toIcon.src = '';
+    toDisp.value = ''; toDisp.placeholder = currentLang==='ar' ? 'إلى أين؟' : 'To where?';
+  } else {
+    const toC = COUNTRIES[toIdx], toAp = selAirport(toIdx, toApIdx);
+    toIcon.style.visibility = ''; toIcon.src = flagImgUrl(toC.code);
+    toDisp.value = airportLabel(toC, toAp);
+  }
 }
 function renderFlagDD(ddId, which, filterText){
   const q = (filterText||'').trim().toLowerCase();
@@ -3211,6 +3226,15 @@ function renderFlagDD(ddId, which, filterText){
   });
 }
 function renderCountryImgs(){
+  // إصلاح 25 أغسطس 2026: لحد ما الزائر يختار بلد المغادرة والوصول، الحقلين null — نعرض الصندوق
+  // فاضي بدل ما نكسر الصفحة بمحاولة قراءة COUNTRIES[null].
+  if(fromIdx==null || toIdx==null){
+    document.getElementById('fromCountryName').textContent = '';
+    document.getElementById('toCountryName').textContent = '';
+    document.getElementById('fromImgs').innerHTML = '';
+    document.getElementById('toImgs').innerHTML = '';
+    return;
+  }
   const from = COUNTRIES[fromIdx];
   const to = COUNTRIES[toIdx];
   document.getElementById('fromCountryName').textContent = currentLang==='ar'?from.name_ar:from.name_en;
@@ -4438,6 +4462,13 @@ function switchVideo(){
 function goResults(){
   const depValCheck = document.getElementById('depDate').value;
   const retValCheck = document.getElementById('retDate').value;
+  // إصلاح 25 أغسطس 2026: بلد/مطار المغادرة والوصول بقوا فاضيين افتراضيًا (مفيش اختيار جاهز) —
+  // لازم نتأكد إن الزائر اختارهم فعلًا قبل أي بحث، وإلا الكود القديم كان هيحاول يقرأ
+  // COUNTRIES[null] ويكسر الصفحة بصمت.
+  if(fromIdx==null || toIdx==null){
+    showToast(currentLang==='ar' ? 'من فضلك اختر بلد ومطار المغادرة والوصول' : 'Please choose your departure and destination airports');
+    return;
+  }
   // تحديث 19 أغسطس 2026: تاريخ العودة بقى فاضي افتراضيًا (الزائر يختاره بنفسه) — لازم نتأكد إنه
   // مختار فعلًا قبل تنفيذ بحث "ذهاب وعودة"، وإلا البحث هيتم بتاريخ عودة فاضي بصمت.
   if(!depValCheck){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ المغادرة' : 'Please choose a departure date'); return; }
@@ -4531,25 +4562,33 @@ function bindDateDisplay(inputId, displayId){
 // في كود HTML (value="2026-08-15")، فبمجرد ما التاريخ الفعلي عدّى عليها، بقت تظهر للزائر كتاريخ
 // ماضٍ! الحل: تُحسب ديناميكيًا من تاريخ اليوم الحقيقي لجهاز الزائر في كل مرة تُفتح فيها الصفحة،
 // وتُمنع أي تواريخ سابقة لليوم من الاختيار أصلًا (min) بدل رقم ثابت بيتقادم مع الوقت.
+// إصلاح 25 أغسطس 2026 (خلل حرج تالت اكتشفه أحمد): toISOString() بيرجع التاريخ بتوقيت UTC مش
+// بتوقيت جهاز الزائر — يعني فى أي وقت من نص الليل لحد الفجر بتوقيت الإمارات (UTC+4)، UTC لسه
+// فاضل فى "اليوم اللي فات" فيرجع تاريخ أمس بدل النهارده! الحل: نبني نص التاريخ من مكونات
+// التاريخ المحلي (getFullYear/getMonth/getDate) بدل تحويله لـUTC.
 function isoDatePlusDays(days){
   const d = new Date();
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0,10);
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
 }
 function setDefaultDatesIfStale(){
   const todayISO = isoDatePlusDays(0);
-  // تحديث 19 أغسطس 2026 (بطلب صاحب الموقع): تاريخ "المغادرة" لازم يبقى تاريخ اليوم افتراضيًا،
-  // وتاريخ "العودة" يفضل فاضي تمامًا عشان الزائر يختاره بنفسه (مش رقم افتراضي اتحط له).
-  [
-    ['depDate', todayISO],
-    ['hotelCheckin', isoDatePlusDays(3)],
-    ['hotelCheckout', isoDatePlusDays(6)],
-  ].forEach(([id, defaultVal])=>{
+  // إصلاح 25 أغسطس 2026 (بطلب أحمد): تاريخ "المغادرة" كان بيتحط افتراضيًا = تاريخ اليوم، فكان
+  // بيظهر وكأنه اختيار حقيقي من الزائر رغم إنه محدش لمسه — ده أدى لالتباس لما التاريخ فضل واقف.
+  // دلوقتي يفضل فاضي تمامًا زي تاريخ العودة بالظبط؛ الزائر هو اللي يكتبه/يختاره بنفسه.
+  ['hotelCheckin','hotelCheckout'].forEach((id,i)=>{
     const el = document.getElementById(id);
     if(!el) return;
-    el.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
-    if(!el.value || el.value < todayISO) el.value = defaultVal; // لو القيمة المكتوبة في الكود فاتت، تُستبدل بتاريخ مستقبلي منطقي
+    const defaultVal = isoDatePlusDays(i===0?3:6);
+    el.setAttribute('min', todayISO);
+    if(!el.value || el.value < todayISO) el.value = defaultVal;
   });
+  const depEl = document.getElementById('depDate');
+  if(depEl){
+    depEl.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
+    depEl.value = ''; // يفضل فاضي دايمًا عند تحميل الصفحة — الزائر هو اللي يختاره
+  }
   const retEl = document.getElementById('retDate');
   if(retEl){
     retEl.setAttribute('min', todayISO);
