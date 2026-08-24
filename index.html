@@ -785,6 +785,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .footer-col a:hover, .footer-col span.flink:hover{color:var(--text);}
 .footer-bottom{border-top:1px solid var(--border); padding:16px 0; text-align:center; font-size:11.5px; color:var(--dim);}
 @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;} .corp-cards{grid-template-columns:1fr 1fr;} .tdp-boxes{grid-template-columns:1fr;}}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 </style>
 
@@ -3676,8 +3677,22 @@ function genFlights(seed, count){
   }
   return out.sort((a,b)=>a.price-b.price);
 }
-let outbound = genFlights('out-0-2', 6);
-let inbound = genFlights('in-0-2', 6);
+// إصلاح 25 أغسطس 2026 (خلل حرج رابع اكتشفه أحمد بالصور — أخطر خلل لحد دلوقتي): كانت النتائج
+// المعروضة للزائر بتتولّد فورًا من genFlights() العشوائي بالكامل (شركة عشوائية من نفس قايمة
+// الـ34 شركة الحقيقية + وقت/سعر/عدد توقفات عشوائي) — وبما إن البحث الحقيقي (FlightAPI.io) بيحصل
+// بعد كده بشكل غير متزامن (async) ومش دايمًا بينجح (كريديت تجربة FlightAPI محدود جدًا: 30
+// كريديت/مرة واحدة بس مش شهري)، كان الزائر بيشوف رحلات مُلفّقة بالكامل (شركة معينة على مسار
+// أصلاً مبتطيروش عليه، بأوقات وأسعار مصطنعة) من غير أي تنبيه واضح لو البحث الحقيقي فشل — وده أخطر
+// بكتير من مجرد سعر تقديري: بيانات رحلة كاملة (شركة+وقت+مسار) غير حقيقية معروضة وكأنها نتيجة بحث
+// فعلية. الحل الجذري: مفيش أي بيانات مُلفّقة تتعرض للزائر خالص بعد كده. لحد ما نتيجة حقيقية فعلية
+// توصل من FlightAPI.io، بيظهر للزائر "جاري البحث..." بس — ولو فشل البحث الحقيقي تمامًا (شبكة/
+// كريديت خلص)، بيظهر تنبيه صريح "تعذر جلب رحلات حقيقية الآن" مع زرار "إعادة المحاولة"، مش رحلات
+// وهمية. genFlights() اتسابت فى الكود لغرض واحد بس دلوقتي: توليد placeholder فاضي مش بيتعرض.
+let outbound = [];
+let inbound = [];
+let flightsLoading = false; // true من لحظة الضغط على بحث لحد ما نتيجة حقيقية (أو فشل نهائي) توصل
+let flightsFetchFailed = false; // true بس لو كل مصادر البيانات الحقيقية فشلت فعليًا
+let lastSearchParams = null; // يخزّن آخر بحث لتفعيل زرار "إعادة المحاولة" بدون ما الزائر يعبّي الفورم تاني
 let selectedOut = null, selectedIn = null;
 let currentSort = 'recommended';
 
@@ -3840,7 +3855,25 @@ function renderFlightLists(){
   let html = '';
   pairs.forEach(([o,ii], idx)=>{ html += wegoCardHTML(o, ii, idx); });
   const pairCount = pairs.length;
-  document.getElementById('pairedFlights').innerHTML = html || `<p style="color:var(--dim); font-size:13px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</p>`;
+  // إصلاح 25 أغسطس 2026: قبل ما نعرض "لا توجد رحلات مطابقة" (رسالة فلترة عادية)، لازم نفرّق
+  // بين 3 حالات مختلفة تمامًا: (1) البحث الحقيقي لسه شغال — نعرض "جاري البحث"، (2) البحث
+  // الحقيقي فشل نهائيًا — نعرض تنبيه صريح + زرار إعادة محاولة، (3) البحث نجح فعلًا بس نتيجة
+  // الفلاتر (شركة/سعر/توقف) صفر — دي بس اللي تستاهل رسالة "لا توجد رحلات مطابقة" العادية.
+  let emptyStateHTML;
+  if (!html && flightsLoading) {
+    emptyStateHTML = `<div style="text-align:center; padding:24px 12px; color:var(--dim); font-size:13px;">
+      <div class="spinner" style="width:22px; height:22px; border:3px solid var(--border); border-top-color:var(--blue); border-radius:50%; margin:0 auto 10px; animation:spin .8s linear infinite;"></div>
+      ${currentLang==='ar' ? 'جاري البحث عن أسعار حقيقية فعليًا...' : 'Searching for real live prices...'}
+    </div>`;
+  } else if (!html && flightsFetchFailed) {
+    emptyStateHTML = `<div style="text-align:center; padding:24px 12px; color:var(--dim); font-size:13px;">
+      <div style="margin-bottom:10px;">${currentLang==='ar' ? '⚠️ تعذر جلب رحلات حقيقية لهذا المسار الآن (قد يكون بسبب زحمة أو انتهاء رصيد البحث المؤقت). جرّب مرة أخرى بعد قليل.' : '⚠️ Could not fetch real flights for this route right now. Please try again shortly.'}</div>
+      <button class="search-btn" style="display:inline-block; padding:8px 20px;" onclick="retrySearch()">${currentLang==='ar' ? 'إعادة المحاولة' : 'Retry'}</button>
+    </div>`;
+  } else {
+    emptyStateHTML = `<p style="color:var(--dim); font-size:13px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</p>`;
+  }
+  document.getElementById('pairedFlights').innerHTML = html || emptyStateHTML;
   document.getElementById('pairCount').textContent = pairCount + (currentLang==='ar'?' نتيجة':' results');
   document.getElementById('flightGroupLabel').textContent = (tripType==='one')
     ? (currentLang==='ar'?'الرحلات (ذهاب فقط)':'Flights (one way)')
@@ -4315,28 +4348,34 @@ async function fetchDuffelFlightList(originIata, destIata, depDateISO, retDateIS
   try{
     const outParams = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
     const outRes = await fetch('/api/duffel-search?' + outParams.toString());
-    if(!outRes.ok) return;
+    if(!outRes.ok) return false;
     const outData = await outRes.json();
     const mappedOut = mapCarrierFlights(outData, 'duffel', 'out').sort((a,b)=>a.price-b.price);
-    if(!mappedOut.length) return;
+    if(!mappedOut.length) return false;
 
     let mappedIn = null;
     if(tripType!=='one'){
-      if(!retDateISO) return;
+      if(!retDateISO) return false;
       const inParams = new URLSearchParams({origin:destIata, destination:originIata, departure_date:retDateISO});
       const inRes = await fetch('/api/duffel-search?' + inParams.toString());
-      if(!inRes.ok) return;
+      if(!inRes.ok) return false;
       const inData = await inRes.json();
       mappedIn = mapCarrierFlights(inData, 'duffel', 'in').sort((a,b)=>a.price-b.price);
-      if(!mappedIn.length) return;
+      if(!mappedIn.length) return false;
     }
 
     outbound = mappedOut;
     if(mappedIn) inbound = mappedIn;
+    // إصلاح 25 أغسطس 2026: Duffel لسه فى Test Mode فعليًا (مش Live Token) — بيانات تجريبية ممكن
+    // تكون شركات وهمية أو أسعار مش حقيقية 100%. كان الكود القديم بيحط نفس شارة "حقيقي فعليًا"
+    // الخضرا اللي بتتحط للبيانات الحقيقية من FlightAPI — ده تضليل صريح للزائر. دلوقتي شارة تحذير
+    // برتقالية صادقة توضح إنها بيانات تجريبية لحد ما تفعّل Duffel Live.
+    flightsLoading = false; flightsFetchFailed = false; // نتيجة حقيقية وصلت فعليًا — نطفي حالة التحميل/الفشل
     buildAirlineFilters(); // نعيد بناء قايمة فلترة الشركات من الشركات الحقيقية اللي رجعت فعليًا فى البحث ده
     renderFlightLists();
-    if(badge){ badge.textContent = t('flights_real_disclaimer'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
-  }catch(_dflListErr){ /* فشل الاتصال — تفضل الرحلات المولّدة تقديريًا مع التنويه البرتقالي الافتراضي */ }
+    if(badge){ badge.textContent = currentLang==='ar' ? '⚠️ بيانات تجريبية من Duffel (Test Mode) — مش أسعار حقيقية 100% بعد' : '⚠️ Test-mode data from Duffel — not 100% real prices yet'; badge.style.color='var(--gold)'; badge.style.background='rgba(216,165,49,.12)'; }
+    return true;
+  }catch(_dflListErr){ return false; } // فشل الاتصال — الدالة اللي بتنادي هنا لازم تعرض حالة فشل صريحة، مش بيانات ملفّقة
 }
 /* تحديث 20 أغسطس 2026 — FlightAPI.io: مصدر بيانات طيران حقيقي فعليًا (مش وضع تجريبي زي Duffel
    حاليًا)، مع فلترة شركات موثوقة وحد أقصى 8 نتائج جاهزة من السيرفر نفسه (api/flightapi-search.js
@@ -4368,6 +4407,7 @@ async function fetchFlightApiFlightList(originIata, destIata, depDateISO, retDat
 
     outbound = mappedOut;
     if(mappedIn) inbound = mappedIn;
+    flightsLoading = false; flightsFetchFailed = false; // نتيجة حقيقية وصلت فعليًا — نطفي حالة التحميل/الفشل
     buildAirlineFilters(); // نعيد بناء قايمة فلترة الشركات من الشركات الحقيقية اللي رجعت فعليًا فى البحث ده
     renderFlightLists();
     if(badge){ badge.textContent = t('flights_real_disclaimer_flightapi'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
@@ -4478,10 +4518,14 @@ function goResults(){
   const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
   const depVal = document.getElementById('depDate').value;
   const retVal = document.getElementById('retDate').value;
-  // regenerate flights based on the actual route + dates searched, so results genuinely change per search
-  outbound = genFlights('out-'+fromIdx+'-'+fromApIdx+'-'+toIdx+'-'+toApIdx+'-'+depVal, 8);
-  // one-way ("ذهاب فقط"): don't generate/show any return-leg flights at all
-  inbound = (tripType==='one') ? [] : genFlights('in-'+toIdx+'-'+toApIdx+'-'+fromIdx+'-'+fromApIdx+'-'+retVal, 8);
+  // إصلاح 25 أغسطس 2026: مفيش أي بيانات مُلفّقة (genFlights) تتعرض للزائر خالص — القايمة تفضل
+  // فاضية وتظهر حالة "جاري البحث" لحد ما نتيجة حقيقية فعلية توصل (أو فشل نهائي واضح). راجع
+  // التعليق الكامل عند تعريف outbound/inbound فوق لتفاصيل الخلل الحرج اللي ده بيصلحه.
+  outbound = [];
+  inbound = [];
+  flightsLoading = true;
+  flightsFetchFailed = false;
+  lastSearchParams = { fromCode: fromAp.code, toCode: toAp.code, depVal, retVal };
   selectedOut = null; selectedIn = null;
   manualOutSel = null; manualInSel = null;
   const comboSlot = document.getElementById('customComboSlot');
@@ -4502,12 +4546,43 @@ function goResults(){
   // ⚠️ حماية الكريديت المجاني: طول ما FLIGHTAPI_REAL_SEARCH_ENABLED = false، الزوار العاديين
   // بياخدوا Duffel (تجريبي، مجاني) بس — من غير ما نستهلك كريديت FlightAPI فى بحث تجريبي عشوائي.
   // إنت بس (لما تحط ?live_flights=1 فى الرابط) بتاخد FlightAPI الحقيقي عشان تكمل تجربتك.
+  // إصلاح 25 أغسطس 2026: أي مسار فشل فيه (FlightAPI حقيقي، أو Duffel تجريبي) لازم يوصل الزائر
+  // لحالة "فشل صريح" (flightsFetchFailed=true) — مش نسيب flightsLoading شغالة للأبد ولا نعرض
+  // بيانات ملفّقة بديلة. غيّرنا هنا بس، منطق الدالتين نفسهم (fetchFlightApiFlightList/
+  // fetchDuffelFlightList) واضح أصلًا ومرجعين true/false زي ما هو.
+  const markFailedIfEmpty = ()=>{
+    if(!outbound.length){
+      flightsLoading = false; flightsFetchFailed = true; renderFlightLists();
+      const b = document.getElementById('resultsFlightsDisclaimer');
+      if(b){ b.textContent=''; b.style.color=''; b.style.background=''; }
+    }
+  };
   if (FLIGHTAPI_REAL_SEARCH_ENABLED || FLIGHTAPI_FORCE_LIVE) {
     fetchFlightApiFlightList(fromAp.code, toAp.code, depVal, retVal).then(success=>{
-      if(!success) fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
+      if(!success) fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal).then(markFailedIfEmpty);
     });
   } else {
-    fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
+    fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal).then(markFailedIfEmpty);
+  }
+}
+function retrySearch(){
+  if(!lastSearchParams) return;
+  flightsLoading = true; flightsFetchFailed = false;
+  renderFlightLists();
+  const { fromCode, toCode, depVal, retVal } = lastSearchParams;
+  const markFailedIfEmpty = ()=>{
+    if(!outbound.length){
+      flightsLoading = false; flightsFetchFailed = true; renderFlightLists();
+      const b = document.getElementById('resultsFlightsDisclaimer');
+      if(b){ b.textContent=''; b.style.color=''; b.style.background=''; }
+    }
+  };
+  if (FLIGHTAPI_REAL_SEARCH_ENABLED || FLIGHTAPI_FORCE_LIVE) {
+    fetchFlightApiFlightList(fromCode, toCode, depVal, retVal).then(success=>{
+      if(!success) fetchDuffelFlightList(fromCode, toCode, depVal, retVal).then(markFailedIfEmpty);
+    });
+  } else {
+    fetchDuffelFlightList(fromCode, toCode, depVal, retVal).then(markFailedIfEmpty);
   }
 }
 function goHome(){
