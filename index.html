@@ -2798,17 +2798,12 @@ function buildTicker(){
    التنويه البرتقالي المعتاد — بالظبط نفس أسلوب FlightAPI.io↔Duffel فى الطيران. راجع
    runHotelSearch() وfetchSerpApiHotels() تحت. لإيقاف الميزة بالكامل مرة تانية، رجّع القيمة دي false. */
 const HOTEL_SEARCH_ENABLED = true;
-/* ============ حماية مؤقتة لرصيد FlightAPI.io المجاني — أُضيف 20 أغسطس 2026 ============
-   الرصيد المجاني محدود (30 كريديت/شهر = ~15 بحث فقط)، والموقع لسه تحت التطوير والاختبار
-   ومش جاهز لزوار خارجيين حقيقيين يستهلكوا الرصيد ده فى بحث تجريبي. لحد ما الاختبارات
-   تخلص (يوم أو يومين)، الزوار العاديين هياخدوا نتائج Duffel (وضع تجريبي، بيانات وهمية لكن
-   موسومة بأمانة) بدل FlightAPI الحقيقي، وده مبيكلفش أي كريديت. لإعادة تفعيل FlightAPI الحقيقي
-   لكل الزوار لما الموقع يبقى جاهز فعلًا للانطلاق، غيّر القيمة دي إلى true فقط.
-   ⚠️ عشان تقدر تختبر إنت بنفسك بالسعر الحقيقي فى نفس الوقت اللي الحماية دي شغالة للزوار
-   العاديين، ضيف ?live_flights=1 فى آخر رابط الموقع وانت بتفتحه (مثال:
-   primetravel365.com/?live_flights=1) — هيفعّل لك إنت بس FlightAPI الحقيقي فى المتصفح ده،
-   من غير ما يأثر على أي زائر تاني. راجع الشرط تحت فى goResults(). */
-const FLIGHTAPI_REAL_SEARCH_ENABLED = false;
+/* ============ حماية رصيد FlightAPI.io المجاني — أُضيف 20 أغسطس 2026، فُعِّل للجميع 24 أغسطس 2026 ============
+   بقرار صريح من أحمد (24 أغسطس 2026): البحث الحقيقي بقى مفعّل لكل الزوار العاديين بغض النظر
+   عن استهلاك الكريديت المجاني — الموقع لازم يكون فعّال بأرقام حقيقية حتى لو الكريديت خلص بسرعة،
+   وبعدين نراجع خطة الاشتراك المدفوعة. لإيقافه مؤقتًا (مثلاً لو الكريديت خلص فعلًا وعايز ترجع
+   لنتائج Duffel التجريبية لحد ما تشترك)، رجّع القيمة دي إلى false. */
+const FLIGHTAPI_REAL_SEARCH_ENABLED = true;
 const FLIGHTAPI_FORCE_LIVE = new URLSearchParams(location.search).get('live_flights') === '1';
 const HOTEL_CITIES = []; // flattened from COUNTRIES so every airport city is also a hotel destination
 COUNTRIES.forEach((c,ci)=> c.airports.forEach((ap,ai)=> HOTEL_CITIES.push({
@@ -3607,7 +3602,18 @@ let inbound = genFlights('in-0-2', 6);
 let selectedOut = null, selectedIn = null;
 let currentSort = 'recommended';
 
-function arrTime(dep, dur){
+/* إصلاح 24 أغسطس 2026 (خلل حرج اكتشفه أحمد): كانت الدالة دي بتحسب وقت الوصول بجمع بسيط
+   (وقت الإقلاع + مدة الرحلة) من غير أي تعويض لفرق التوقيت بين بلد الإقلاع وبلد الهبوط —
+   فكان وقت الوصول المعروض دايمًا بتوقيت بلد الإقلاع، مش بلد الهبوط، حتى للرحلات الحقيقية.
+   الحل: الرحلات الحقيقية (المصدر flightapi/duffel عبر mapCarrierFlights) عندها فعليًا حقل
+   f.arr — وهو وقت الوصول الحقيقي بتوقيت مطار الوصول المحلي، جاي مباشرة من بيانات الرحلة
+   نفسها (segLast.arrivingAt) من غير أي حساب يدوي معرّض للخطأ. بنستخدمه مباشرة لو موجود.
+   الرحلات التقديرية (genFlights، لسه فالباك لو فشل الاتصال بكل مصادر البيانات الحقيقية)
+   تفضل تستخدم الحساب التقريبي القديم زي ما هو، لأنها أصلًا موسومة "تقديري" مش "حقيقي". */
+function arrTime(f, legacyDur){
+  if (f && f.arr) return f.arr;
+  const dep = (f && typeof f === 'object') ? f.dep : f;
+  const dur = (f && typeof f === 'object') ? f.dur : legacyDur;
   const [h,m] = dep.split(':').map(Number);
   let total = h*60+m+dur*60;
   total = total % (24*60);
@@ -3628,7 +3634,7 @@ function findFlight(id){
 let manualOutSel = null, manualInSel = null;
 function wegoRowHTML(f, group){
   if(!f) return `<div class="wego-row"><span style="color:var(--dim); font-size:12px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</span></div>`;
-  const arr = arrTime(f.dep, f.dur);
+  const arr = arrTime(f);
   const showCheck = tripType!=='one';
   const isChecked = (group==='out' ? manualOutSel : manualInSel) === f.id;
   return `
@@ -3911,7 +3917,8 @@ function buildAirlineFilters(){
   });
 }
 function isOvernightFlight(f){
-  const arr = arrTime(f.dep, f.dur);
+  if (f && f.arrDayOffset != null) return f.arrDayOffset > 0;
+  const arr = arrTime(f);
   return parseInt(arr,10) < parseInt(f.dep,10);
 }
 
@@ -3953,8 +3960,9 @@ function transitStopHTML(c){
 }
 function tdpBoxHTML(f, label, fromAp, toAp, isReturn){
   if(!f) return '';
-  const arr = arrTime(f.dep, f.dur);
-  const overnight = (parseInt(f.dep)+f.dur) >= 24 || (parseInt(arr) < parseInt(f.dep));
+  const arr = arrTime(f);
+  const overnight = (f.arrDayOffset != null) ? (f.arrDayOffset > 0)
+    : ((parseInt(f.dep)+f.dur) >= 24 || (parseInt(arr) < parseInt(f.dep)));
   const fromName = currentLang==='ar' ? fromAp.city_ar : fromAp.city_en;
   const toName = currentLang==='ar' ? toAp.city_ar : toAp.city_en;
   const fromAirport = currentLang==='ar' ? fromAp.name_ar : fromAp.name_en;
@@ -4121,6 +4129,12 @@ async function fetchDuffelBasePrice(originIata, destIata, depDateISO, retDateISO
 
 /* دالة مشتركة لتحويل رد Duffel/FlightAPI (شكل الرد نفسه فى الاتنين) لشكل الكارت الداخلي المستخدم
    فى renderFlightLists — بدل تكرار نفس منطق التحويل 4 مرات (ذهاب/عودة × FlightAPI/Duffel). */
+/* تحويل تاريخ فقط (بدون وقت) لرقم UTC مجرّد — مستخدم فقط لحساب "هل الوصول يوم تاني؟"
+   بمقارنة التاريخين كنص، بعيدًا تمامًا عن أي حساب للفرق الزمني الفعلي بالساعات (اللي بيحتاج
+   معرفة UTC offset الحقيقي لكل مطار، ومش متاح لنا من رد الـAPI). ده تعمّد تجنّب أي حساب
+   عبر new Date() لفرق التوقيت، لأنه بيدي نتيجة مختلفة حسب توقيت متصفح كل زائر لو النص
+   الأصلي من الـAPI من غير UTC offset صريح — وده بالظبط كان مصدر خلل "وقت الوصول غلط". */
+function _dateOnlyUTC(iso){ const [y,mo,d] = iso.slice(0,10).split('-').map(Number); return Date.UTC(y, mo-1, d); }
 function mapCarrierFlights(data, source, idTag){
   if(!data || !Array.isArray(data.flights)) return [];
   return data.flights.map((f,i)=>{
@@ -4128,6 +4142,11 @@ function mapCarrierFlights(data, source, idTag){
     if(!seg0 || !seg0.departingAt || !segLast || !segLast.arrivingAt) return null;
     const depDateObj = new Date(seg0.departingAt), arrDateObj = new Date(segLast.arrivingAt);
     const dep = seg0.departingAt.slice(11,16);
+    // إصلاح 24 أغسطس 2026: وقت الوصول الحقيقي بتوقيت مطار الوصول نفسه (مش محسوب بالجمع) —
+    // ده نفس النص اللي راجع فعليًا من مصدر بيانات الرحلة (FlightAPI/Duffel)، بيمثّل بالفعل
+    // الساعة المحلية عند الهبوط زي ما بتعرضها كل مواقع حجز الطيران (Wego، Skyscanner، إلخ).
+    const arr = segLast.arrivingAt.slice(11,16);
+    const arrDayOffset = Math.round((_dateOnlyUTC(segLast.arrivingAt) - _dateOnlyUTC(seg0.departingAt)) / 86400000);
     const durHours = Math.max(0.5, (arrDateObj - depDateObj) / 3600000);
     const cur = (f.currency||'USD').toUpperCase();
     const rate = RATES[cur];
@@ -4151,6 +4170,7 @@ function mapCarrierFlights(data, source, idTag){
       connections,
       aircraft: seg0.aircraft || '—',
       dep,
+      arr, arrDayOffset, // وقت الوصول الحقيقي بتوقيت مطار الوصول + هل هو يوم تاني (بدون أي حساب زمني يدوي)
       source, // 'duffel' (وضع تجريبي حاليًا) أو 'flightapi' (حقيقي فعليًا) — مستخدم فى openTripDetails
     };
   }).filter(f=>f && f.price>0);
