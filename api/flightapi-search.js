@@ -267,7 +267,13 @@ module.exports = async function handler(req, res) {
     // النتائج (مثلاً مسار نادر مفيهوش غير شركات إقليمية صغيرة)، بنرجع للقايمة الأصلية كاملة
     // بدل ما نرجع نتيجة فاضية للمسافر — الأفضلية للفلترة، لكن مش على حساب ظهور نتيجة أصلًا.
     const trustedFlights = flights.filter(f => f.segments.every(seg => isTrustedAirline(seg.airline)));
-    const finalFlights = (trustedFlights.length > 0 ? trustedFlights : flights).slice(0, 8);
+    // إصلاح 24 أغسطس 2026: كان الحد الأقصى 8 نتائج بس — ده كان بيخفي رحلات حقيقية موجودة فعلاً
+    // (مثلاً لو رحلات اتحاد كتير أرخصها برا أول 8 نتيجة إجمالية)، فالزائر لما يفلتر بشركة معينة
+    // كان بيشوف رحلة أو اتنين بس رغم وجود رحلات حقيقية أكتر فى الرد الأصلي. رفعناه لـ25 (كل
+    // النتائج الموثوقة اللي رجعت فعليًا من FlightAPI تقريبًا)، عشان الفلترة بالشركة تعكس
+    // الواقع الفعلي مش نسخة مبتورة منه. التكلفة بالكريديت واحدة (نداء واحد بيرجع كل النتائج
+    // دفعة واحدة بغض النظر عن عدد النتائج اللي بنعرضها منه).
+    const finalFlights = (trustedFlights.length > 0 ? trustedFlights : flights).slice(0, 25);
 
     const responseBody = {
       price: finalFlights[0].price,
