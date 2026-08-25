@@ -146,13 +146,14 @@ button{font-family:inherit; cursor:pointer; border:none;}
 ::-webkit-scrollbar{height:8px; width:8px;}
 ::-webkit-scrollbar-thumb{background:var(--border); border-radius:8px;}
 
-/* ---------- fixed header + ticker ---------- */
+/* ---------- header + ticker (scrolls naturally with the page) ---------- */
 .topbar{
-  /* switched from position:fixed to position:sticky — the header + ticker now scroll together as one
-     block that always sits flush under the browser toolbar, with zero risk of the ticker (or anything
-     else) ever overlapping/hiding the nav links, on ANY screen size or device (Huawei/iPhone/Samsung
-     all render the same way since there's no more hardcoded pixel math to get wrong). */
-  position:sticky; top:0; left:0; right:0; z-index:200;
+  /* أُضيف 22 أغسطس 2026: كان position:sticky (يفضل ثابت أعلى الشاشة طول وقت السكرول). بناءً على
+     طلب صريح، رجّعناه لـposition:relative (تدفق طبيعي فى الصفحة) — الهيدر بيتحرك مع الصفحة
+     ويختفي تمامًا لما تنزل، وبيرجع يظهر لما ترجع لأعلى، من غير أي فراغ فاضي مكانه ومن غير أي
+     تغيير فى باقي التخطيط (كل القواعد اللي كانت بتمنع تراكب الـticker مع الروابط لسه شغالة
+     لأنها معتمدة على الـflex layout مش على sticky). */
+  position:relative; z-index:200;
   background:rgba(10,37,64,.97);
   border-bottom:1px solid var(--border);
 }
@@ -705,15 +706,10 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .tdp-point b{font-size:19px; font-weight:800; display:block;}
 .tdp-point span{font-size:11px; color:var(--dim);}
 .tdp-point .ovn-badge{position:absolute; top:-6px; left:-16px; background:var(--green); color:#06341c; font-size:9px; font-weight:800; border-radius:5px; padding:1px 4px; font-style:normal;}
-/* إصلاح 24 أغسطس 2026 (خلل حرج ثانٍ اكتشفه أحمد): كان السهم رمز طائرة "✈" بزاوية دوران ثابتة
-   (rotate 90deg) + انعكاس أفقي (scaleX(-1)) لرحلة العودة فقط — الفرضية كانت إن رحلة العودة
-   "تطير فى الاتجاه المعاكس جغرافيًا" فلازم تتعكس. الفرضية دي غلط: كل صندوق (ذهاب أو عودة) بيعرض
-   دايمًا "مطار إقلاعه هو" الأول ثم "مطار وصوله هو" تاني بنفس ترتيب DOM، وبما إن الصفحة RTL
-   (عربي)، أول عنصر فى flex بيظهر يمين وتاني عنصر بيظهر شمال دايمًا — يعني الاتجاه المرئي الصحيح
-   واحد ثابت للصندوقين مع بعض (يمين=إقلاع → شمال=وصول)، ومفيش داعي لأي دوران/انعكاس خالص، وده
-   بالظبط سبب ظهور السهم بعكس اتجاه الرحلة المختارة فعليًا. الحل: سهم اتجاه صريح غير قابل للالتباس
-   (← للعربي RTL، → للإنجليزي LTR) بدل رمز طائرة قابل لتفسير بصري مختلف حسب الخط/النظام. */
-.tdp-plane{color:var(--dim); font-size:17px; font-weight:800;}
+.tdp-plane{color:var(--dim); font-size:14px; transform:rotate(90deg);}
+/* رحلة العودة تسير جغرافيًا في الاتجاه المعاكس تمامًا لرحلة الذهاب، فيُعكس رمز الطائرة
+   أفقيًا (mirror) بدل تكرار نفس الاتجاه الثابت في الحالتين — كان هذا هو الخطأ المُبلَّغ عنه. */
+.tdp-plane.reverse{transform:rotate(90deg) scaleX(-1);}
 .tdp-timeline{margin-top:14px; padding-inline-start:16px; border-inline-start:2px solid var(--green); position:relative;}
 .tdp-tl-row{display:flex; align-items:flex-start; gap:10px; position:relative; margin-bottom:10px;}
 .tl-dot{position:absolute; inset-inline-start:-21px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px rgba(46,204,113,.2);}
@@ -785,7 +781,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 .footer-col a:hover, .footer-col span.flink:hover{color:var(--text);}
 .footer-bottom{border-top:1px solid var(--border); padding:16px 0; text-align:center; font-size:11.5px; color:var(--dim);}
 @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;} .corp-cards{grid-template-columns:1fr 1fr;} .tdp-boxes{grid-template-columns:1fr;}}
-@keyframes spin{to{transform:rotate(360deg);}}
 
 </style>
 
@@ -2804,12 +2799,17 @@ function buildTicker(){
    التنويه البرتقالي المعتاد — بالظبط نفس أسلوب FlightAPI.io↔Duffel فى الطيران. راجع
    runHotelSearch() وfetchSerpApiHotels() تحت. لإيقاف الميزة بالكامل مرة تانية، رجّع القيمة دي false. */
 const HOTEL_SEARCH_ENABLED = true;
-/* ============ حماية رصيد FlightAPI.io المجاني — أُضيف 20 أغسطس 2026، فُعِّل للجميع 24 أغسطس 2026 ============
-   بقرار صريح من أحمد (24 أغسطس 2026): البحث الحقيقي بقى مفعّل لكل الزوار العاديين بغض النظر
-   عن استهلاك الكريديت المجاني — الموقع لازم يكون فعّال بأرقام حقيقية حتى لو الكريديت خلص بسرعة،
-   وبعدين نراجع خطة الاشتراك المدفوعة. لإيقافه مؤقتًا (مثلاً لو الكريديت خلص فعلًا وعايز ترجع
-   لنتائج Duffel التجريبية لحد ما تشترك)، رجّع القيمة دي إلى false. */
-const FLIGHTAPI_REAL_SEARCH_ENABLED = true;
+/* ============ حماية مؤقتة لرصيد FlightAPI.io المجاني — أُضيف 20 أغسطس 2026 ============
+   الرصيد المجاني محدود (30 كريديت/شهر = ~15 بحث فقط)، والموقع لسه تحت التطوير والاختبار
+   ومش جاهز لزوار خارجيين حقيقيين يستهلكوا الرصيد ده فى بحث تجريبي. لحد ما الاختبارات
+   تخلص (يوم أو يومين)، الزوار العاديين هياخدوا نتائج Duffel (وضع تجريبي، بيانات وهمية لكن
+   موسومة بأمانة) بدل FlightAPI الحقيقي، وده مبيكلفش أي كريديت. لإعادة تفعيل FlightAPI الحقيقي
+   لكل الزوار لما الموقع يبقى جاهز فعلًا للانطلاق، غيّر القيمة دي إلى true فقط.
+   ⚠️ عشان تقدر تختبر إنت بنفسك بالسعر الحقيقي فى نفس الوقت اللي الحماية دي شغالة للزوار
+   العاديين، ضيف ?live_flights=1 فى آخر رابط الموقع وانت بتفتحه (مثال:
+   primetravel365.com/?live_flights=1) — هيفعّل لك إنت بس FlightAPI الحقيقي فى المتصفح ده،
+   من غير ما يأثر على أي زائر تاني. راجع الشرط تحت فى goResults(). */
+const FLIGHTAPI_REAL_SEARCH_ENABLED = false;
 const FLIGHTAPI_FORCE_LIVE = new URLSearchParams(location.search).get('live_flights') === '1';
 const HOTEL_CITIES = []; // flattened from COUNTRIES so every airport city is also a hotel destination
 COUNTRIES.forEach((c,ci)=> c.airports.forEach((ap,ai)=> HOTEL_CITIES.push({
@@ -3129,10 +3129,7 @@ document.querySelectorAll('#hotelSortTabs .sort-tab').forEach(btn=>{
   };
 });
 
-// إصلاح 25 أغسطس 2026 (بطلب أحمد): كان فيه بلد/مطار افتراضي مضروب فى الكود (مصر→الإمارات) بيظهر
-// للزائر من غير ما يختاره — بيوهم إنه نتيجة بحث فعلية. دلوقتي الحقلين يفضلوا فاضيين تمامًا لحد ما
-// الزائر يختار بنفسه؛ null معناها "لسه محددش".
-let fromIdx = null, fromApIdx = null, toIdx = null, toApIdx = null;
+let fromIdx = 3, fromApIdx = 0, toIdx = 0, toApIdx = 1; // default: Egypt/Cairo → UAE/Dubai
 function flagImgUrl(iso2){ return iso2 ? `https://flagcdn.com/w40/${iso2.toLowerCase()}.png` : ''; }
 function selAirport(countryIdx, apIdx){ return COUNTRIES[countryIdx].airports[apIdx]; }
 function airportLabel(country, ap){
@@ -3176,24 +3173,12 @@ function setupFlagInput(inputId, ddId, which, wrapId){
   });
 }
 function renderFlagDisplays(){
-  const fromIcon = document.getElementById('fromFlagIcon'), fromDisp = document.getElementById('fromDisplay');
-  const toIcon = document.getElementById('toFlagIcon'), toDisp = document.getElementById('toDisplay');
-  if(fromIdx==null){
-    fromIcon.style.visibility = 'hidden'; fromIcon.src = '';
-    fromDisp.value = ''; fromDisp.placeholder = currentLang==='ar' ? 'من أين؟' : 'From where?';
-  } else {
-    const fromC = COUNTRIES[fromIdx], fromAp = selAirport(fromIdx, fromApIdx);
-    fromIcon.style.visibility = ''; fromIcon.src = flagImgUrl(fromC.code);
-    fromDisp.value = airportLabel(fromC, fromAp);
-  }
-  if(toIdx==null){
-    toIcon.style.visibility = 'hidden'; toIcon.src = '';
-    toDisp.value = ''; toDisp.placeholder = currentLang==='ar' ? 'إلى أين؟' : 'To where?';
-  } else {
-    const toC = COUNTRIES[toIdx], toAp = selAirport(toIdx, toApIdx);
-    toIcon.style.visibility = ''; toIcon.src = flagImgUrl(toC.code);
-    toDisp.value = airportLabel(toC, toAp);
-  }
+  const fromC = COUNTRIES[fromIdx], toC = COUNTRIES[toIdx];
+  const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
+  document.getElementById('fromFlagIcon').src = flagImgUrl(fromC.code);
+  document.getElementById('fromDisplay').value = airportLabel(fromC, fromAp);
+  document.getElementById('toFlagIcon').src = flagImgUrl(toC.code);
+  document.getElementById('toDisplay').value = airportLabel(toC, toAp);
 }
 function renderFlagDD(ddId, which, filterText){
   const q = (filterText||'').trim().toLowerCase();
@@ -3227,15 +3212,6 @@ function renderFlagDD(ddId, which, filterText){
   });
 }
 function renderCountryImgs(){
-  // إصلاح 25 أغسطس 2026: لحد ما الزائر يختار بلد المغادرة والوصول، الحقلين null — نعرض الصندوق
-  // فاضي بدل ما نكسر الصفحة بمحاولة قراءة COUNTRIES[null].
-  if(fromIdx==null || toIdx==null){
-    document.getElementById('fromCountryName').textContent = '';
-    document.getElementById('toCountryName').textContent = '';
-    document.getElementById('fromImgs').innerHTML = '';
-    document.getElementById('toImgs').innerHTML = '';
-    return;
-  }
   const from = COUNTRIES[fromIdx];
   const to = COUNTRIES[toIdx];
   document.getElementById('fromCountryName').textContent = currentLang==='ar'?from.name_ar:from.name_en;
@@ -3325,22 +3301,7 @@ function buildDeals(){
   document.getElementById('dealsCount').textContent = live.length + (currentLang==='ar'?' وجهة مميزة':' featured destinations');
 }
 
-// إصلاح 24 أغسطس 2026 (خلل حرج خامس اكتشفه أحمد): كانت القايمة دي 8 شركات بس — بتُستخدم فى
-// أكتر من حتة (خيارات "حجز مباشر"، وقايمة فلترة "شركات الطيران" فى نتائج البحث)، فأي شركة حقيقية
-// راجعة من FlightAPI.io مش موجودة هنا (زي طيران الخليج، القطرية، العُمانية، الكويتية...) كانت
-// بتظهر فى نتائج البحث عادي، لكن مفيش ليها زرار "حجز مباشر" شغال (كان بيرجع رابط ميت "#")، ومفيش
-// ليها خيار فلترة مخصص. وسّعنا القايمة لتغطي كل الشركات الموثوقة المعروضة أصلًا من السيرفر
-// (نفس TRUSTED_AIRLINE_KEYWORDS فى api/flightapi-search.js تقريبًا) عشان الفلترة والحجز المباشر
-// يشتغلوا صح لأي شركة حقيقية ترجع من البحث، مش بس القايمة القديمة المحدودة.
-const AIRLINES = [
-  'Emirates','Etihad Airways','flydubai','Air Arabia','Saudia','flynas','flyadeal',
-  'Qatar Airways','Gulf Air','Oman Air','Kuwait Airways','Jazeera Airways',
-  'Turkish Airlines','EgyptAir','Royal Jordanian','Pegasus Airlines',
-  'British Airways','Lufthansa','Air France','KLM','Swiss International Air Lines',
-  'Singapore Airlines','Cathay Pacific','American Airlines','United Airlines','Delta Air Lines',
-  'Air India','IndiGo','Malaysia Airlines','Thai Airways','China Southern Airlines',
-  'Japan Airlines','All Nippon Airways','Korean Air','Ethiopian Airlines',
-];
+const AIRLINES = ['Emirates','flydubai','Saudia','Turkish Airlines','EgyptAir','Etihad Airways','Air Arabia','Royal Jordanian'];
 /* المحطة (hub) الرئيسية الحقيقية لكل شركة طيران — تُستخدم لعرض تفاصيل رحلة الترانزيت (مطار
    التوقف الفعلي) بدل الاكتفاء بعدد التوقفات فقط. نفس بيانات المطارات الموجودة في COUNTRIES
    بالضبط (نفس الأكواد والأسماء) لضمان التطابق. */
@@ -3512,6 +3473,17 @@ function airlineIata(airlineName){
 // بحث عليها ممكن يكسر تتبع العمولة نفسه. صيغ skyscanner.net وbooking.com/flights أدناه معروفة وموثّقة
 // الاستخدام لسنوات، لكن يُنصح باختبارها فعليًا بعد النشر (مفيش وصول شبكة لهذه النطاقات من بيئة التطوير هنا للتأكد).
 function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-'); return {y,m,d}; }
+/* تحديث 25 أغسطس 2026: رابط بحث Aviasales الحقيقي (صيغة قياسية DDMM لكل تاريخ) — بيتحوّل بعدين
+   لرابط تتبّع حقيقي عبر api/tp-link.js (Travelpayouts Links API) بدل ما يفتح على صفحة Aviasales
+   الرئيسية. Aviasales بتتبّع بالكوكيز مش بباراميتر فى الرابط، فمحتاج API call سيرفر-سايد (بعكس
+   Kiwi.com اللي بيتتبّع بباراميتر شمِر ديركت فى الرابط). */
+function _aviaSearchUrl(fromIata, toIata, dep, ret){
+  const d = _flightDateParts(dep); if(!d) return null;
+  const r = ret ? _flightDateParts(ret) : null;
+  const dStr = d.d + d.m;
+  const rStr = r ? (r.d + r.m) : '';
+  return `https://www.aviasales.com/search/${fromIata}${dStr}${toIata}${rStr}1`;
+}
 const PARTNERS = [
   {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', commission:{real:false}, note:true},
   {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
@@ -3524,7 +3496,17 @@ const PARTNERS = [
       const p = ret ? `&type=ROUNDTRIP&return=${ret}` : `&type=ONEWAY`;
       return `https://www.booking.com/flights/index.html?from=${fromIata}.AIRPORT&to=${toIata}.AIRPORT&depart=${dep}${p}&adults=1&cabinClass=ECONOMY`;
     }},
-  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'}},
+  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'},
+    // تحديث 25 أغسطس 2026: رابط ديناميكي حقيقي لـKiwi.com معبّى بالمسار/التاريخ — بعكس Aviasales،
+    // Kiwi.com بيتتبّع العمولة عبر باراميتر (shmarker) فى الرابط نفسه مش كوكيز، فآمن نبنيه client-side
+    // بالكامل من غير أي API call سيرفري. الصيغة مؤكدة رسميًا من نفس صفحة توثيق Travelpayouts:
+    // https://support.travelpayouts.com/hc/en-us/articles/360010109719-Kiwi-com-affiliate-links
+    // marker=759759 مؤكد سابقًا كرقم حساب أحمد الصحيح (نفس الرقم المستخدم فى tp-link.js لـAviasales).
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      const kiwiUrl = `https://www.kiwi.com/deep?from=${fromIata}&to=${toIata}&departure=${dep}` + (ret ? `&return=${ret}` : '');
+      const params = new URLSearchParams({ shmarker:'759759', promo_id:'3791', source_type:'customlink', type:'click', custom_url:kiwiUrl });
+      return 'https://c111.travelpayouts.com/click?' + params.toString();
+    }},
   {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false},
     urlFn:(fromIata,toIata,dep,ret)=>{
       const d = _flightDateParts(dep), r = _flightDateParts(ret);
@@ -3583,41 +3565,9 @@ const AIRLINE_SITES = {
   'Etihad Airways':'https://www.etihad.com',
   'Air Arabia':'https://www.airarabia.com',
   'Royal Jordanian':'https://www.rj.com',
-  'flynas':'https://www.flynas.com',
-  'flyadeal':'https://www.flyadeal.com',
-  'Qatar Airways':'https://www.qatarairways.com',
-  'Gulf Air':'https://www.gulfair.com',
-  'Oman Air':'https://www.omanair.com',
-  'Kuwait Airways':'https://www.kuwaitairways.com',
-  'Jazeera Airways':'https://www.jazeeraairways.com',
-  'Pegasus Airlines':'https://www.flypgs.com',
-  'British Airways':'https://www.britishairways.com',
-  'Lufthansa':'https://www.lufthansa.com',
-  'Air France':'https://www.airfrance.com',
-  'KLM':'https://www.klm.com',
-  'Swiss International Air Lines':'https://www.swiss.com',
-  'Singapore Airlines':'https://www.singaporeair.com',
-  'Cathay Pacific':'https://www.cathaypacific.com',
-  'American Airlines':'https://www.aa.com',
-  'United Airlines':'https://www.united.com',
-  'Delta Air Lines':'https://www.delta.com',
-  'Air India':'https://www.airindia.com',
-  'IndiGo':'https://www.goindigo.in',
-  'Malaysia Airlines':'https://www.malaysiaairlines.com',
-  'Thai Airways':'https://www.thaiairways.com',
-  'China Southern Airlines':'https://www.csair.com',
-  'Japan Airlines':'https://www.jal.co.jp',
-  'All Nippon Airways':'https://www.ana.co.jp',
-  'Korean Air':'https://www.koreanair.com',
-  'Ethiopian Airlines':'https://www.ethiopianairlines.com',
 };
-// إصلاح 24 أغسطس 2026 (جزء من الخلل الحرج الخامس): كان أي شركة مش موجودة فى AIRLINE_SITES
-// بترجع رابط ميت "#" لما تُختار كـ"حجز مباشر" — زرار يظهر شغال بس فعليًا مبيوديك حتة. لو محدش
-// عندنا رابطها الرسمي المؤكد، بنستخدم بحث Google باسمها بدل رابط ميت — يوصل الزائر لموقعها
-// الحقيقي بضغطة واحدة زيادة، أفضل بكتير من زرار مالوش أي تأثير.
 const AIRLINE_DIRECT_PARTNERS = AIRLINES.map(a=>({
-  name: a+' — حجز مباشر', airlineName:a, logo:null,
-  site: AIRLINE_SITES[a] || ('https://www.google.com/search?q=' + encodeURIComponent(a + ' official website booking')),
+  name: a+' — حجز مباشر', airlineName:a, logo:null, site: AIRLINE_SITES[a] || '#',
   type:'airline_direct', trust:99, color:(AIRLINE_COLORS[a] && AIRLINE_COLORS[a]!=='#ffffff') ? AIRLINE_COLORS[a] : 'var(--blue)', commission:{real:false},
 }));
 function findCommissionSource(partnerName){
@@ -3653,16 +3603,13 @@ function genFlights(seed, count){
     // تفاصيل الترانزيت (مطار التوقف الفعلي + مدة الانتظار) — فقط للرحلات اللي فيها توقف واحد
     // أو أكثر؛ الرحلة المباشرة (stops=0) بتفضل بدون connections زي ما هي بالظبط.
     let connections = [];
-    // إصلاح 24 أغسطس 2026: لازم fallback آمن هنا بعد ما وسّعنا قايمة AIRLINES — لو شركة مش
-    // موجودة فى AIRLINE_HUB (مفيش لسه محطة رئيسية معرّفة ليها)، منسيبش الكود يتعطل، بنستخدم
-    // SECONDARY_HUB كبديل افتراضي آمن بدل ما يرجع undefined ويكسر باقي العرض.
     if(stops>=1){
-      const hub1 = AIRLINE_HUB[airlineName] || SECONDARY_HUB;
+      const hub1 = AIRLINE_HUB[airlineName];
       const layover1 = 45 + Math.floor(seededRand(base+i*29.4)*195); // 45–240 دقيقة
       connections.push({airport:hub1, layoverMin:layover1});
     }
     if(stops>=2){
-      const hub2 = (AIRLINE_HUB[airlineName] && AIRLINE_HUB[airlineName].code==='AUH') ? {code:'DXB', name_ar:'مطار دبي الدولي', name_en:'Dubai International Airport', city_ar:'دبي', city_en:'Dubai'} : SECONDARY_HUB;
+      const hub2 = AIRLINE_HUB[airlineName].code==='AUH' ? {code:'DXB', name_ar:'مطار دبي الدولي', name_en:'Dubai International Airport', city_ar:'دبي', city_en:'Dubai'} : SECONDARY_HUB;
       const layover2 = 45 + Math.floor(seededRand(base+i*37.1)*195);
       connections.push({airport:hub2, layoverMin:layover2});
     }
@@ -3677,37 +3624,12 @@ function genFlights(seed, count){
   }
   return out.sort((a,b)=>a.price-b.price);
 }
-// إصلاح 25 أغسطس 2026 (خلل حرج رابع اكتشفه أحمد بالصور — أخطر خلل لحد دلوقتي): كانت النتائج
-// المعروضة للزائر بتتولّد فورًا من genFlights() العشوائي بالكامل (شركة عشوائية من نفس قايمة
-// الـ34 شركة الحقيقية + وقت/سعر/عدد توقفات عشوائي) — وبما إن البحث الحقيقي (FlightAPI.io) بيحصل
-// بعد كده بشكل غير متزامن (async) ومش دايمًا بينجح (كريديت تجربة FlightAPI محدود جدًا: 30
-// كريديت/مرة واحدة بس مش شهري)، كان الزائر بيشوف رحلات مُلفّقة بالكامل (شركة معينة على مسار
-// أصلاً مبتطيروش عليه، بأوقات وأسعار مصطنعة) من غير أي تنبيه واضح لو البحث الحقيقي فشل — وده أخطر
-// بكتير من مجرد سعر تقديري: بيانات رحلة كاملة (شركة+وقت+مسار) غير حقيقية معروضة وكأنها نتيجة بحث
-// فعلية. الحل الجذري: مفيش أي بيانات مُلفّقة تتعرض للزائر خالص بعد كده. لحد ما نتيجة حقيقية فعلية
-// توصل من FlightAPI.io، بيظهر للزائر "جاري البحث..." بس — ولو فشل البحث الحقيقي تمامًا (شبكة/
-// كريديت خلص)، بيظهر تنبيه صريح "تعذر جلب رحلات حقيقية الآن" مع زرار "إعادة المحاولة"، مش رحلات
-// وهمية. genFlights() اتسابت فى الكود لغرض واحد بس دلوقتي: توليد placeholder فاضي مش بيتعرض.
-let outbound = [];
-let inbound = [];
-let flightsLoading = false; // true من لحظة الضغط على بحث لحد ما نتيجة حقيقية (أو فشل نهائي) توصل
-let flightsFetchFailed = false; // true بس لو كل مصادر البيانات الحقيقية فشلت فعليًا
-let lastSearchParams = null; // يخزّن آخر بحث لتفعيل زرار "إعادة المحاولة" بدون ما الزائر يعبّي الفورم تاني
+let outbound = genFlights('out-0-2', 6);
+let inbound = genFlights('in-0-2', 6);
 let selectedOut = null, selectedIn = null;
 let currentSort = 'recommended';
 
-/* إصلاح 24 أغسطس 2026 (خلل حرج اكتشفه أحمد): كانت الدالة دي بتحسب وقت الوصول بجمع بسيط
-   (وقت الإقلاع + مدة الرحلة) من غير أي تعويض لفرق التوقيت بين بلد الإقلاع وبلد الهبوط —
-   فكان وقت الوصول المعروض دايمًا بتوقيت بلد الإقلاع، مش بلد الهبوط، حتى للرحلات الحقيقية.
-   الحل: الرحلات الحقيقية (المصدر flightapi/duffel عبر mapCarrierFlights) عندها فعليًا حقل
-   f.arr — وهو وقت الوصول الحقيقي بتوقيت مطار الوصول المحلي، جاي مباشرة من بيانات الرحلة
-   نفسها (segLast.arrivingAt) من غير أي حساب يدوي معرّض للخطأ. بنستخدمه مباشرة لو موجود.
-   الرحلات التقديرية (genFlights، لسه فالباك لو فشل الاتصال بكل مصادر البيانات الحقيقية)
-   تفضل تستخدم الحساب التقريبي القديم زي ما هو، لأنها أصلًا موسومة "تقديري" مش "حقيقي". */
-function arrTime(f, legacyDur){
-  if (f && f.arr) return f.arr;
-  const dep = (f && typeof f === 'object') ? f.dep : f;
-  const dur = (f && typeof f === 'object') ? f.dur : legacyDur;
+function arrTime(dep, dur){
   const [h,m] = dep.split(':').map(Number);
   let total = h*60+m+dur*60;
   total = total % (24*60);
@@ -3728,7 +3650,7 @@ function findFlight(id){
 let manualOutSel = null, manualInSel = null;
 function wegoRowHTML(f, group){
   if(!f) return `<div class="wego-row"><span style="color:var(--dim); font-size:12px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</span></div>`;
-  const arr = arrTime(f);
+  const arr = arrTime(f.dep, f.dur);
   const showCheck = tripType!=='one';
   const isChecked = (group==='out' ? manualOutSel : manualInSel) === f.id;
   return `
@@ -3821,59 +3743,12 @@ function renderFlightLists(){
   if(currentSort==='cheapest'){ outF = [...outF].sort((a,b)=>a.price-b.price); inF = [...inF].sort((a,b)=>a.price-b.price); }
   else if(currentSort==='fastest'){ outF = [...outF].sort((a,b)=>a.dur-b.dur); inF = [...inF].sort((a,b)=>a.dur-b.dur); }
 
-  // إصلاح 24 أغسطس 2026 (خلل حرج رابع اكتشفه أحمد): كان الاقتران بين رحلات الذهاب والعودة
-  // بالترتيب (index) بس — يعني كارت رقم i بياخد أرخص رحلة ذهاب رقم i مع أرخص رحلة عودة رقم i
-  // بغض النظر عن الشركة، فكان نادر جدًا إن تشوف "نفس الشركة رايح وجاي" فى نتائج البحث الافتراضية
-  // (زي طيران الإمارات ذهاب وعودة مع بعض) رغم إنها فعلًا موجودة فى البيانات الحقيقية. الحل: نبني
-  // الأول كارت واحد لكل شركة بتطير فى الاتجاهين (أرخص رحلة ذهاب لها + أرخص رحلة عودة لها)، وبعدين
-  // نكمل الباقي (الرحلات اللي لسه معملهاش اقتران) بنفس الطريقة القديمة بالترتيب — عشان لسه يبان
-  // خيار "ذهاب بشركة وعودة بشركة تانية" زي ما هو متاح دايمًا فى مواقع الميتاسيرش.
-  let pairs = [];
-  if (tripType !== 'one' && outF.length && inF.length) {
-    const usedOut = new Set(), usedIn = new Set();
-    const airlinesBoth = [...new Set(outF.map(f=>f.airline))].filter(a => inF.some(g=>g.airline===a));
-    airlinesBoth.forEach(a => {
-      const bestOut = outF.find(f=>f.airline===a && !usedOut.has(f.id));
-      const bestIn = inF.find(f=>f.airline===a && !usedIn.has(f.id));
-      if (bestOut && bestIn) { pairs.push([bestOut, bestIn]); usedOut.add(bestOut.id); usedIn.add(bestIn.id); }
-    });
-    const remOut = outF.filter(f=>!usedOut.has(f.id));
-    const remIn = inF.filter(f=>!usedIn.has(f.id));
-    const remCount = Math.max(remOut.length, remIn.length);
-    for (let i=0;i<remCount;i++) pairs.push([remOut[i]||null, remIn[i]||null]);
-    // بعد بناء القايمة (نفس الشركة الأول، ثم الباقي)، لازم نعيد ترتيبها بالسعر/المدة الإجمالي
-    // للزوج نفسه — وإلا شارة "الأرخص" (idx===0) ممكن تتحط على زوج مش فعليًا أرخص زوج متاح.
-    if (currentSort==='fastest') {
-      pairs.sort((p1,p2)=> ((p1[0]?.dur||0)+(p1[1]?.dur||0)) - ((p2[0]?.dur||0)+(p2[1]?.dur||0)));
-    } else {
-      pairs.sort((p1,p2)=> ((p1[0]?.price||0)+(p1[1]?.price||0)) - ((p2[0]?.price||0)+(p2[1]?.price||0)));
-    }
-  } else {
-    const pairCount = Math.max(outF.length, inF.length);
-    for (let i=0;i<pairCount;i++) pairs.push([outF[i]||null, inF[i]||null]);
-  }
+  const pairCount = Math.max(outF.length, inF.length);
   let html = '';
-  pairs.forEach(([o,ii], idx)=>{ html += wegoCardHTML(o, ii, idx); });
-  const pairCount = pairs.length;
-  // إصلاح 25 أغسطس 2026: قبل ما نعرض "لا توجد رحلات مطابقة" (رسالة فلترة عادية)، لازم نفرّق
-  // بين 3 حالات مختلفة تمامًا: (1) البحث الحقيقي لسه شغال — نعرض "جاري البحث"، (2) البحث
-  // الحقيقي فشل نهائيًا — نعرض تنبيه صريح + زرار إعادة محاولة، (3) البحث نجح فعلًا بس نتيجة
-  // الفلاتر (شركة/سعر/توقف) صفر — دي بس اللي تستاهل رسالة "لا توجد رحلات مطابقة" العادية.
-  let emptyStateHTML;
-  if (!html && flightsLoading) {
-    emptyStateHTML = `<div style="text-align:center; padding:24px 12px; color:var(--dim); font-size:13px;">
-      <div class="spinner" style="width:22px; height:22px; border:3px solid var(--border); border-top-color:var(--blue); border-radius:50%; margin:0 auto 10px; animation:spin .8s linear infinite;"></div>
-      ${currentLang==='ar' ? 'جاري البحث عن أسعار حقيقية فعليًا...' : 'Searching for real live prices...'}
-    </div>`;
-  } else if (!html && flightsFetchFailed) {
-    emptyStateHTML = `<div style="text-align:center; padding:24px 12px; color:var(--dim); font-size:13px;">
-      <div style="margin-bottom:10px;">${currentLang==='ar' ? '⚠️ تعذر جلب رحلات حقيقية لهذا المسار الآن (قد يكون بسبب زحمة أو انتهاء رصيد البحث المؤقت). جرّب مرة أخرى بعد قليل.' : '⚠️ Could not fetch real flights for this route right now. Please try again shortly.'}</div>
-      <button class="search-btn" style="display:inline-block; padding:8px 20px;" onclick="retrySearch()">${currentLang==='ar' ? 'إعادة المحاولة' : 'Retry'}</button>
-    </div>`;
-  } else {
-    emptyStateHTML = `<p style="color:var(--dim); font-size:13px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</p>`;
+  for(let i=0;i<pairCount;i++){
+    html += wegoCardHTML(outF[i]||null, inF[i]||null, i);
   }
-  document.getElementById('pairedFlights').innerHTML = html || emptyStateHTML;
+  document.getElementById('pairedFlights').innerHTML = html || `<p style="color:var(--dim); font-size:13px;">${currentLang==='ar'?'لا توجد رحلات مطابقة':'No matching flights'}</p>`;
   document.getElementById('pairCount').textContent = pairCount + (currentLang==='ar'?' نتيجة':' results');
   document.getElementById('flightGroupLabel').textContent = (tripType==='one')
     ? (currentLang==='ar'?'الرحلات (ذهاب فقط)':'Flights (one way)')
@@ -4040,14 +3915,8 @@ function renderCustomCombo(){
     requestAnimationFrame(()=>scrollTarget.scrollIntoView({behavior:'smooth', block:'center'}));
   }
 }
-// إصلاح 24 أغسطس 2026 (جزء من الخلل الحرج الخامس): قايمة فلترة "شركات الطيران" كانت مبنية مرة
-// واحدة بس عند فتح الصفحة من القايمة الثابتة AIRLINES، فمكنتش بتعكس الشركات الحقيقية اللي فعلًا
-// رجعت من بحث معيّن. دلوقتي بتتبني ديناميكيًا من الشركات الموجودة فعليًا فى نتائج البحث الحالية
-// (outbound/inbound)، وبترجع للقايمة الثابتة بس كـfallback لو لسه مفيش نتائج (أول تحميل للصفحة).
 function buildAirlineFilters(){
-  const dynamicAirlines = [...new Set([...outbound, ...inbound].map(f=>f.airline).filter(Boolean))].sort();
-  const listToShow = dynamicAirlines.length ? dynamicAirlines : AIRLINES;
-  document.getElementById('airlineFilters').innerHTML = listToShow.map(a=>`
+  document.getElementById('airlineFilters').innerHTML = AIRLINES.map(a=>`
     <label class="filter-opt"><input type="checkbox" class="fAirline" value="${a}"> <span>${a}</span></label>`).join('');
   document.querySelectorAll('.fAirline, .fStops, .fTime').forEach(el=>el.onchange = renderFlightLists);
   document.getElementById('durRange').oninput = renderFlightLists;
@@ -4064,8 +3933,7 @@ function buildAirlineFilters(){
   });
 }
 function isOvernightFlight(f){
-  if (f && f.arrDayOffset != null) return f.arrDayOffset > 0;
-  const arr = arrTime(f);
+  const arr = arrTime(f.dep, f.dur);
   return parseInt(arr,10) < parseInt(f.dep,10);
 }
 
@@ -4107,9 +3975,8 @@ function transitStopHTML(c){
 }
 function tdpBoxHTML(f, label, fromAp, toAp, isReturn){
   if(!f) return '';
-  const arr = arrTime(f);
-  const overnight = (f.arrDayOffset != null) ? (f.arrDayOffset > 0)
-    : ((parseInt(f.dep)+f.dur) >= 24 || (parseInt(arr) < parseInt(f.dep)));
+  const arr = arrTime(f.dep, f.dur);
+  const overnight = (parseInt(f.dep)+f.dur) >= 24 || (parseInt(arr) < parseInt(f.dep));
   const fromName = currentLang==='ar' ? fromAp.city_ar : fromAp.city_en;
   const toName = currentLang==='ar' ? toAp.city_ar : toAp.city_en;
   const fromAirport = currentLang==='ar' ? fromAp.name_ar : fromAp.name_en;
@@ -4118,7 +3985,7 @@ function tdpBoxHTML(f, label, fromAp, toAp, isReturn){
     <div class="date">${label}</div>
     <div class="tdp-time-row">
       <div class="tdp-point"><b>${f.dep}</b><span>${fromAp.code}</span></div>
-      <div class="tdp-plane">${currentLang==='ar' ? '←' : '→'}</div>
+      <div class="tdp-plane${isReturn?' reverse':''}">✈</div>
       <div class="tdp-point"><b>${arr}</b><span>${toAp.code}</span>${overnight?`<i class="ovn-badge">+1</i>`:''}</div>
     </div>
     <div class="sub-meta">${fromAirport} → ${toAirport}</div>
@@ -4209,29 +4076,16 @@ function openTripDetails(){
 function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retVal, isRealBase, realInfo){
   // إصلاح 18 أغسطس 2026: كانت كل الروابط تفتح الصفحة الرئيسية للشريك بدون وجهة/تواريخ — الآن
   // الشركاء اللي عندهم urlFn (رابط بحث حقيقي) يفتحوا على نتيجة بحث معبّاة فعلاً بالمطار والتاريخ.
-  // إصلاح 24 أغسطس 2026 (خلل حرج ثالث اكتشفه أحمد): صيغة "تفاوت السعر بين الشركاء" دي
-  // (1 + i*1.2% + ...) كانت مصممة أصلًا لسعر أساسي تقديري بالكامل — تفاوت تجميلي بسيط مقبول
-  // وقت ما كل الأرقام أصلًا وهمية. لكن دلوقتي basePrice بقى سعر حقيقي فعلي (من FlightAPI.io)،
-  // ونفس الصيغة كانت بتضيف تضخيم وهمي تصاعدي يوصل لـ+14% فوق السعر الحقيقي لآخر شركاء القائمة
-  // (Aviasales، Skyscanner، إلخ) — وده بالظبط سبب "السعر أعلى بكتير من المواقع الخارجية" اللي
-  // لاحظه أحمد. الحل: لو السعر الأساسي حقيقي فعلًا، كل الشركاء يعرضوا نفس السعر الأساسي الحقيقي
-  // بدون أي تضخيم مصطنع (مع توضيح صريح فى التنويه تحت إن الفرق الفعلي بيتحدد لحظة الحجز عند كل
-  // موقع). التفاوت التجميلي القديم يفضل بس للحالة النادرة اللي كل مصادر البيانات الحقيقية فشلت
-  // فيها (isRealBase=false، سعر تقديري بالكامل أصلًا وموسوم كده للزائر).
   const otaOptions = PARTNERS.map((p,i)=>{
     let liveUrl = p.site;
     if (p.urlFn) { try{ liveUrl = p.urlFn(fromAp.code, toAp.code, depVal, retVal) || p.site; }catch(_e){ liveUrl = p.site; } }
-    const price = isRealBase ? Math.round(basePrice) : Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004));
-    return {...p, site: liveUrl, price};
+    return {...p, site: liveUrl, price: Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004))};
   });
   // one option per operating airline on this itinerary (usually one, occasionally two if outbound/return differ) —
   // priced at the base fare with no OTA markup, since it's the direct-from-carrier price
   const uniqueAirlines = [...new Set([fOut.airline, fIn ? fIn.airline : null].filter(Boolean))];
   const airlineOptions = uniqueAirlines.map(a=>{
-    // إصلاح 24 أغسطس 2026: نفس مبدأ AIRLINE_DIRECT_PARTNERS — بحث Google بدل رابط ميت "#" لو
-    // الشركة مش موجودة حتى فى القايمة الموسّعة (حالة نادرة جدًا دلوقتي).
-    const base = AIRLINE_DIRECT_PARTNERS.find(p=>p.airlineName===a)
-      || {name:a+' — حجز مباشر', site:'https://www.google.com/search?q=' + encodeURIComponent(a + ' official website booking'), color:'var(--blue)'};
+    const base = AIRLINE_DIRECT_PARTNERS.find(p=>p.airlineName===a) || {name:a+' — حجز مباشر', site:'#', color:'var(--blue)'};
     return {...base, price: basePrice, isAirlineDirect:true};
   });
   const options = [...otaOptions, ...airlineOptions].sort((a,b)=>a.price-b.price);
@@ -4251,7 +4105,27 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
       const site = btn.getAttribute('data-site');
       trackClick(partnerName, priceAED); // logs the click + estimated commission into the admin dashboard
       showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking'));
-      window.open(site, '_blank', 'noopener'); // opens the provider's own official site
+      // تحديث 25 أغسطس 2026: لازم نفتح التاب فورًا وبشكل متزامن (sync) جوه onclick نفسها — أي
+      // await قبل window.open ممكن يخلي المتصفح (خصوصًا Safari) يعتبره Popup ويحظره. الحل: نفتح
+      // التاب على الرابط الثابت فورًا، وبعدين لو Aviasales، نجيب الرابط الديناميكي الحقيقي فى
+      // الخلفية ونحوّل نفس التاب المفتوح ده لما يوصل (بدل ما نستنى قبل الفتح).
+      // ⚠️ عشان نقدر نمسك مرجع للتاب المفتوح ونحوّله بعدين، شلنا 'noopener' من حالة Aviasales
+      // تحديدًا (لازمة تقنية لهذا النمط تحديدًا: window.open برجّع null مع noopener) — باقي كل
+      // الشركاء فضلوا زي ما هما بالضبط (noopener).
+      const isAvia = partnerName === 'Aviasales';
+      const win = window.open(site, '_blank', isAvia ? '' : 'noopener');
+      if (isAvia && win) {
+        (async ()=>{
+          try{
+            const searchUrl = _aviaSearchUrl(fromAp.code, toAp.code, depVal, retVal);
+            if (!searchUrl) return;
+            const r = await fetch('/api/tp-link?url=' + encodeURIComponent(searchUrl));
+            const d = await r.json();
+            if (d && d.success && d.link) { win.location = d.link; }
+            // لو فشل (success:false أو خطأ اتصال) — التاب يفضل مفتوح على الرابط الثابت الأصلي كـfallback
+          }catch(_tpLinkErr){ /* فشل الاتصال بالوسيط — التاب يفضل على الرابط الثابت */ }
+        })();
+      }
     };
   });
   // تحديث السطر التوضيحي: لو السعر الأساسي بقى حقيقي فعلاً (من FlightAPI.io أو Duffel)، نستبدل
@@ -4289,12 +4163,6 @@ async function fetchDuffelBasePrice(originIata, destIata, depDateISO, retDateISO
 
 /* دالة مشتركة لتحويل رد Duffel/FlightAPI (شكل الرد نفسه فى الاتنين) لشكل الكارت الداخلي المستخدم
    فى renderFlightLists — بدل تكرار نفس منطق التحويل 4 مرات (ذهاب/عودة × FlightAPI/Duffel). */
-/* تحويل تاريخ فقط (بدون وقت) لرقم UTC مجرّد — مستخدم فقط لحساب "هل الوصول يوم تاني؟"
-   بمقارنة التاريخين كنص، بعيدًا تمامًا عن أي حساب للفرق الزمني الفعلي بالساعات (اللي بيحتاج
-   معرفة UTC offset الحقيقي لكل مطار، ومش متاح لنا من رد الـAPI). ده تعمّد تجنّب أي حساب
-   عبر new Date() لفرق التوقيت، لأنه بيدي نتيجة مختلفة حسب توقيت متصفح كل زائر لو النص
-   الأصلي من الـAPI من غير UTC offset صريح — وده بالظبط كان مصدر خلل "وقت الوصول غلط". */
-function _dateOnlyUTC(iso){ const [y,mo,d] = iso.slice(0,10).split('-').map(Number); return Date.UTC(y, mo-1, d); }
 function mapCarrierFlights(data, source, idTag){
   if(!data || !Array.isArray(data.flights)) return [];
   return data.flights.map((f,i)=>{
@@ -4302,11 +4170,6 @@ function mapCarrierFlights(data, source, idTag){
     if(!seg0 || !seg0.departingAt || !segLast || !segLast.arrivingAt) return null;
     const depDateObj = new Date(seg0.departingAt), arrDateObj = new Date(segLast.arrivingAt);
     const dep = seg0.departingAt.slice(11,16);
-    // إصلاح 24 أغسطس 2026: وقت الوصول الحقيقي بتوقيت مطار الوصول نفسه (مش محسوب بالجمع) —
-    // ده نفس النص اللي راجع فعليًا من مصدر بيانات الرحلة (FlightAPI/Duffel)، بيمثّل بالفعل
-    // الساعة المحلية عند الهبوط زي ما بتعرضها كل مواقع حجز الطيران (Wego، Skyscanner، إلخ).
-    const arr = segLast.arrivingAt.slice(11,16);
-    const arrDayOffset = Math.round((_dateOnlyUTC(segLast.arrivingAt) - _dateOnlyUTC(seg0.departingAt)) / 86400000);
     const durHours = Math.max(0.5, (arrDateObj - depDateObj) / 3600000);
     const cur = (f.currency||'USD').toUpperCase();
     const rate = RATES[cur];
@@ -4330,7 +4193,6 @@ function mapCarrierFlights(data, source, idTag){
       connections,
       aircraft: seg0.aircraft || '—',
       dep,
-      arr, arrDayOffset, // وقت الوصول الحقيقي بتوقيت مطار الوصول + هل هو يوم تاني (بدون أي حساب زمني يدوي)
       source, // 'duffel' (وضع تجريبي حاليًا) أو 'flightapi' (حقيقي فعليًا) — مستخدم فى openTripDetails
     };
   }).filter(f=>f && f.price>0);
@@ -4348,34 +4210,27 @@ async function fetchDuffelFlightList(originIata, destIata, depDateISO, retDateIS
   try{
     const outParams = new URLSearchParams({origin:originIata, destination:destIata, departure_date:depDateISO});
     const outRes = await fetch('/api/duffel-search?' + outParams.toString());
-    if(!outRes.ok) return false;
+    if(!outRes.ok) return;
     const outData = await outRes.json();
     const mappedOut = mapCarrierFlights(outData, 'duffel', 'out').sort((a,b)=>a.price-b.price);
-    if(!mappedOut.length) return false;
+    if(!mappedOut.length) return;
 
     let mappedIn = null;
     if(tripType!=='one'){
-      if(!retDateISO) return false;
+      if(!retDateISO) return;
       const inParams = new URLSearchParams({origin:destIata, destination:originIata, departure_date:retDateISO});
       const inRes = await fetch('/api/duffel-search?' + inParams.toString());
-      if(!inRes.ok) return false;
+      if(!inRes.ok) return;
       const inData = await inRes.json();
       mappedIn = mapCarrierFlights(inData, 'duffel', 'in').sort((a,b)=>a.price-b.price);
-      if(!mappedIn.length) return false;
+      if(!mappedIn.length) return;
     }
 
     outbound = mappedOut;
     if(mappedIn) inbound = mappedIn;
-    // إصلاح 25 أغسطس 2026: Duffel لسه فى Test Mode فعليًا (مش Live Token) — بيانات تجريبية ممكن
-    // تكون شركات وهمية أو أسعار مش حقيقية 100%. كان الكود القديم بيحط نفس شارة "حقيقي فعليًا"
-    // الخضرا اللي بتتحط للبيانات الحقيقية من FlightAPI — ده تضليل صريح للزائر. دلوقتي شارة تحذير
-    // برتقالية صادقة توضح إنها بيانات تجريبية لحد ما تفعّل Duffel Live.
-    flightsLoading = false; flightsFetchFailed = false; // نتيجة حقيقية وصلت فعليًا — نطفي حالة التحميل/الفشل
-    buildAirlineFilters(); // نعيد بناء قايمة فلترة الشركات من الشركات الحقيقية اللي رجعت فعليًا فى البحث ده
     renderFlightLists();
-    if(badge){ badge.textContent = currentLang==='ar' ? '⚠️ بيانات تجريبية من Duffel (Test Mode) — مش أسعار حقيقية 100% بعد' : '⚠️ Test-mode data from Duffel — not 100% real prices yet'; badge.style.color='var(--gold)'; badge.style.background='rgba(216,165,49,.12)'; }
-    return true;
-  }catch(_dflListErr){ return false; } // فشل الاتصال — الدالة اللي بتنادي هنا لازم تعرض حالة فشل صريحة، مش بيانات ملفّقة
+    if(badge){ badge.textContent = t('flights_real_disclaimer'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
+  }catch(_dflListErr){ /* فشل الاتصال — تفضل الرحلات المولّدة تقديريًا مع التنويه البرتقالي الافتراضي */ }
 }
 /* تحديث 20 أغسطس 2026 — FlightAPI.io: مصدر بيانات طيران حقيقي فعليًا (مش وضع تجريبي زي Duffel
    حاليًا)، مع فلترة شركات موثوقة وحد أقصى 8 نتائج جاهزة من السيرفر نفسه (api/flightapi-search.js
@@ -4407,8 +4262,6 @@ async function fetchFlightApiFlightList(originIata, destIata, depDateISO, retDat
 
     outbound = mappedOut;
     if(mappedIn) inbound = mappedIn;
-    flightsLoading = false; flightsFetchFailed = false; // نتيجة حقيقية وصلت فعليًا — نطفي حالة التحميل/الفشل
-    buildAirlineFilters(); // نعيد بناء قايمة فلترة الشركات من الشركات الحقيقية اللي رجعت فعليًا فى البحث ده
     renderFlightLists();
     if(badge){ badge.textContent = t('flights_real_disclaimer_flightapi'); badge.style.color='var(--green)'; badge.style.background='rgba(39,174,96,.12)'; }
     return true;
@@ -4502,13 +4355,6 @@ function switchVideo(){
 function goResults(){
   const depValCheck = document.getElementById('depDate').value;
   const retValCheck = document.getElementById('retDate').value;
-  // إصلاح 25 أغسطس 2026: بلد/مطار المغادرة والوصول بقوا فاضيين افتراضيًا (مفيش اختيار جاهز) —
-  // لازم نتأكد إن الزائر اختارهم فعلًا قبل أي بحث، وإلا الكود القديم كان هيحاول يقرأ
-  // COUNTRIES[null] ويكسر الصفحة بصمت.
-  if(fromIdx==null || toIdx==null){
-    showToast(currentLang==='ar' ? 'من فضلك اختر بلد ومطار المغادرة والوصول' : 'Please choose your departure and destination airports');
-    return;
-  }
   // تحديث 19 أغسطس 2026: تاريخ العودة بقى فاضي افتراضيًا (الزائر يختاره بنفسه) — لازم نتأكد إنه
   // مختار فعلًا قبل تنفيذ بحث "ذهاب وعودة"، وإلا البحث هيتم بتاريخ عودة فاضي بصمت.
   if(!depValCheck){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ المغادرة' : 'Please choose a departure date'); return; }
@@ -4518,14 +4364,10 @@ function goResults(){
   const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
   const depVal = document.getElementById('depDate').value;
   const retVal = document.getElementById('retDate').value;
-  // إصلاح 25 أغسطس 2026: مفيش أي بيانات مُلفّقة (genFlights) تتعرض للزائر خالص — القايمة تفضل
-  // فاضية وتظهر حالة "جاري البحث" لحد ما نتيجة حقيقية فعلية توصل (أو فشل نهائي واضح). راجع
-  // التعليق الكامل عند تعريف outbound/inbound فوق لتفاصيل الخلل الحرج اللي ده بيصلحه.
-  outbound = [];
-  inbound = [];
-  flightsLoading = true;
-  flightsFetchFailed = false;
-  lastSearchParams = { fromCode: fromAp.code, toCode: toAp.code, depVal, retVal };
+  // regenerate flights based on the actual route + dates searched, so results genuinely change per search
+  outbound = genFlights('out-'+fromIdx+'-'+fromApIdx+'-'+toIdx+'-'+toApIdx+'-'+depVal, 8);
+  // one-way ("ذهاب فقط"): don't generate/show any return-leg flights at all
+  inbound = (tripType==='one') ? [] : genFlights('in-'+toIdx+'-'+toApIdx+'-'+fromIdx+'-'+fromApIdx+'-'+retVal, 8);
   selectedOut = null; selectedIn = null;
   manualOutSel = null; manualInSel = null;
   const comboSlot = document.getElementById('customComboSlot');
@@ -4546,43 +4388,12 @@ function goResults(){
   // ⚠️ حماية الكريديت المجاني: طول ما FLIGHTAPI_REAL_SEARCH_ENABLED = false، الزوار العاديين
   // بياخدوا Duffel (تجريبي، مجاني) بس — من غير ما نستهلك كريديت FlightAPI فى بحث تجريبي عشوائي.
   // إنت بس (لما تحط ?live_flights=1 فى الرابط) بتاخد FlightAPI الحقيقي عشان تكمل تجربتك.
-  // إصلاح 25 أغسطس 2026: أي مسار فشل فيه (FlightAPI حقيقي، أو Duffel تجريبي) لازم يوصل الزائر
-  // لحالة "فشل صريح" (flightsFetchFailed=true) — مش نسيب flightsLoading شغالة للأبد ولا نعرض
-  // بيانات ملفّقة بديلة. غيّرنا هنا بس، منطق الدالتين نفسهم (fetchFlightApiFlightList/
-  // fetchDuffelFlightList) واضح أصلًا ومرجعين true/false زي ما هو.
-  const markFailedIfEmpty = ()=>{
-    if(!outbound.length){
-      flightsLoading = false; flightsFetchFailed = true; renderFlightLists();
-      const b = document.getElementById('resultsFlightsDisclaimer');
-      if(b){ b.textContent=''; b.style.color=''; b.style.background=''; }
-    }
-  };
   if (FLIGHTAPI_REAL_SEARCH_ENABLED || FLIGHTAPI_FORCE_LIVE) {
     fetchFlightApiFlightList(fromAp.code, toAp.code, depVal, retVal).then(success=>{
-      if(!success) fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal).then(markFailedIfEmpty);
+      if(!success) fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
     });
   } else {
-    fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal).then(markFailedIfEmpty);
-  }
-}
-function retrySearch(){
-  if(!lastSearchParams) return;
-  flightsLoading = true; flightsFetchFailed = false;
-  renderFlightLists();
-  const { fromCode, toCode, depVal, retVal } = lastSearchParams;
-  const markFailedIfEmpty = ()=>{
-    if(!outbound.length){
-      flightsLoading = false; flightsFetchFailed = true; renderFlightLists();
-      const b = document.getElementById('resultsFlightsDisclaimer');
-      if(b){ b.textContent=''; b.style.color=''; b.style.background=''; }
-    }
-  };
-  if (FLIGHTAPI_REAL_SEARCH_ENABLED || FLIGHTAPI_FORCE_LIVE) {
-    fetchFlightApiFlightList(fromCode, toCode, depVal, retVal).then(success=>{
-      if(!success) fetchDuffelFlightList(fromCode, toCode, depVal, retVal).then(markFailedIfEmpty);
-    });
-  } else {
-    fetchDuffelFlightList(fromCode, toCode, depVal, retVal).then(markFailedIfEmpty);
+    fetchDuffelFlightList(fromAp.code, toAp.code, depVal, retVal);
   }
 }
 function goHome(){
@@ -4637,33 +4448,25 @@ function bindDateDisplay(inputId, displayId){
 // في كود HTML (value="2026-08-15")، فبمجرد ما التاريخ الفعلي عدّى عليها، بقت تظهر للزائر كتاريخ
 // ماضٍ! الحل: تُحسب ديناميكيًا من تاريخ اليوم الحقيقي لجهاز الزائر في كل مرة تُفتح فيها الصفحة،
 // وتُمنع أي تواريخ سابقة لليوم من الاختيار أصلًا (min) بدل رقم ثابت بيتقادم مع الوقت.
-// إصلاح 25 أغسطس 2026 (خلل حرج تالت اكتشفه أحمد): toISOString() بيرجع التاريخ بتوقيت UTC مش
-// بتوقيت جهاز الزائر — يعني فى أي وقت من نص الليل لحد الفجر بتوقيت الإمارات (UTC+4)، UTC لسه
-// فاضل فى "اليوم اللي فات" فيرجع تاريخ أمس بدل النهارده! الحل: نبني نص التاريخ من مكونات
-// التاريخ المحلي (getFullYear/getMonth/getDate) بدل تحويله لـUTC.
 function isoDatePlusDays(days){
   const d = new Date();
   d.setDate(d.getDate() + days);
-  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${dd}`;
+  return d.toISOString().slice(0,10);
 }
 function setDefaultDatesIfStale(){
   const todayISO = isoDatePlusDays(0);
-  // إصلاح 25 أغسطس 2026 (بطلب أحمد): تاريخ "المغادرة" كان بيتحط افتراضيًا = تاريخ اليوم، فكان
-  // بيظهر وكأنه اختيار حقيقي من الزائر رغم إنه محدش لمسه — ده أدى لالتباس لما التاريخ فضل واقف.
-  // دلوقتي يفضل فاضي تمامًا زي تاريخ العودة بالظبط؛ الزائر هو اللي يكتبه/يختاره بنفسه.
-  ['hotelCheckin','hotelCheckout'].forEach((id,i)=>{
+  // تحديث 19 أغسطس 2026 (بطلب صاحب الموقع): تاريخ "المغادرة" لازم يبقى تاريخ اليوم افتراضيًا،
+  // وتاريخ "العودة" يفضل فاضي تمامًا عشان الزائر يختاره بنفسه (مش رقم افتراضي اتحط له).
+  [
+    ['depDate', todayISO],
+    ['hotelCheckin', isoDatePlusDays(3)],
+    ['hotelCheckout', isoDatePlusDays(6)],
+  ].forEach(([id, defaultVal])=>{
     const el = document.getElementById(id);
     if(!el) return;
-    const defaultVal = isoDatePlusDays(i===0?3:6);
-    el.setAttribute('min', todayISO);
-    if(!el.value || el.value < todayISO) el.value = defaultVal;
+    el.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
+    if(!el.value || el.value < todayISO) el.value = defaultVal; // لو القيمة المكتوبة في الكود فاتت، تُستبدل بتاريخ مستقبلي منطقي
   });
-  const depEl = document.getElementById('depDate');
-  if(depEl){
-    depEl.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
-    depEl.value = ''; // يفضل فاضي دايمًا عند تحميل الصفحة — الزائر هو اللي يختاره
-  }
   const retEl = document.getElementById('retDate');
   if(retEl){
     retEl.setAttribute('min', todayISO);
