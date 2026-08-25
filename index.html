@@ -4105,26 +4105,31 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
       const site = btn.getAttribute('data-site');
       trackClick(partnerName, priceAED); // logs the click + estimated commission into the admin dashboard
       showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking'));
-      // تحديث 25 أغسطس 2026: لازم نفتح التاب فورًا وبشكل متزامن (sync) جوه onclick نفسها — أي
-      // await قبل window.open ممكن يخلي المتصفح (خصوصًا Safari) يعتبره Popup ويحظره. الحل: نفتح
-      // التاب على الرابط الثابت فورًا، وبعدين لو Aviasales، نجيب الرابط الديناميكي الحقيقي فى
-      // الخلفية ونحوّل نفس التاب المفتوح ده لما يوصل (بدل ما نستنى قبل الفتح).
-      // ⚠️ عشان نقدر نمسك مرجع للتاب المفتوح ونحوّله بعدين، شلنا 'noopener' من حالة Aviasales
-      // تحديدًا (لازمة تقنية لهذا النمط تحديدًا: window.open برجّع null مع noopener) — باقي كل
-      // الشركاء فضلوا زي ما هما بالضبط (noopener).
-      const isAvia = partnerName === 'Aviasales';
-      const win = window.open(site, '_blank', isAvia ? '' : 'noopener');
-      if (isAvia && win) {
-        (async ()=>{
-          try{
-            const searchUrl = _aviaSearchUrl(fromAp.code, toAp.code, depVal, retVal);
-            if (!searchUrl) return;
-            const r = await fetch('/api/tp-link?url=' + encodeURIComponent(searchUrl));
-            const d = await r.json();
-            if (d && d.success && d.link) { win.location = d.link; }
-            // لو فشل (success:false أو خطأ اتصال) — التاب يفضل مفتوح على الرابط الثابت الأصلي كـfallback
-          }catch(_tpLinkErr){ /* فشل الاتصال بالوسيط — التاب يفضل على الرابط الثابت */ }
-        })();
+      // ⚙️ تحديث 25 أغسطس 2026 (بعد ملاحظة أحمد: تأخير ~10 ثوانٍ فعلي لـAviasales): بدل ما يفتح رابط Aviasales الثابت مباشرة ويفضل ظاهرة "جامدة" طول وقت الانتظار، نفتح تاب فاضي (about:blank) ونكتب فيه صفحة تحميل بعلامتنا (سبينر + رسالة)، ونحوله للرابط الحقيقي (أو الثابت كـfallback) فور ما يوصل الرد — الزائر شايف إن حاجة بتحصل فعلياً طول وقت الانتظار، مش صفحة متجمدة. باقي الشركاء فضلوا زي ما هما بالظبط (فتح مباشر بـnoopener).
+      if (partnerName === 'Aviasales') {
+        const win = window.open('', '_blank');
+        if (win) {
+          win.document.write(`<!doctype html><html lang="${currentLang}" dir="${currentLang==='ar'?'rtl':'ltr'}"><head><meta charset="utf-8"><title>PrimeTravel365</title>
+            <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0a2540;color:#eaf0fb;font-family:'IBM Plex Sans Arabic',sans-serif;text-align:center;}
+            .spin{width:38px;height:38px;border:4px solid #2a4766;border-top-color:#2f6fed;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 16px;}
+            @keyframes s{to{transform:rotate(360deg)}}</style></head>
+            <body><div><div class="spin"></div><div>${currentLang==='ar'?'جارٍ تجهيز رابط الحجز الخاص برحلتك...':'Preparing your booking link...'}</div></div></body></html>`);
+          win.document.close();
+          (async ()=>{
+            let target = site;
+            try{
+              const searchUrl = _aviaSearchUrl(fromAp.code, toAp.code, depVal, retVal);
+              if (searchUrl) {
+                const r = await fetch('/api/tp-link?url=' + encodeURIComponent(searchUrl));
+                const d = await r.json();
+                if (d && d.success && d.link) target = d.link;
+              }
+            }catch(_tpLinkErr){ /* فشل الاتصال بالوسيط — target بيفضل الرابط الثابت الافتراضي */ }
+            win.location = target;
+          })();
+        }
+      } else {
+        window.open(site, '_blank', 'noopener');
       }
     };
   });
