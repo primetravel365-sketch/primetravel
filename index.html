@@ -105,22 +105,35 @@
   --radius:14px;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
-html{scroll-behavior:smooth; background:#0a2540;}
-body{
+html{
+  scroll-behavior:smooth;
+  /* 25 أغسطس 2026: التدرّج+الصورة اتنقلوا من body لـhtml. السبب فنّي فى ترتيب رسم CSS: body عنصر
+     غير "positioned" (مفيش position عليه)، فخلفيته كانت بترسم فوق فيديو الخلفية (#bgVideo) رغم
+     z-index:-2 بتاعه — أي عنصر non-positioned بترسم خلفيته بعد (فوق) أي عنصر position:fixed
+     بz-index سالب فى نفس الـstacking context، بصرف النظر عن ترتيبه فى الكود. النتيجة: الفيديو
+     كان محمّل وشغال فعليًا لكن خلفية body (شبه معتمة) كانت بتغطّيه بالكامل من غير أي خطأ ظاهر —
+     وده السبب الحقيقي وراء عدم ظهوره، مش مشكلة فى الفيديو نفسه أو التشغيل التلقائي. خلفية html
+     بترسم فى أسفل الصفحة تمامًا (تحت كل حاجة، حتى قبل أي z-index سالب)، فنقل التدرّج+الصورة هنا
+     وترك body شفاف يخلّي الفيديو (وطبقة التظليل فوقه) يظهروا صح — مع بقاء نفس الصورة+التدرّج
+     كاحتياطي فوري لو الفيديو اتأخر أو فشل، بدون أي فرق شكلي أو لوني عن قبل. */
   background:
     linear-gradient(180deg, rgba(38,120,168,.38) 0%, rgba(28,95,145,.5) 45%, rgba(16,60,95,.68) 100%),
     url('https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=2400&auto=format&fit=crop')
     center/cover fixed;
   background-color:#0a2540;
+}
+body{
+  background:transparent;
   color:var(--text);
   font-family:'IBM Plex Sans Arabic','Cairo',sans-serif;
   line-height:1.6;
 }
 /* background-attachment:fixed is well known to flicker/show blank white on mobile browsers during scroll
    (a documented iOS Safari / Android Chrome rendering bug) — this is the real cause of the white flashes
-   reported. Switch to normal scrolling attachment on small screens only; desktop is unaffected. */
+   reported. Switch to normal scrolling attachment on small screens only; desktop is unaffected.
+   (Moved from body to html together with the background itself — 25 أغسطس 2026.) */
 @media(max-width:760px){
-  body{background-attachment:scroll, scroll;}
+  html{background-attachment:scroll, scroll;}
 }
 /* real looping video of ocean waves, fixed behind everything. If it can't load (offline, blocked, etc.)
    the photo+gradient set on body above stays visible underneath as a safe fallback — never a blank screen. */
