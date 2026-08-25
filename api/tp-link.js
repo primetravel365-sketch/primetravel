@@ -16,6 +16,14 @@
 // (header X-Access-Token + توكن جوه الـbody نفسه مش موجود أصلاً فى شكل الطلب الرسمي) — لو فشل
 // أول استدعاء فعلي بـ401/403، جرّب تحويل التوكن لـquery param (?token=) بدل الـheader، أو
 // راسل دعم Travelpayouts للتأكيد.
+//
+// ⚙️ تحديث 25 أغسطس 2026 (بعد ملاحظة أحمد: تأخير فعلي ~10 ثوانٍ فى الاستخدام الحي):
+// - `shorten` اتغيّر من true لـfalse: مش محتاجين رابط مختصر أصلاً (الرابط ده بيُستخدم فقط
+//   لتحويل تاب مفتوح، مش بيتعرض للزائر)، وتوليد رابط مختصر غالبًا بيحتاج خطوة إضافية (كتابة/hash)
+//   عند Travelpayouts ممكن تكون سبب فى جزء من التأخير — ده تجربة معقولة مش مؤكدة 100%، يستاهل
+//   المقارنة الفعلية بعد الرفع (لو التأخير اتحسن، السبب كان shorten=true).
+// - مهلة الانتظار (timeout) اتقللت من 8 لـ6 ثوانٍ — سقف أضمن لتجربة المستخدم؛ لو الـAPI اتأخر
+//   أكتر من كده، الواجهة (site.html) بترجع تلقائيًا للرابط الثابت بدل ما تسيب الزائر مستني أكتر.
 // ============================================================
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -46,12 +54,12 @@ module.exports = async function handler(req, res) {
     const body = {
       trs: TRS,
       marker: MARKER,
-      shorten: true,
+      shorten: false, // بدل true — راجع تعليق التحديث فوق (25 أغسطس)
       links: [{ url, ...(sub_id ? { sub_id: String(sub_id) } : {}) }],
     };
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 6000); // بدل 8000 — راجع تعليق التحديث فوق
 
     let tpRes;
     try {
