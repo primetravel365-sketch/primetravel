@@ -3473,10 +3473,7 @@ function airlineIata(airlineName){
 // بحث عليها ممكن يكسر تتبع العمولة نفسه. صيغ skyscanner.net وbooking.com/flights أدناه معروفة وموثّقة
 // الاستخدام لسنوات، لكن يُنصح باختبارها فعليًا بعد النشر (مفيش وصول شبكة لهذه النطاقات من بيئة التطوير هنا للتأكد).
 function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-'); return {y,m,d}; }
-/* تحديث 25 أغسطس 2026: رابط بحث Aviasales الحقيقي (صيغة قياسية DDMM لكل تاريخ) — بيتحوّل بعدين
-   لرابط تتبّع حقيقي عبر api/tp-link.js (Travelpayouts Links API) بدل ما يفتح على صفحة Aviasales
-   الرئيسية. Aviasales بتتبّع بالكوكيز مش بباراميتر فى الرابط، فمحتاج API call سيرفر-سايد (بعكس
-   Kiwi.com اللي بيتتبّع بباراميتر شمِر ديركت فى الرابط). */
+/* تحديث 25 أغسطس 2026: رابط بحث Aviasales الحقيقي (صيغة قياسية DDMM لكل تاريخ). */
 function _aviaSearchUrl(fromIata, toIata, dep, ret){
   const d = _flightDateParts(dep); if(!d) return null;
   const r = ret ? _flightDateParts(ret) : null;
@@ -3501,7 +3498,7 @@ const PARTNERS = [
     // Kiwi.com بيتتبّع العمولة عبر باراميتر (shmarker) فى الرابط نفسه مش كوكيز، فآمن نبنيه client-side
     // بالكامل من غير أي API call سيرفري. الصيغة مؤكدة رسميًا من نفس صفحة توثيق Travelpayouts:
     // https://support.travelpayouts.com/hc/en-us/articles/360010109719-Kiwi-com-affiliate-links
-    // marker=759759 مؤكد سابقًا كرقم حساب أحمد الصحيح (نفس الرقم المستخدم فى tp-link.js لـAviasales).
+    // marker=759759 مؤكد سابقًا كرقم حساب أحمد الصحيح (نفس الرقم المستخدم مع Aviasales تحت).
     urlFn:(fromIata,toIata,dep,ret)=>{
       const kiwiUrl = `https://www.kiwi.com/deep?from=${fromIata}&to=${toIata}&departure=${dep}` + (ret ? `&return=${ret}` : '');
       const params = new URLSearchParams({ shmarker:'759759', promo_id:'3791', source_type:'customlink', type:'click', custom_url:kiwiUrl });
@@ -3516,7 +3513,18 @@ const PARTNERS = [
     }},
   {name:'Wego', logo:'https://logo.clearbit.com/wego.com', site:'https://www.wego.com', type:'meta', trust:92, color:'#44b50c', commission:{real:false}},
   {name:'المسافر (Almosafer)', logo:'https://logo.clearbit.com/almosafer.com', site:'https://www.almosafer.com', type:'ota', trust:94, color:'#1c9c6b', commission:{real:false}},
-  {name:'Aviasales', logo:'https://logo.clearbit.com/aviasales.com', site:'https://aviasales.tpm.lv/Sbbqh9Uk', type:'ota', trust:91, color:'#ff6b35', commission:{real:true, model:'percent', min:0.011, max:0.013, label:'1.1%–1.3% من قيمة التذكرة (Travelpayouts)'}},
+  {name:'Aviasales', logo:'https://logo.clearbit.com/aviasales.com', site:'https://aviasales.tpm.lv/Sbbqh9Uk', type:'ota', trust:91, color:'#ff6b35', commission:{real:true, model:'percent', min:0.011, max:0.013, label:'1.1%–1.3% من قيمة التذكرة (Travelpayouts)'},
+    // تحديث 25 أغسطس 2026 (v2 — بديل أسرع بدون أي API سيرفري): اكتشفنا (عن طريق أداة "Generate
+    // links" الرسمية فى لوحة Travelpayouts نفسها) رابط تحويل مباشر جاهز لـAviasales بنفس مبدأ
+    // Kiwi.com بالظبط (client-side بالكامل، بدون استدعاء api/tp-link.js ولا أي تأخير شبكة إضافي).
+    // القيم دي (campaign_id, marker, p, trs) مؤكدة من رابط حقيقي ولّدته Travelpayouts نفسها
+    // (25 أغسطس 2026) لحساب أحمد ومشروع primetravel365 تحديدًا — مش تخمين.
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      const aviaUrl = _aviaSearchUrl(fromIata, toIata, dep, ret);
+      if (!aviaUrl) return null;
+      const params = new URLSearchParams({ campaign_id:'100', marker:'759759', p:'4114', trs:'563031', u:aviaUrl });
+      return 'https://tp.media/r?' + params.toString();
+    }},
 ];
 
 /* ============================================================
@@ -4105,32 +4113,10 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
       const site = btn.getAttribute('data-site');
       trackClick(partnerName, priceAED); // logs the click + estimated commission into the admin dashboard
       showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking'));
-      // ⚙️ تحديث 25 أغسطس 2026 (بعد ملاحظة أحمد: تأخير ~10 ثوانٍ فعلي لـAviasales): بدل ما يفتح رابط Aviasales الثابت مباشرة ويفضل ظاهرة "جامدة" طول وقت الانتظار، نفتح تاب فاضي (about:blank) ونكتب فيه صفحة تحميل بعلامتنا (سبينر + رسالة)، ونحوله للرابط الحقيقي (أو الثابت كـfallback) فور ما يوصل الرد — الزائر شايف إن حاجة بتحصل فعلياً طول وقت الانتظار، مش صفحة متجمدة. باقي الشركاء فضلوا زي ما هما بالظبط (فتح مباشر بـnoopener).
-      if (partnerName === 'Aviasales') {
-        const win = window.open('', '_blank');
-        if (win) {
-          win.document.write(`<!doctype html><html lang="${currentLang}" dir="${currentLang==='ar'?'rtl':'ltr'}"><head><meta charset="utf-8"><title>PrimeTravel365</title>
-            <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0a2540;color:#eaf0fb;font-family:'IBM Plex Sans Arabic',sans-serif;text-align:center;}
-            .spin{width:38px;height:38px;border:4px solid #2a4766;border-top-color:#2f6fed;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 16px;}
-            @keyframes s{to{transform:rotate(360deg)}}</style></head>
-            <body><div><div class="spin"></div><div>${currentLang==='ar'?'جارٍ تجهيز رابط الحجز الخاص برحلتك...':'Preparing your booking link...'}</div></div></body></html>`);
-          win.document.close();
-          (async ()=>{
-            let target = site;
-            try{
-              const searchUrl = _aviaSearchUrl(fromAp.code, toAp.code, depVal, retVal);
-              if (searchUrl) {
-                const r = await fetch('/api/tp-link?url=' + encodeURIComponent(searchUrl));
-                const d = await r.json();
-                if (d && d.success && d.link) target = d.link;
-              }
-            }catch(_tpLinkErr){ /* فشل الاتصال بالوسيط — target بيفضل الرابط الثابت الافتراضي */ }
-            win.location = target;
-          })();
-        }
-      } else {
-        window.open(site, '_blank', 'noopener');
-      }
+      // تحديث 25 أغسطس 2026: Aviasales بقى بيتبني بـurlFn زي Kiwi.com بالظبط (رابط تحويل
+      // مباشر عبر tp.media، client-side بالكامل، مفيش استدعاء سيرفر ولا تأخير إضافي) — راجع
+      // urlFn فى عنصر Aviasales بمصفوفة PARTNERS فوق.
+      window.open(site, '_blank', 'noopener');
     };
   });
   // تحديث السطر التوضيحي: لو السعر الأساسي بقى حقيقي فعلاً (من FlightAPI.io أو Duffel)، نستبدل
