@@ -4472,16 +4472,23 @@ function bindDateDisplay(inputId, displayId){
 // ماضٍ! الحل: تُحسب ديناميكيًا من تاريخ اليوم الحقيقي لجهاز الزائر في كل مرة تُفتح فيها الصفحة،
 // وتُمنع أي تواريخ سابقة لليوم من الاختيار أصلًا (min) بدل رقم ثابت بيتقادم مع الوقت.
 function isoDatePlusDays(days){
+  // إصلاح 26 أغسطس 2026: كانت بتستخدم d.toISOString() اللي بترجع التاريخ بتوقيت UTC مش توقيت
+  // جهاز الزائر — فى الإمارات (UTC+4) أي وقت من منتصف الليل لحد 4 الفجر كان بيرجّع "أمس" بالغلط.
+  // الحل: نبني السلسلة من مكونات التاريخ المحلي (getFullYear/getMonth/getDate) بدل التحويل لـUTC.
   const d = new Date();
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0,10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
 }
 function setDefaultDatesIfStale(){
   const todayISO = isoDatePlusDays(0);
-  // تحديث 19 أغسطس 2026 (بطلب صاحب الموقع): تاريخ "المغادرة" لازم يبقى تاريخ اليوم افتراضيًا،
-  // وتاريخ "العودة" يفضل فاضي تمامًا عشان الزائر يختاره بنفسه (مش رقم افتراضي اتحط له).
+  // تحديث 26 أغسطس 2026 (بطلب صاحب الموقع): تاريخ "المغادرة" ما بقاش يتحط له أي تاريخ افتراضي
+  // خالص (كان قبل كده بيتحط تاريخ اليوم تلقائيًا) — لازم يفضل فاضي تمامًا زي تاريخ العودة بالظبط،
+  // والزائر هو الوحيد اللي يختار التاريخ بنفسه من التقويم. لسه فيه حد أدنى (min) بيمنع اختيار
+  // تاريخ فات، محسوب بالتوقيت المحلي الصحيح بعد إصلاح isoDatePlusDays أعلاه.
   [
-    ['depDate', todayISO],
     ['hotelCheckin', isoDatePlusDays(3)],
     ['hotelCheckout', isoDatePlusDays(6)],
   ].forEach(([id, defaultVal])=>{
@@ -4490,6 +4497,11 @@ function setDefaultDatesIfStale(){
     el.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
     if(!el.value || el.value < todayISO) el.value = defaultVal; // لو القيمة المكتوبة في الكود فاتت، تُستبدل بتاريخ مستقبلي منطقي
   });
+  const depEl = document.getElementById('depDate');
+  if(depEl){
+    depEl.setAttribute('min', todayISO);
+    depEl.value = ''; // يفضل فاضي دايمًا عند تحميل الصفحة — الزائر هو اللي يختاره، مفيش تاريخ افتراضي إطلاقًا
+  }
   const retEl = document.getElementById('retDate');
   if(retEl){
     retEl.setAttribute('min', todayISO);
