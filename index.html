@@ -105,38 +105,18 @@
   --radius:14px;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
-html{
-  scroll-behavior:smooth;
-  /* 25 أغسطس 2026: التدرّج+الصورة اتنقلوا من body لـhtml. السبب فنّي فى ترتيب رسم CSS: body عنصر
-     غير "positioned" (مفيش position عليه)، فخلفيته كانت بترسم فوق فيديو الخلفية (#bgVideo) رغم
-     z-index:-2 بتاعه — أي عنصر non-positioned بترسم خلفيته بعد (فوق) أي عنصر position:fixed
-     بz-index سالب فى نفس الـstacking context، بصرف النظر عن ترتيبه فى الكود. النتيجة: الفيديو
-     كان محمّل وشغال فعليًا لكن خلفية body (شبه معتمة) كانت بتغطّيه بالكامل من غير أي خطأ ظاهر —
-     وده السبب الحقيقي وراء عدم ظهوره، مش مشكلة فى الفيديو نفسه أو التشغيل التلقائي. خلفية html
-     بترسم فى أسفل الصفحة تمامًا (تحت كل حاجة، حتى قبل أي z-index سالب)، فنقل التدرّج+الصورة هنا
-     وترك body شفاف يخلّي الفيديو (وطبقة التظليل فوقه) يظهروا صح — مع بقاء نفس الصورة+التدرّج
-     كاحتياطي فوري لو الفيديو اتأخر أو فشل، بدون أي فرق شكلي أو لوني عن قبل. */
-  background:
-    linear-gradient(180deg, rgba(38,120,168,.38) 0%, rgba(28,95,145,.5) 45%, rgba(16,60,95,.68) 100%),
-    url('https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=2400&auto=format&fit=crop')
-    center/cover fixed;
-  background-color:#0a2540;
-}
+html{scroll-behavior:smooth; background:#0a2540;}
 body{
-  background:transparent;
+  /* أُزيلت صورة الخلفية الثابتة (Unsplash) بطلب أحمد 26 أغسطس 2026 — فضل التدرّج
+     اللوني + اللون الصلب الغامق تحت كخلفية أساسية/احتياطية آمنة لو الفيديو ما حمّلش. */
+  background: linear-gradient(180deg, rgba(38,120,168,.38) 0%, rgba(28,95,145,.5) 45%, rgba(16,60,95,.68) 100%);
+  background-color:#0a2540;
   color:var(--text);
   font-family:'IBM Plex Sans Arabic','Cairo',sans-serif;
   line-height:1.6;
 }
-/* background-attachment:fixed is well known to flicker/show blank white on mobile browsers during scroll
-   (a documented iOS Safari / Android Chrome rendering bug) — this is the real cause of the white flashes
-   reported. Switch to normal scrolling attachment on small screens only; desktop is unaffected.
-   (Moved from body to html together with the background itself — 25 أغسطس 2026.) */
-@media(max-width:760px){
-  html{background-attachment:scroll, scroll;}
-}
 /* real looping video of ocean waves, fixed behind everything. If it can't load (offline, blocked, etc.)
-   the photo+gradient set on body above stays visible underneath as a safe fallback — never a blank screen. */
+   the gradient set on body above stays visible underneath as a safe fallback — never a blank screen. */
 #bgVideo{position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2; pointer-events:none;}
 /* tinted overlay on top of the video: keeps text readable and gives the lighter sky-blue tone requested */
 body::before{
@@ -483,6 +463,16 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .flight-group-title .tag{background:var(--card2); border:1px solid var(--border); font-size:11px; padding:2px 8px; border-radius:20px; color:var(--dim); font-weight:400;}
 .flight-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:10px; transition:border-color .2s;}
 .flight-card.selected{border-color:var(--gold);}
+/* بانر الخدمات الإضافية (AirHelp/Compensair/KKday) — أُضيف 26 أغسطس 2026 */
+.flight-extra-promo{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;}
+@media(max-width:760px){.flight-extra-promo{grid-template-columns:1fr;}}
+.flight-extra-card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:8px;}
+.flight-extra-card .fe-icon{font-size:22px;}
+.flight-extra-card .fe-title{font-size:14px; font-weight:800;}
+.flight-extra-card .fe-desc{font-size:12.5px; color:var(--dim); line-height:1.7; flex:1;}
+.flight-extra-btns{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;}
+.fe-btn{border:1px solid var(--border); background:var(--card2); border-radius:8px; padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--text); transition:border-color .15s;}
+.fe-btn:hover{border-color:var(--gold);}
 .fc-main{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
 .fc-air{display:flex; align-items:center; gap:8px; flex:0 0 120px;}
 .fc-air .logo{width:30px; height:30px; border-radius:8px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800;}
@@ -1314,6 +1304,10 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
            مختلفين (checkbox جانب كل رحلة)، تتجمّع الرحلتين هنا في كارت واحد مخصص بزرار حجز مفعّل. -->
       <div id="customComboSlot"></div>
       <div id="pairedFlights"></div>
+      <!-- بانر ترويجي لخدمات إضافية غير طيران (تعويض تأخير/إلغاء + أنشطة الوجهة) — أُضيف 26 أغسطس
+           2026، مربوط بروابط تتبع حقيقية من Travelpayouts (AirHelp/Compensair/KKday). يُملأ عبر
+           renderFlightExtrasPromo() في نفس وقت renderFlightLists(). -->
+      <div id="flightExtrasPromo"></div>
     </div>
   </div>
 </div>
@@ -3486,14 +3480,6 @@ function airlineIata(airlineName){
 // بحث عليها ممكن يكسر تتبع العمولة نفسه. صيغ skyscanner.net وbooking.com/flights أدناه معروفة وموثّقة
 // الاستخدام لسنوات، لكن يُنصح باختبارها فعليًا بعد النشر (مفيش وصول شبكة لهذه النطاقات من بيئة التطوير هنا للتأكد).
 function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-'); return {y,m,d}; }
-/* تحديث 25 أغسطس 2026: رابط بحث Aviasales الحقيقي (صيغة قياسية DDMM لكل تاريخ). */
-function _aviaSearchUrl(fromIata, toIata, dep, ret){
-  const d = _flightDateParts(dep); if(!d) return null;
-  const r = ret ? _flightDateParts(ret) : null;
-  const dStr = d.d + d.m;
-  const rStr = r ? (r.d + r.m) : '';
-  return `https://www.aviasales.com/search/${fromIata}${dStr}${toIata}${rStr}1`;
-}
 const PARTNERS = [
   {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', commission:{real:false}, note:true},
   {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
@@ -3506,17 +3492,7 @@ const PARTNERS = [
       const p = ret ? `&type=ROUNDTRIP&return=${ret}` : `&type=ONEWAY`;
       return `https://www.booking.com/flights/index.html?from=${fromIata}.AIRPORT&to=${toIata}.AIRPORT&depart=${dep}${p}&adults=1&cabinClass=ECONOMY`;
     }},
-  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'},
-    // تحديث 25 أغسطس 2026: رابط ديناميكي حقيقي لـKiwi.com معبّى بالمسار/التاريخ — بعكس Aviasales،
-    // Kiwi.com بيتتبّع العمولة عبر باراميتر (shmarker) فى الرابط نفسه مش كوكيز، فآمن نبنيه client-side
-    // بالكامل من غير أي API call سيرفري. الصيغة مؤكدة رسميًا من نفس صفحة توثيق Travelpayouts:
-    // https://support.travelpayouts.com/hc/en-us/articles/360010109719-Kiwi-com-affiliate-links
-    // marker=759759 مؤكد سابقًا كرقم حساب أحمد الصحيح (نفس الرقم المستخدم مع Aviasales تحت).
-    urlFn:(fromIata,toIata,dep,ret)=>{
-      const kiwiUrl = `https://www.kiwi.com/deep?from=${fromIata}&to=${toIata}&departure=${dep}` + (ret ? `&return=${ret}` : '');
-      const params = new URLSearchParams({ shmarker:'759759', promo_id:'3791', source_type:'customlink', type:'click', custom_url:kiwiUrl });
-      return 'https://c111.travelpayouts.com/click?' + params.toString();
-    }},
+  {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'}},
   {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false},
     urlFn:(fromIata,toIata,dep,ret)=>{
       const d = _flightDateParts(dep), r = _flightDateParts(ret);
@@ -3526,18 +3502,16 @@ const PARTNERS = [
     }},
   {name:'Wego', logo:'https://logo.clearbit.com/wego.com', site:'https://www.wego.com', type:'meta', trust:92, color:'#44b50c', commission:{real:false}},
   {name:'المسافر (Almosafer)', logo:'https://logo.clearbit.com/almosafer.com', site:'https://www.almosafer.com', type:'ota', trust:94, color:'#1c9c6b', commission:{real:false}},
-  {name:'Aviasales', logo:'https://logo.clearbit.com/aviasales.com', site:'https://aviasales.tpm.lv/Sbbqh9Uk', type:'ota', trust:91, color:'#ff6b35', commission:{real:true, model:'percent', min:0.011, max:0.013, label:'1.1%–1.3% من قيمة التذكرة (Travelpayouts)'},
-    // تحديث 25 أغسطس 2026 (v2 — بديل أسرع بدون أي API سيرفري): اكتشفنا (عن طريق أداة "Generate
-    // links" الرسمية فى لوحة Travelpayouts نفسها) رابط تحويل مباشر جاهز لـAviasales بنفس مبدأ
-    // Kiwi.com بالظبط (client-side بالكامل، بدون استدعاء api/tp-link.js ولا أي تأخير شبكة إضافي).
-    // القيم دي (campaign_id, marker, p, trs) مؤكدة من رابط حقيقي ولّدته Travelpayouts نفسها
-    // (25 أغسطس 2026) لحساب أحمد ومشروع primetravel365 تحديدًا — مش تخمين.
-    urlFn:(fromIata,toIata,dep,ret)=>{
-      const aviaUrl = _aviaSearchUrl(fromIata, toIata, dep, ret);
-      if (!aviaUrl) return null;
-      const params = new URLSearchParams({ campaign_id:'100', marker:'759759', p:'4114', trs:'563031', u:aviaUrl });
-      return 'https://tp.media/r?' + params.toString();
-    }},
+  {name:'Aviasales', logo:'https://logo.clearbit.com/aviasales.com', site:'https://aviasales.tpm.lv/Sbbqh9Uk', type:'ota', trust:91, color:'#ff6b35', commission:{real:true, model:'percent', min:0.011, max:0.013, label:'1.1%–1.3% من قيمة التذكرة (Travelpayouts)'}},
+  /* ============================================================
+     أُضيفت 26 أغسطس 2026 — 3 برامج كانت أصلاً مقبولة وجاهزة على حساب Travelpayouts (نفس حساب
+     Kiwi.com/Aviasales) لكن غير مستخدمة في الموقع. type:'travel_extra' مقصودة: هذه خدمات مختلفة
+     تمامًا عن مكاتب حجز الطيران (تعويض تأخير/إلغاء رحلات، وأنشطة/تجارب سياحية) — لذلك مُستبعدة
+     عمدًا من قائمة "احجز الآن" الخاصة بمقارنة أسعار التذاكر (راجع الفلتر في renderPriceOptionsList)
+     وتظهر بدلاً من ذلك كبانر ترويجي منفصل أسفل نتائج بحث الطيران (renderFlightExtrasPromo). */
+  {name:'AirHelp', logo:'https://logo.clearbit.com/airhelp.com', site:'https://airhelp.tpm.lv/6VRTqRcp', type:'travel_extra', trust:89, color:'#6c5ce7', commission:{real:true, model:'percent', min:0.15, max:0.166, label:'15%–16.6% (Travelpayouts) — على أتعاب نجاح AirHelp، وليس على سعر التذكرة'}},
+  {name:'Compensair', logo:'https://logo.clearbit.com/compensair.com', site:'https://compensair.tpm.lv/XcIcVn2N', type:'travel_extra', trust:87, color:'#00b894', commission:{real:true, model:'flat', amount:34, currency:'AED', label:'ثابت €5–12 لكل مطالبة تعويض ناجحة (Travelpayouts) ≈ 34 د.إ (سعر صرف تقريبي وقت الإضافة)'}},
+  {name:'KKday', logo:'https://logo.clearbit.com/kkday.com', site:'https://kkday.tpm.lv/oh4oYOwY', type:'travel_extra', trust:90, color:'#00b1c7', commission:{real:true, model:'percent', min:0.01, max:0.05, label:'1%–5% من قيمة حجز النشاط/التجربة (Travelpayouts)'}},
 ];
 
 /* ============================================================
@@ -3787,6 +3761,52 @@ function renderFlightLists(){
   }
   attachFlightEvents();
   renderCustomCombo();
+  renderFlightExtrasPromo();
+}
+/* بانر ترويجي لخدمات إضافية غير طيران، مربوط بروابط تتبع حقيقية من Travelpayouts — أُضيف 26 أغسطس
+   2026. كارت أول: تعويض تأخير/إلغاء الرحلة (AirHelp + Compensair). كارت تاني: أنشطة/تجارب في
+   الوجهة (KKday)، بيستخدم اسم مدينة الوجهة الحالية في النص فقط (مش في الرابط نفسه) — الروابط
+   المختصرة دي من Travelpayouts وإضافة أي باراميترات عليها ممكن يكسر تتبع العمولة، فبنفتحها كما هي.
+   العمولة الفعلية لكل نقرة هنا مش دايمًا قابلة للتقدير بمبلغ محدد (مفيش "سعر تذكرة" مرتبط بيها زي
+   باقي الشركاء) — فبنسجل النقرة الحقيقية فقط عبر trackClick، والرقم المؤكد النهائي يفضل دايمًا في
+   لوحة Travelpayouts نفسها (نفس مبدأ باقي الشركاء في هذا الملف). */
+function renderFlightExtrasPromo(){
+  const slot = document.getElementById('flightExtrasPromo');
+  if(!slot) return;
+  const airhelp = findCommissionSource('AirHelp');
+  const compensair = findCommissionSource('Compensair');
+  const kkday = findCommissionSource('KKday');
+  let destCity = '';
+  try{ const toAp = selAirport(toIdx, toApIdx); destCity = currentLang==='ar' ? toAp.city_ar : toAp.city_en; }catch(_e){ destCity = ''; }
+  const isAr = currentLang==='ar';
+  slot.innerHTML = `
+  <div class="flight-extra-promo">
+    <div class="flight-extra-card">
+      <div class="fe-icon">🧳⚠️</div>
+      <div class="fe-title">${isAr?'تأخرت أو أُلغيت رحلتك من قبل؟':'Had a flight delayed or cancelled before?'}</div>
+      <div class="fe-desc">${isAr?'تحقّق مجانًا خلال دقائق من أهليتك لتعويض قد يصل إلى 600 يورو حسب القوانين المعمول بها — عبر أحد الشريكين المتخصصين.':'Check for free in minutes whether you\'re eligible for compensation of up to €600 under applicable regulations — via one of these specialized partners.'}</div>
+      <div class="flight-extra-btns">
+        ${airhelp?`<button class="fe-btn" data-fe-partner="AirHelp" data-fe-site="${airhelp.site}">AirHelp</button>`:''}
+        ${compensair?`<button class="fe-btn" data-fe-partner="Compensair" data-fe-site="${compensair.site}">Compensair</button>`:''}
+      </div>
+    </div>
+    <div class="flight-extra-card">
+      <div class="fe-icon">🎟️</div>
+      <div class="fe-title">${isAr?('اكتشف أنشطة وتجارب'+(destCity?' في '+destCity:'')):('Discover activities & experiences'+(destCity?' in '+destCity:''))}</div>
+      <div class="fe-desc">${isAr?'جولات سياحية، تذاكر دخول، ومغامرات محلية بأسعار مخفّضة — احجزها مسبقًا قبل سفرك.':'Guided tours, entry tickets and local experiences at discounted prices — book ahead before you travel.'}</div>
+      <div class="flight-extra-btns">
+        ${kkday?`<button class="fe-btn" data-fe-partner="KKday" data-fe-site="${kkday.site}">KKday</button>`:''}
+      </div>
+    </div>
+  </div>`;
+  slot.querySelectorAll('[data-fe-partner]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const partnerName = btn.getAttribute('data-fe-partner');
+      const site = btn.getAttribute('data-fe-site');
+      trackClick(partnerName, 0); // لا يوجد "سعر تذكرة" مرتبط بهذه الخدمات — النقرة الحقيقية هي المسجَّلة هنا
+      window.open(site, '_blank', 'noopener');
+    };
+  });
 }
 function attachFlightEvents(){
   document.querySelectorAll('[data-pop]').forEach(btn=>{
@@ -4097,7 +4117,9 @@ function openTripDetails(){
 function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retVal, isRealBase, realInfo){
   // إصلاح 18 أغسطس 2026: كانت كل الروابط تفتح الصفحة الرئيسية للشريك بدون وجهة/تواريخ — الآن
   // الشركاء اللي عندهم urlFn (رابط بحث حقيقي) يفتحوا على نتيجة بحث معبّاة فعلاً بالمطار والتاريخ.
-  const otaOptions = PARTNERS.map((p,i)=>{
+  // type:'travel_extra' (AirHelp/Compensair/KKday) مُستبعدة عمدًا — دي مش مكاتب حجز تذاكر، مالهاش
+  // معنى تظهر كخيار "احجز الآن" لسعر تذكرة؛ ظهورها الترويجي منفصل عبر renderFlightExtrasPromo.
+  const otaOptions = PARTNERS.filter(p=>p.type!=='travel_extra').map((p,i)=>{
     let liveUrl = p.site;
     if (p.urlFn) { try{ liveUrl = p.urlFn(fromAp.code, toAp.code, depVal, retVal) || p.site; }catch(_e){ liveUrl = p.site; } }
     return {...p, site: liveUrl, price: Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004))};
@@ -4126,10 +4148,7 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
       const site = btn.getAttribute('data-site');
       trackClick(partnerName, priceAED); // logs the click + estimated commission into the admin dashboard
       showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking'));
-      // تحديث 25 أغسطس 2026: Aviasales بقى بيتبني بـurlFn زي Kiwi.com بالظبط (رابط تحويل
-      // مباشر عبر tp.media، client-side بالكامل، مفيش استدعاء سيرفر ولا تأخير إضافي) — راجع
-      // urlFn فى عنصر Aviasales بمصفوفة PARTNERS فوق.
-      window.open(site, '_blank', 'noopener');
+      window.open(site, '_blank', 'noopener'); // opens the provider's own official site
     };
   });
   // تحديث السطر التوضيحي: لو السعر الأساسي بقى حقيقي فعلاً (من FlightAPI.io أو Duffel)، نستبدل
@@ -5436,7 +5455,7 @@ function commPartnersHTML(){
           const isReal = p.commission && p.commission.real;
           return `<tr>
           <td><b>${p.name}</b><br><small style="color:var(--dim);">${p.site}</small></td>
-          <td>${p.type==='ota'?'مكتب حجز':p.type==='airline_direct'?'شركة طيران (حجز مباشر)':'محرك بحث مقارنة'}</td>
+          <td>${p.type==='ota'?'مكتب حجز':p.type==='airline_direct'?'شركة طيران (حجز مباشر)':p.type==='travel_extra'?'خدمة إضافية (تعويض/أنشطة)':'محرك بحث مقارنة'}</td>
           <td><span class="trust-bar-mini"><span class="trust-fill-mini" style="display:block; width:${p.trust}%; background:${p.color};"></span></span>${p.trust}%</td>
           <td>${isReal ? p.commission.label : '<span style="color:var(--dim);">—</span>'}</td>
           <td><span class="pill ${isReal ? 'active' : 'inactive'}">${isReal ? 'مربوطة فعليًا' : 'بانتظار الربط'}</span></td>
