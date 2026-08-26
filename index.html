@@ -3136,7 +3136,10 @@ document.querySelectorAll('#hotelSortTabs .sort-tab').forEach(btn=>{
   };
 });
 
-let fromIdx = 3, fromApIdx = 0, toIdx = 0, toApIdx = 1; // default: Egypt/Cairo → UAE/Dubai
+// إصلاح 26 أغسطس 2026: كان فيه بلد/مطار افتراضي (مصر→الإمارات) متحط فى الكود من غير ما الزائر
+// يختاره فعليًا — بيوهم إنه اختيار حقيقي. دلوقتي الحقلين فاضيين تمامًا افتراضيًا (زي التاريخ
+// بالظبط)، والزائر لازم يختار الاتنين بنفسه قبل ما يقدر يبحث (تحقّق فى goResults()).
+let fromIdx = null, fromApIdx = null, toIdx = null, toApIdx = null;
 function flagImgUrl(iso2){ return iso2 ? `https://flagcdn.com/w40/${iso2.toLowerCase()}.png` : ''; }
 function selAirport(countryIdx, apIdx){ return COUNTRIES[countryIdx].airports[apIdx]; }
 function airportLabel(country, ap){
@@ -3180,12 +3183,27 @@ function setupFlagInput(inputId, ddId, which, wrapId){
   });
 }
 function renderFlagDisplays(){
-  const fromC = COUNTRIES[fromIdx], toC = COUNTRIES[toIdx];
-  const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
-  document.getElementById('fromFlagIcon').src = flagImgUrl(fromC.code);
-  document.getElementById('fromDisplay').value = airportLabel(fromC, fromAp);
-  document.getElementById('toFlagIcon').src = flagImgUrl(toC.code);
-  document.getElementById('toDisplay').value = airportLabel(toC, toAp);
+  // إصلاح 26 أغسطس 2026: fromIdx/toIdx بقوا ممكن يكونوا null (فاضيين افتراضيًا) — لازم نتعامل مع
+  // الحالة دي بدل الافتراض إن فيه بلد مختار دايمًا (كان بيكسر كل الجافاسكريبت لو حصل بدون الحارس ده).
+  const fromDisp = document.getElementById('fromDisplay'), toDisp = document.getElementById('toDisplay');
+  if(fromIdx===null){
+    document.getElementById('fromFlagIcon').src = '';
+    fromDisp.value = '';
+    fromDisp.placeholder = currentLang==='ar' ? 'من أين؟' : 'From where?';
+  } else {
+    const fromC = COUNTRIES[fromIdx], fromAp = selAirport(fromIdx, fromApIdx);
+    document.getElementById('fromFlagIcon').src = flagImgUrl(fromC.code);
+    fromDisp.value = airportLabel(fromC, fromAp);
+  }
+  if(toIdx===null){
+    document.getElementById('toFlagIcon').src = '';
+    toDisp.value = '';
+    toDisp.placeholder = currentLang==='ar' ? 'إلى أين؟' : 'To where?';
+  } else {
+    const toC = COUNTRIES[toIdx], toAp = selAirport(toIdx, toApIdx);
+    document.getElementById('toFlagIcon').src = flagImgUrl(toC.code);
+    toDisp.value = airportLabel(toC, toAp);
+  }
 }
 function renderFlagDD(ddId, which, filterText){
   const q = (filterText||'').trim().toLowerCase();
@@ -3219,14 +3237,26 @@ function renderFlagDD(ddId, which, filterText){
   });
 }
 function renderCountryImgs(){
-  const from = COUNTRIES[fromIdx];
-  const to = COUNTRIES[toIdx];
-  document.getElementById('fromCountryName').textContent = currentLang==='ar'?from.name_ar:from.name_en;
-  document.getElementById('toCountryName').textContent = currentLang==='ar'?to.name_ar:to.name_en;
+  // إصلاح 26 أغسطس 2026: fromIdx/toIdx ممكن يبقوا null لحد ما الزائر يختار — لو لسه ما اختارش،
+  // نسيب قسم "معالم البلد" فاضي بدل ما نفترض بلد معين (كان بيكسر الجافاسكريبت كله بدون الحارس ده).
+  const fromCountryNameEl = document.getElementById('fromCountryName');
+  const toCountryNameEl = document.getElementById('toCountryName');
+  const fromImgsEl = document.getElementById('fromImgs');
+  const toImgsEl = document.getElementById('toImgs');
   const CI_GRADIENTS = ['linear-gradient(135deg,#2f6fed,#1a3f7a)','linear-gradient(135deg,#d8a531,#7a5a12)','linear-gradient(135deg,#2ecc71,#0f5c37)'];
   const cell = (c,i) => `<div class="cell" style="background:${CI_GRADIENTS[i%CI_GRADIENTS.length]}"><span>${currentLang==='ar'?c.l_ar:c.l_en}</span><img src="${c.u}" alt="${currentLang==='ar'?c.l_ar:c.l_en}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'"></div>`;
-  document.getElementById('fromImgs').innerHTML = from.imgs.map(cell).join('');
-  document.getElementById('toImgs').innerHTML = to.imgs.map(cell).join('');
+  if(fromIdx===null){ fromCountryNameEl.textContent = ''; fromImgsEl.innerHTML = ''; }
+  else {
+    const from = COUNTRIES[fromIdx];
+    fromCountryNameEl.textContent = currentLang==='ar'?from.name_ar:from.name_en;
+    fromImgsEl.innerHTML = from.imgs.map(cell).join('');
+  }
+  if(toIdx===null){ toCountryNameEl.textContent = ''; toImgsEl.innerHTML = ''; }
+  else {
+    const to = COUNTRIES[toIdx];
+    toCountryNameEl.textContent = currentLang==='ar'?to.name_ar:to.name_en;
+    toImgsEl.innerHTML = to.imgs.map(cell).join('');
+  }
 }
 
 /* تحديث 19 أغسطس 2026 — الشريط ده كان قايمة أسعار وأسماء مواقع حجز (Skyscanner/Booking.com/...)
@@ -4382,6 +4412,10 @@ function goResults(){
   // مختار فعلًا قبل تنفيذ بحث "ذهاب وعودة"، وإلا البحث هيتم بتاريخ عودة فاضي بصمت.
   if(!depValCheck){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ المغادرة' : 'Please choose a departure date'); return; }
   if(tripType!=='one' && !retValCheck){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ العودة' : 'Please choose a return date'); return; }
+  // إصلاح 26 أغسطس 2026: بلد/مطار المغادرة والوصول بقوا فاضيين افتراضيًا — لازم نتأكد إن الزائر
+  // اختار الاتنين فعلًا قبل تنفيذ البحث، بنفس أسلوب التحقق المستخدم لتاريخ المغادرة والعودة فوق.
+  if(fromIdx===null){ showToast(currentLang==='ar' ? 'من فضلك اختر بلد ومطار المغادرة' : 'Please choose your departure country/airport'); return; }
+  if(toIdx===null){ showToast(currentLang==='ar' ? 'من فضلك اختر بلد ومطار الوصول' : 'Please choose your destination country/airport'); return; }
   const from = COUNTRIES[fromIdx];
   const to = COUNTRIES[toIdx];
   const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
