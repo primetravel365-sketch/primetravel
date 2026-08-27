@@ -1,5 +1,3 @@
-
-
 // ============================================================
 // وسيط (Serverless Proxy) بين موقع PrimeTravel365 وTravelpayouts Data API.
 // السبب: توكن Travelpayouts كان لحد دلوقتي مكتوب مباشرة جوه site.html (كود مفتوح لأي زائر
@@ -9,11 +7,28 @@
 // مكان الملف: api/tp-price.js (جوه مجلد api/، بنفس مستوى duffel-search.js)
 // التوكن نفسه لازم يتحط كـ Environment Variable في Vercel باسم: TP_TOKEN
 //
-// وضعين (mode):
-//  - mode=latest        → أرخص سعر معروف عن شهر معين لمسار معين (يُستخدم لصف Kiwi.com/Aviasales
-//                          في شاشة "خيارات الأسعار")
-//  - mode=week-matrix    → أسعار حقيقية مسجّلة (cached) لأيام قريبة من تاريخ مستهدف، تُستخدم في
-//                          شريط "قارن أسعار أيام الحجز" بدل الأرقام المفبركة يدويًا سابقًا
+// ============================================================
+// 🔴→✅ إصلاح جذري 27 أغسطس 2026 — السبب الحقيقي وراء "مقارنة أسعار الحجز مش ظاهرة":
+// بالرجوع للتوثيق الرسمي لـ Travelpayouts (travelpayouts.github.io/slate)، اكتشفنا حاجتين:
+//
+// 1) mode=latest كان بيبعت باراميتر depart_date غلط تمامًا — الـendpoint ده (v2/prices/latest)
+//    أصلًا مالوش باراميتر اسمه depart_date خالص! المطلوب فعليًا period_type=month +
+//    beginning_of_period=YYYY-MM-01. كنا بنبعت باراميتر الـAPI مش بيعرفه، فكان بيتجاهله ويرجع
+//    نتائج فاضية/غير متوقعة بغض النظر عن أي حاجة تانية.
+//
+// 2) الأهم: كل الـendpoints دي (latest, week-matrix, month-matrix) عندها باراميتر
+//    show_to_affiliates وقيمته الافتراضية true — ومعناها إنها بترجع بس الأسعار اللي "لوحظت"
+//    من زوار جم عن طريق رابط الأفلييت (marker) بتاعك انت تحديدًا. لموقع لسه صغير/جديد زي بتاعنا،
+//    ده معناه عمليًا صفر بيانات تقريبًا! الحل: show_to_affiliates=false، وده بيوسّع النتيجة
+//    لكل الأسعار المخزّنة (cached) عند Travelpayouts من أي زائر، مش بس زوارنا احنا.
+//
+// وبالتالي: week-matrix (مش latest) هو فعليًا الـendpoint الصحيح لشريط "قارن أسعار أيام الحجز" —
+// توثيقه الرسمي بالحرف: "Returns airfare prices for a 7-day period around the specified
+// departure date" — يعني ده بالظبط المطلوب (سعر حقيقي لكل يوم من كام يوم قريب من تاريخ معيّن)،
+// مش latest. رجّعنا buildCompareStrip() في site.html لاستخدام week-matrix تاني بعد الإصلاح ده.
+//
+// mode=latest لسه مستخدم في مكان تاني (صف Kiwi.com/Aviasales في شاشة "خيارات الأسعار") فأصلحناه
+// بنفس المبدأ (period_type/beginning_of_period بدل depart_date) بدل ما نشيله.
 // ============================================================
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -38,14 +53,23 @@ module.exports = async function handler(req, res) {
     const cur = (currency || 'usd').toLowerCase();
     let url;
     if (mode === 'week-matrix') {
-      const params = new URLSearchParams({ origin, destination, currency: cur, token });
+      // ✅ الإصلاح: show_to_affiliates=false عشان نشوف كل الأسعار المخزّنة عند Travelpayouts،
+      // مش بس اللي جت من زوار موقعنا بالتحديد (اللي عمليًا صفر لحد دلوقتي).
+      const params = new URLSearchParams({ origin, destination, currency: cur, token, show_to_affiliates: 'false' });
       if (depart_date) params.set('depart_date', depart_date);
       if (return_date) params.set('return_date', return_date);
       url = 'https://api.travelpayouts.com/v2/prices/week-matrix?' + params.toString();
     } else {
-      // mode=latest (افتراضي): depart_date هنا لازم يبقى شهر (YYYY-MM)
-      const month = (depart_date || '').slice(0, 7);
-      const params = new URLSearchParams({ origin, destination, depart_date: month, currency: cur, token });
+      // ✅ الإصلاح: mode=latest (افتراضي) — الـendpoint ده معندوش depart_date أصلًا، المطلوب
+      // period_type=month + beginning_of_period=YYYY-MM-01 (أول يوم في الشهر المطلوب).
+      const monthStr = (depart_date || '').slice(0, 7); // YYYY-MM
+      const beginningOfPeriod = monthStr ? monthStr + '-01' : '';
+      const params = new URLSearchParams({
+        origin, destination, currency: cur, token,
+        period_type: 'month',
+        show_to_affiliates: 'false',
+      });
+      if (beginningOfPeriod) params.set('beginning_of_period', beginningOfPeriod);
       url = 'https://api.travelpayouts.com/v2/prices/latest?' + params.toString();
     }
 
