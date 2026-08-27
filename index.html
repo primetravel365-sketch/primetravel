@@ -105,15 +105,29 @@
   --radius:14px;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
-html{scroll-behavior:smooth; background:#0a2540;}
-body{
-  /* أُزيلت صورة الخلفية الثابتة (Unsplash) بطلب أحمد 26 أغسطس 2026 — فضل التدرّج
-     اللوني + اللون الصلب الغامق تحت كخلفية أساسية/احتياطية آمنة لو الفيديو ما حمّلش. */
-  background: linear-gradient(180deg, rgba(38,120,168,.38) 0%, rgba(28,95,145,.5) 45%, rgba(16,60,95,.68) 100%);
+/* تحديث 27 أغسطس 2026: رجّعنا صورة الخلفية (Unsplash) بطلب أحمد — وبنفس الوقت لازم تفضل الخلفية
+   (تدرّج + صورة) على html مش على body، وbody يفضل شفاف تمامًا (مفيش خاصية background عليه خالص).
+   ده هو بالظبط إصلاح 25 أغسطس (ظهور الفيديو): أي background على body نفسه (حتى لو كان تدرّج بسيط
+   بدون صورة) بيترسم فوق الفيديو الثابت (position:fixed) بسبب ترتيب طبقات الرسم، بصرف النظر عن
+   z-index السالب. تعديل 26 أغسطس (شيل الصورة) كان رجّع الـbackground لـbody تاني بالغلط وده كان
+   هيكسر ظهور الفيديو تاني — الإصلاح ده بيمنع تكرار نفس المشكلة. */
+html{
+  scroll-behavior:smooth;
+  background:
+    linear-gradient(180deg, rgba(38,120,168,.38) 0%, rgba(28,95,145,.5) 45%, rgba(16,60,95,.68) 100%),
+    url('https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=2400&auto=format&fit=crop')
+    center/cover fixed;
   background-color:#0a2540;
+}
+body{
   color:var(--text);
   font-family:'IBM Plex Sans Arabic','Cairo',sans-serif;
   line-height:1.6;
+}
+/* نفس ملاحظة background-attachment:fixed على الموبايل (وميض/شاشة بيضاء أثناء السكرول فى iOS
+   Safari/Android Chrome) — دلوقتي الخاصية على html فبنستهدف html هنا مش body. */
+@media(max-width:760px){
+  html{background-attachment:scroll, scroll;}
 }
 /* real looping video of ocean waves, fixed behind everything. If it can't load (offline, blocked, etc.)
    the gradient set on body above stays visible underneath as a safe fallback — never a blank screen. */
@@ -805,7 +819,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
-  <source src="sit-bg-video" type="video/mp4">
+  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4.mp4" type="video/mp4">
 </video>
 <script>
 // تشخيص فيديو الخلفية — الملف نفسه يصل بنجاح (video/mp4 صحيح)، فلو ما ظهر فالمتصفح
@@ -3328,13 +3342,25 @@ async function buildCompareStrip(){
   render();
   try{
     const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
-    const params = new URLSearchParams({ mode:'week-matrix', origin:fromAp.code, destination:toAp.code, depart_date:days[0].iso, currency:'usd' });
-    const res = await fetch('/api/tp-price?' + params.toString());
-    if(!res.ok) return;
-    const data = await res.json();
-    if(!data || data.success===false || !Array.isArray(data.data)) return;
+    // ملاحظة 27 أغسطس 2026: mode=week-matrix عند Travelpayouts بيانات نادرة جدًا (غالبًا فاضية
+    // لمعظم المسارات) فكان بيطلع "لا تتوفر بيانات" كل يوم تقريبًا. mode=latest عنده بيانات حقيقية
+    // كتير أكتر (نفس المصدر المستخدم في صف "خيارات الأسعار" أسفل الصفحة) — بس بيرجّع بالشهر
+    // مش باليوم، فبنجيب كل شهر مختلف تغطيه الـ8 أيام المعروضة، ونجمّع أرخص سعر لكل تاريخ بالظبط.
+    const months = [...new Set(days.map(d=>d.iso.slice(0,7)))];
     const byDate = {};
-    data.data.forEach(row=>{ if(row && row.depart_date) byDate[row.depart_date] = row.value; });
+    await Promise.all(months.map(async month=>{
+      try{
+        const params = new URLSearchParams({ mode:'latest', origin:fromAp.code, destination:toAp.code, depart_date:month, currency:'usd' });
+        const res = await fetch('/api/tp-price?' + params.toString());
+        if(!res.ok) return;
+        const data = await res.json();
+        if(!data || data.success===false || !Array.isArray(data.data)) return;
+        data.data.forEach(row=>{
+          if(!row || !row.depart_date || typeof row.value!=='number') return;
+          if(byDate[row.depart_date]==null || row.value < byDate[row.depart_date]) byDate[row.depart_date] = row.value;
+        });
+      }catch(_perMonthErr){ /* فشل شهر واحد ما يوقفش الباقي */ }
+    }));
     const rate = RATES.USD || 0.272; // القيم بالدولار من Travelpayouts، نحوّلها لنفس عملة fmtPrice (AED)
     days.forEach(d=>{ if(byDate[d.iso]!=null) d.p = byDate[d.iso] / rate; });
     render();
@@ -4511,6 +4537,11 @@ function renderAll(){
   buildCurrencySelect(); buildLangSelect(); buildTicker(); buildCountrySelects(); renderCountryImgs(); buildHotelDestSelect();
   buildCompareStrip(); buildDeals(); buildPopularRoutes();
   if(document.getElementById('resultsPage').classList.contains('open')) renderFlightLists();
+  // أُضيف 27 أغسطس 2026: نتائج الفنادق (بطاقات الفندق وصفوف المقارنة) كانت بتفضل بلغتها القديمة لو
+  // اتغيّرت اللغة وشاشة نتائج الفنادق مفتوحة بالفعل — لأن renderAll() ماكانش بيعيد نداء
+  // renderHotelResults() زي ما بيعمل بالظبط مع نتائج الطيران فوق.
+  const hotelWrap = document.getElementById('hotelResultsWrap');
+  if(hotelWrap && hotelWrap.style.display === 'block') renderHotelResults();
 }
 
 /* forces day/month/year display on the date fields regardless of the phone's OS locale — see the
