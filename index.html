@@ -822,7 +822,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
-  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4" type="video/mp4">
+  <source src=""https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4" type="video/mp4">" type="video/mp4">
 </video>
 <script>
 // تشخيص فيديو الخلفية — الملف نفسه يصل بنجاح (video/mp4 صحيح)، فلو ما ظهر فالمتصفح
@@ -3349,29 +3349,57 @@ async function buildCompareStrip(){
     const hasSelection = fromIdx!==null && toIdx!==null;
     const fromAp = hasSelection ? selAirport(fromIdx, fromApIdx) : COUNTRIES[0].airports[1]; // DXB افتراضيًا
     const toAp = hasSelection ? selAirport(toIdx, toApIdx) : COUNTRIES[2].airports[0]; // IST افتراضيًا
-    // ملاحظة 27 أغسطس 2026: mode=week-matrix عند Travelpayouts بيانات نادرة جدًا (غالبًا فاضية
-    // لمعظم المسارات) فكان بيطلع "لا تتوفر بيانات" كل يوم تقريبًا. mode=latest عنده بيانات حقيقية
-    // كتير أكتر (نفس المصدر المستخدم في صف "خيارات الأسعار" أسفل الصفحة) — بس بيرجّع بالشهر
-    // مش باليوم، فبنجيب كل شهر مختلف تغطيه الـ8 أيام المعروضة، ونجمّع أرخص سعر لكل تاريخ بالظبط.
-    const months = [...new Set(days.map(d=>d.iso.slice(0,7)))];
+    // ✅ إصلاح جذري 27 أغسطس 2026 (المحاولة اللي فاتت كانت غلط): رجعنا نستخدم mode=week-matrix —
+    // ده فعليًا الـendpoint الصحيح المُصمَّم بالظبط لده (توثيق Travelpayouts الرسمي: "Returns
+    // airfare prices for a 7-day period around the specified departure date"). السبب الحقيقي
+    // وراء رجوعه فاضي قبل كده مش إنه endpoint فقير، لكن باراميتر show_to_affiliates اللي قيمته
+    // الافتراضية true — وده بيقصر النتيجة على الأسعار اللي جت من زوار موقعنا نفسه بس (شبه صفر
+    // لموقع لسه جديد). اتصلح من جوه api/tp-price.js (show_to_affiliates=false) عشان يرجع كل
+    // الأسعار المخزّنة عند Travelpayouts مش بس أسعارنا احنا. راجع تعليق الإصلاح الكامل هناك.
+    const params = new URLSearchParams({ mode:'week-matrix', origin:fromAp.code, destination:toAp.code, depart_date:days[0].iso, currency:'usd' });
+    const res = await fetch('/api/tp-price?' + params.toString());
+    const rawText = await res.text(); // نقرأ كنص أول حاجة عشان نقدر نطبعه فى وضع التشخيص حتى لو مش JSON صحيح
+    let data = null;
+    try{ data = JSON.parse(rawText); }catch(_parseErr){ /* هيتسجل تحت فى تشخيص لو DEBUG_MODE شغال */ }
+    // ============================================================
+    // تشخيص مؤقت أُضيف 27 أغسطس 2026 — بعد محاولتين اتصلحوا بناءً على المنطق/التوثيق لكن أحمد
+    // أكّد إنها لسه مش شغالة، بقى لازم نشوف الرد الفعلي الخام من الخادم بدل ما نخمّن تالت مرة.
+    // يظهر بس فى وضع التشخيص (?debug=1 فى الرابط، أو localStorage.pt_debug=1) — مفيش تأثير على
+    // الزوار العاديين. لو ظهر، ابعتلي لقطة شاشة منه بالظبط.
+    // ============================================================
+    try{
+      const dbgOn = (new URLSearchParams(location.search).get('debug')==='1') || (localStorage.getItem('pt_debug')==='1');
+      if(dbgOn){
+        console.log('[compareStrip] request URL:', '/api/tp-price?' + params.toString());
+        console.log('[compareStrip] HTTP status:', res.status, res.ok);
+        console.log('[compareStrip] raw response:', rawText);
+        let box = document.getElementById('compareStripDebugBox');
+        if(!box){
+          box = document.createElement('div');
+          box.id = 'compareStripDebugBox';
+          box.style.cssText = 'position:fixed; bottom:14px; inset-inline-start:14px; z-index:99996; background:#1a0d3a; color:#e5d5ff; padding:10px 14px; border-radius:8px; font-size:11px; font-family:monospace; direction:ltr; text-align:left; max-width:420px; max-height:260px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,.4); white-space:pre-wrap;';
+          document.documentElement.appendChild(box);
+        }
+        box.textContent = '[compareStrip]\nURL: /api/tp-price?' + params.toString() + '\nHTTP: ' + res.status + ' ok=' + res.ok + '\nRAW: ' + rawText.slice(0,1500);
+      }
+    }catch(_dbgErr){ /* التشخيص نفسه ميكسرش الميزة لو فشل */ }
+    if(!res.ok) return;
+    if(!data || data.success===false || !Array.isArray(data.data)) return;
     const byDate = {};
-    await Promise.all(months.map(async month=>{
-      try{
-        const params = new URLSearchParams({ mode:'latest', origin:fromAp.code, destination:toAp.code, depart_date:month, currency:'usd' });
-        const res = await fetch('/api/tp-price?' + params.toString());
-        if(!res.ok) return;
-        const data = await res.json();
-        if(!data || data.success===false || !Array.isArray(data.data)) return;
-        data.data.forEach(row=>{
-          if(!row || !row.depart_date || typeof row.value!=='number') return;
-          if(byDate[row.depart_date]==null || row.value < byDate[row.depart_date]) byDate[row.depart_date] = row.value;
-        });
-      }catch(_perMonthErr){ /* فشل شهر واحد ما يوقفش الباقي */ }
-    }));
+    data.data.forEach(row=>{
+      if(!row || !row.depart_date || typeof row.value!=='number') return;
+      if(byDate[row.depart_date]==null || row.value < byDate[row.depart_date]) byDate[row.depart_date] = row.value;
+    });
     const rate = RATES.USD || 0.272; // القيم بالدولار من Travelpayouts، نحوّلها لنفس عملة fmtPrice (AED)
     days.forEach(d=>{ if(byDate[d.iso]!=null) d.p = byDate[d.iso] / rate; });
     render();
-  }catch(_cmpErr){ /* فشل الاتصال بالوسيط — الشريط يفضل بعلامة "—" لأي يوم مش متاح بدل رقم مختلق */ }
+  }catch(_cmpErr){
+    try{
+      const dbgOn = (new URLSearchParams(location.search).get('debug')==='1') || (localStorage.getItem('pt_debug')==='1');
+      if(dbgOn) console.error('[compareStrip] fetch/parse error:', _cmpErr);
+    }catch(_e2){}
+    /* فشل الاتصال بالوسيط — الشريط يفضل بعلامة "—" لأي يوم مش متاح بدل رقم مختلق */
+  }
 }
 
 /* ===== لينك حقيقي: هذه نفس المصفوفة التي تحررها لوحة التحكم (dealsData) في قسم "العروض المميزة" =====
