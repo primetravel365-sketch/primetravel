@@ -996,7 +996,9 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
   <div class="hero-search-shell">
     <div class="hero-search-tabs">
       <button class="hs-tab active" data-hs="flights">✈️ <span data-i18n="hs_flights">رحلات الطيران</span></button>
-      <button class="hs-tab" data-hs="hotels" id="hsHotelsTab" style="opacity:.6;">🏨 <span data-i18n="hs_hotels">فنادق</span> <span style="font-size:9.5px; font-weight:900; background:var(--gold); color:#221703; border-radius:6px; padding:1px 5px; margin-inline-start:3px;" data-i18n="hotel_soon_badge">قريبًا</span></button>
+      <!-- إصلاح 27 أغسطس 2026: شيلنا شارة "قريبًا" والشفافية المخفّضة — الفنادق بقت شغالة فعليًا (SerpApi
+           Google Hotels لايف)، مبقاش مناسب نعرضها كميزة لسه ما جهزتش. -->
+      <button class="hs-tab" data-hs="hotels" id="hsHotelsTab">🏨 <span data-i18n="hs_hotels">فنادق</span></button>
     </div>
     <div id="heroFlightForm">
       <div class="search-block" style="margin-bottom:0;">
@@ -1084,11 +1086,11 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
           </div>
           <div class="field">
             <label data-i18n="hotel_checkin">تاريخ الوصول</label>
-            <input type="date" id="hotelCheckin" value="2026-08-15"><span class="date-display" id="hotelCheckinDisplay"></span>
+            <input type="date" id="hotelCheckin"><span class="date-display" id="hotelCheckinDisplay"></span>
           </div>
           <div class="field">
             <label data-i18n="hotel_checkout">تاريخ المغادرة</label>
-            <input type="date" id="hotelCheckout" value="2026-08-18"><span class="date-display" id="hotelCheckoutDisplay"></span>
+            <input type="date" id="hotelCheckout"><span class="date-display" id="hotelCheckoutDisplay"></span>
           </div>
           <div class="field">
             <label data-i18n="hotel_rooms">الغرف والضيوف</label>
@@ -2824,16 +2826,33 @@ COUNTRIES.forEach((c,ci)=> c.airports.forEach((ap,ai)=> HOTEL_CITIES.push({
 })));
 const HOTEL_NAME_PARTS = ['Grand','Royal','Golden','Palm','Ocean View','City Center','Skyline','Marina','Heritage','Boutique'];
 const HOTEL_NAME_SUFFIX = ['Hotel','Resort & Spa','Suites','Palace','Towers'];
+// تحديث 27 أغسطس 2026: كان فيه مشكلتين هنا اكتشفهم أحمد بالاختبار الفعلي —
+// 1) Agoda وHotels.com كان الـurlFn بتاعهم بيتجاهل التاريخ خالص (باراميتر واحد بس city)، فالزائر
+//    كان بيوصل لصفحة بحث عامة من غير تاريخ ولازم يدخل التواريخ تاني بنفسه. اتصلح بإضافة نفس
+//    باراميترات checkin/checkout المعروفة لكل موقع.
+// 2) الأربع مواقع دول كلهم روابط بحث عامة (مفيش عمولة حقيقية مربوطة بيهم خالص لسه). أضفنا
+//    MakeMyTrip وTrip.com كمان — دول بالفعل عندهم رابط عمولة حقيقي شغال (Cuelinks/Trip.com Affiliate،
+//    نفس الروابط المستخدمة فى شركاء الطيران PARTNERS) — لكن ⚠️ روابطهم دي روابط تتبع/عمولة مشفّرة،
+//    مينفعش نضيفلها باراميتر مدينة/تاريخ من غير ما نكسر التتبع نفسه، فبتوصل لصفحة الفنادق العامة
+//    بتاعتهم مش لنتيجة بحث جاهزة بالمدينة/التاريخ — بيتعوّض ده إن العمولة حقيقية فعلاً على عكس
+//    الأربعة التانيين. لما نخلص طلب Travelpayouts Hotels API (تحت المراجعة) هنقدر نضيف روابط بحث
+//    حقيقية معبّاة بالمدينة/التاريخ ومربوطة بعمولة فى نفس الوقت.
 const HOTEL_PROVIDERS = [
-  {name:'Booking.com', color:'#003580', urlFn:(city,ci,co)=>`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${ci}&checkout=${co}`},
-  {name:'Agoda', color:'#5392f9', urlFn:(city)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}`},
-  {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`},
-  {name:'Hotels.com', color:'#d0021b', urlFn:(city)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}`},
+  {name:'Booking.com', color:'#003580', urlFn:(city,ci,co)=>`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${ci}&checkout=${co}`, commission:{real:false}},
+  {name:'Agoda', color:'#5392f9', urlFn:(city,ci,co)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${ci}&los=1&checkOut=${co}`, commission:{real:false}},
+  {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`, commission:{real:false}},
+  {name:'Hotels.com', color:'#d0021b', urlFn:(city,ci,co)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}&q-check-in=${ci}&q-check-out=${co}`, commission:{real:false}},
+  {name:'MakeMyTrip', color:'#eb2026', urlFn:()=>`https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels`, commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
+  {name:'Trip.com', color:'#2a67f4', urlFn:()=>`https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`, commission:{real:true, label:'4.4%–7% (Trip.com Affiliate)'}},
 ];
 
 function buildHotelDestSelect(){
   const sel = document.getElementById('hotelDest');
-  sel.innerHTML = HOTEL_CITIES.map((c,i)=>`<option value="${i}" ${i===1?'selected':''}>${currentLang==='ar'?c.cityAr+' — '+c.countryAr:c.cityEn+' — '+c.countryEn}</option>`).join('');
+  // إصلاح 27 أغسطس 2026: كان فيه مدينة متختارة افتراضيًا (index 1 = دبي) من غير ما الزائر يختارها
+  // بنفسه — نفس الخلل اللي اتصلح فى بلد/مطار الطيران يوم 26 أغسطس. دلوقتي بيبدأ بخيار فاضٍ إجباري
+  // ("اختر الوجهة")، ولازم الزائر يختار بنفسه قبل ما يقدر يبحث (تحقّق فى hotelSearchBtn تحت).
+  const placeholder = `<option value="" selected disabled>${currentLang==='ar'?'اختر الوجهة':'Choose destination'}</option>`;
+  sel.innerHTML = placeholder + HOTEL_CITIES.map((c,i)=>`<option value="${i}">${currentLang==='ar'?c.cityAr+' — '+c.countryAr:c.cityEn+' — '+c.countryEn}</option>`).join('');
 }
 
 function genHotels(seed, count, cityLabel){
@@ -3123,6 +3142,16 @@ document.getElementById('hotelSearchBtn').onclick = function(){
     showToast(t('hotel_search_disabled_msg'));
     return;
   }
+  // تحقّق أُضيف 27 أغسطس 2026 — نفس أسلوب التحقق فى goResults() للطيران بالظبط: بما إن الوجهة
+  // والتواريخ بقوا فاضيين افتراضيًا (مش مختارين تلقائيًا)، لازم نمنع البحث ونوضّح للزائر لو نسي
+  // يختار أي حقل منهم، بدل ما يبحث بقيمة فاضية/غلط بصمت.
+  const destVal = document.getElementById('hotelDest').value;
+  const checkinVal = document.getElementById('hotelCheckin').value;
+  const checkoutVal = document.getElementById('hotelCheckout').value;
+  if(destVal===''){ showToast(currentLang==='ar' ? 'من فضلك اختر الوجهة' : 'Please choose a destination'); return; }
+  if(!checkinVal){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ الوصول' : 'Please choose a check-in date'); return; }
+  if(!checkoutVal){ showToast(currentLang==='ar' ? 'من فضلك اختر تاريخ المغادرة' : 'Please choose a check-out date'); return; }
+  if(checkoutVal <= checkinVal){ showToast(currentLang==='ar' ? 'تاريخ المغادرة لازم يكون بعد تاريخ الوصول' : 'Check-out date must be after check-in'); return; }
   runHotelSearch(); // دالة async الآن (بتجرب SerpApi الحقيقي أولاً) — مقصود نداءها من غير await هنا، الدالة نفسها بتحدّث الواجهة أول ما تخلص
 };
 document.getElementById('hotelPriceRange').oninput = renderHotelResults;
@@ -4518,18 +4547,15 @@ function isoDatePlusDays(days){
 }
 function setDefaultDatesIfStale(){
   const todayISO = isoDatePlusDays(0);
-  // تحديث 26 أغسطس 2026 (بطلب صاحب الموقع): تاريخ "المغادرة" ما بقاش يتحط له أي تاريخ افتراضي
-  // خالص (كان قبل كده بيتحط تاريخ اليوم تلقائيًا) — لازم يفضل فاضي تمامًا زي تاريخ العودة بالظبط،
-  // والزائر هو الوحيد اللي يختار التاريخ بنفسه من التقويم. لسه فيه حد أدنى (min) بيمنع اختيار
-  // تاريخ فات، محسوب بالتوقيت المحلي الصحيح بعد إصلاح isoDatePlusDays أعلاه.
-  [
-    ['hotelCheckin', isoDatePlusDays(3)],
-    ['hotelCheckout', isoDatePlusDays(6)],
-  ].forEach(([id, defaultVal])=>{
+  // تحديث 27 أغسطس 2026 (بطلب صاحب الموقع): تواريخ الفنادق (وصول/مغادرة) بقت تتصرف زي تواريخ
+  // الطيران بالظبط — تفضل فاضية تمامًا افتراضيًا، والزائر هو اللي يختارها بنفسه، بدل ما كانت
+  // بتتحط تلقائيًا (اليوم+3 / اليوم+6) كأنها اختيار حقيقي من الزائر. لسه فيه حد أدنى (min) بيمنع
+  // اختيار تاريخ فات.
+  ['hotelCheckin','hotelCheckout'].forEach(id=>{
     const el = document.getElementById(id);
     if(!el) return;
-    el.setAttribute('min', todayISO); // يمنع اختيار أي تاريخ فات من الأساس
-    if(!el.value || el.value < todayISO) el.value = defaultVal; // لو القيمة المكتوبة في الكود فاتت، تُستبدل بتاريخ مستقبلي منطقي
+    el.setAttribute('min', todayISO);
+    el.value = '';
   });
   const depEl = document.getElementById('depDate');
   if(depEl){
@@ -4550,13 +4576,23 @@ function syncReturnDateMin(){
   retEl.setAttribute('min', depEl.value);
   if(retEl.value && retEl.value < depEl.value) retEl.value = '';
 }
+// أُضيف 27 أغسطس 2026: نفس فكرة syncReturnDateMin بالظبط لكن لتاريخ مغادرة الفندق — لازم يكون
+// بعد أو يساوي تاريخ الوصول على الأقل.
+function syncHotelCheckoutMin(){
+  const ciEl = document.getElementById('hotelCheckin'), coEl = document.getElementById('hotelCheckout');
+  if(!ciEl || !coEl || !ciEl.value) return;
+  coEl.setAttribute('min', ciEl.value);
+  if(coEl.value && coEl.value < ciEl.value) coEl.value = '';
+}
 setDefaultDatesIfStale();
 bindDateDisplay('depDate','depDateDisplay');
 bindDateDisplay('retDate','retDateDisplay');
 bindDateDisplay('hotelCheckin','hotelCheckinDisplay');
 bindDateDisplay('hotelCheckout','hotelCheckoutDisplay');
 syncReturnDateMin();
+syncHotelCheckoutMin();
 document.getElementById('depDate')?.addEventListener('change', syncReturnDateMin);
+document.getElementById('hotelCheckin')?.addEventListener('change', syncHotelCheckoutMin);
 
 function openAdminApp(){
   document.getElementById('adminApp').classList.add('open');
