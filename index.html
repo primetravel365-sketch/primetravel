@@ -241,9 +241,12 @@ button{font-family:inherit; cursor:pointer; border:none;}
 
 /* ---------- hero ---------- */
 .hero{padding:36px 0 20px; text-align:center;}
-.hero .eyebrow{font-size:17px; color:#0d3a66; font-weight:800; margin-bottom:8px; text-shadow:0 1px 3px rgba(255,255,255,.25);}
-.hero h1{font-size:clamp(26px,4vw,42px); margin-bottom:10px; color:#0a2c50; text-shadow:0 1px 4px rgba(255,255,255,.3);}
-.hero p{color:#123a5e; font-size:18px; max-width:640px; margin:0 auto; font-weight:600; text-shadow:0 1px 3px rgba(255,255,255,.25);}
+/* تحديث 27 أغسطس 2026 (بطلب أحمد): لون كتابة الهيرو (العنوان الرئيسي والوصف) اتغيّر من الأزرق
+   الغامق إلى الأبيض ليبان واضح فوق خلفية الفيديو/الصورة. الظل بقى غامق (بدل الأبيض) عشان الكتابة
+   البيضاء تفضل مقروءة فوق أي جزء فاتح من الخلفية. */
+.hero .eyebrow{font-size:17px; color:#ffffff; font-weight:800; margin-bottom:8px; text-shadow:0 1px 4px rgba(0,0,0,.45);}
+.hero h1{font-size:clamp(26px,4vw,42px); margin-bottom:10px; color:#ffffff; text-shadow:0 2px 6px rgba(0,0,0,.5);}
+.hero p{color:#ffffff; font-size:18px; max-width:640px; margin:0 auto; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.45);}
 
 /* ---------- video panel: centered rectangle box under the search form, with the two cross-fading
    clips (plane takeoff / airport lounge) — reverted back to this boxed layout per request; the earlier
@@ -3280,26 +3283,23 @@ function renderFlagDD(ddId, which, filterText){
   });
 }
 function renderCountryImgs(){
-  // إصلاح 26 أغسطس 2026: fromIdx/toIdx ممكن يبقوا null لحد ما الزائر يختار — لو لسه ما اختارش،
-  // نسيب قسم "معالم البلد" فاضي بدل ما نفترض بلد معين (كان بيكسر الجافاسكريبت كله بدون الحارس ده).
+  // إصلاح 27 أغسطس 2026: بعد إصلاح 26 أغسطس (fromIdx/toIdx فاضيين افتراضيًا)، قسم "معالم البلد"
+  // بقى بيفضل فاضي تمامًا لأي زائر جديد لحد ما يختار بلد بنفسه فعليًا فى نموذج البحث — ده تعريفي/
+  // ديكوري بس (مش جزء من نموذج البحث ولا اختيار حقيقي)، فمفيش داعي يفضل فاضي. بنستخدم نفس المسار
+  // الافتراضي المستخدم فى شريط "قارن أسعار أيام الحجز" (دبي → إسطنبول) للعرض بس، من غير ما نغيّر
+  // حقول نموذج البحث نفسها (لسه فاضية إجباريًا زي ما اتفقنا).
   const fromCountryNameEl = document.getElementById('fromCountryName');
   const toCountryNameEl = document.getElementById('toCountryName');
   const fromImgsEl = document.getElementById('fromImgs');
   const toImgsEl = document.getElementById('toImgs');
   const CI_GRADIENTS = ['linear-gradient(135deg,#2f6fed,#1a3f7a)','linear-gradient(135deg,#d8a531,#7a5a12)','linear-gradient(135deg,#2ecc71,#0f5c37)'];
   const cell = (c,i) => `<div class="cell" style="background:${CI_GRADIENTS[i%CI_GRADIENTS.length]}"><span>${currentLang==='ar'?c.l_ar:c.l_en}</span><img src="${c.u}" alt="${currentLang==='ar'?c.l_ar:c.l_en}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'"></div>`;
-  if(fromIdx===null){ fromCountryNameEl.textContent = ''; fromImgsEl.innerHTML = ''; }
-  else {
-    const from = COUNTRIES[fromIdx];
-    fromCountryNameEl.textContent = currentLang==='ar'?from.name_ar:from.name_en;
-    fromImgsEl.innerHTML = from.imgs.map(cell).join('');
-  }
-  if(toIdx===null){ toCountryNameEl.textContent = ''; toImgsEl.innerHTML = ''; }
-  else {
-    const to = COUNTRIES[toIdx];
-    toCountryNameEl.textContent = currentLang==='ar'?to.name_ar:to.name_en;
-    toImgsEl.innerHTML = to.imgs.map(cell).join('');
-  }
+  const from = fromIdx!==null ? COUNTRIES[fromIdx] : COUNTRIES[0]; // الإمارات افتراضيًا (نفس مبدأ شريط المقارنة)
+  fromCountryNameEl.textContent = currentLang==='ar'?from.name_ar:from.name_en;
+  fromImgsEl.innerHTML = from.imgs.map(cell).join('');
+  const to = toIdx!==null ? COUNTRIES[toIdx] : COUNTRIES[2]; // تركيا افتراضيًا
+  toCountryNameEl.textContent = currentLang==='ar'?to.name_ar:to.name_en;
+  toImgsEl.innerHTML = to.imgs.map(cell).join('');
 }
 
 /* تحديث 19 أغسطس 2026 — الشريط ده كان قايمة أسعار وأسماء مواقع حجز (Skyscanner/Booking.com/...)
@@ -3341,7 +3341,14 @@ async function buildCompareStrip(){
   };
   render();
   try{
-    const fromAp = selAirport(fromIdx, fromApIdx), toAp = selAirport(toIdx, toApIdx);
+    // إصلاح 27 أغسطس 2026: الشريط ده تعريفي (على الصفحة الرئيسية) مش جزء من نموذج البحث نفسه —
+    // من غير الإصلاح ده كان بيفضل واقف على "لا تتوفر بيانات" لكل الزوار الجدد لحد ما يعملوا بحث
+    // فعلي مرة واحدة، لأن fromIdx/toIdx بقوا فاضيين افتراضيًا (إصلاح 26 أغسطس)، وselAirport(null,null)
+    // كان بيرمي خطأ يوقف الدالة كلها بصمت. هنا نستخدم مسار افتراضي شائع (دبي → إسطنبول) للعرض التعريفي
+    // بس لو الزائر لسه ما بحثش، من غير ما نغيّر حقول نموذج البحث نفسه أو نفترض اختيار حقيقي منه.
+    const hasSelection = fromIdx!==null && toIdx!==null;
+    const fromAp = hasSelection ? selAirport(fromIdx, fromApIdx) : COUNTRIES[0].airports[1]; // DXB افتراضيًا
+    const toAp = hasSelection ? selAirport(toIdx, toApIdx) : COUNTRIES[2].airports[0]; // IST افتراضيًا
     // ملاحظة 27 أغسطس 2026: mode=week-matrix عند Travelpayouts بيانات نادرة جدًا (غالبًا فاضية
     // لمعظم المسارات) فكان بيطلع "لا تتوفر بيانات" كل يوم تقريبًا. mode=latest عنده بيانات حقيقية
     // كتير أكتر (نفس المصدر المستخدم في صف "خيارات الأسعار" أسفل الصفحة) — بس بيرجّع بالشهر
