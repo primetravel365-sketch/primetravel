@@ -2876,6 +2876,30 @@ function _mmtDateFmt(iso){
   const [y,m,d] = parts;
   return m + d + y;
 }
+// خريطة أكواد Trip.com الداخلية للفنادق (cityId/provinceId/countryId/optionId/searchValue) — بس
+// المدن اللي اتأكدت فعليًا ببحث حقيقي (31 أغسطس 2026) عن طريق أداة "Generate Link" فى Cuelinks
+// (اللي أثبتت إنها بتدعم Deep Linking حقيقي لـTrip.com، منفصلة عن حساب Trip.com المباشر). أي مدينة
+// مش هنا بترجع تلقائيًا للرابط المباشر الثابت (fallback آمن، مفيش تخمين أكواد).
+const TRIP_CITY_CODES = {
+  'Dubai':{cityId:220, provinceId:10965, districtId:0, countryId:9, cityNameEn:'Dubai', destName:'Dubai, Emirate of Dubai, United Arab Emirates', optionId:220, searchValue:'19|220*19*220'},
+  'دبي':{cityId:220, provinceId:10965, districtId:0, countryId:9, cityNameEn:'Dubai', destName:'Dubai, Emirate of Dubai, United Arab Emirates', optionId:220, searchValue:'19|220*19*220'},
+};
+// بيبني رابط بحث فنادق Trip.com حقيقي (مدينة معروفة + تاريخ الزائر الفعلي)، ثم يلفه برابط تتبع
+// Cuelinks الحقيقي (cid=312013 نفسه المستخدم مع MakeMyTrip). لو المدينة مش معروفة، بيرجع null
+// عشان الكود اللي بينادي الدالة يستخدم الرابط المباشر الثابت كـfallback.
+function _tripHotelUrl(city, ci, co){
+  const info = TRIP_CITY_CODES[city];
+  if (!info || !ci || !co) return null;
+  const params = new URLSearchParams({
+    flexType:'1', fixedDate:'0', cityId:String(info.cityId), provinceId:String(info.provinceId),
+    districtId:String(info.districtId), countryId:String(info.countryId), cityName:info.cityNameEn,
+    destName:info.destName, searchWord:info.cityNameEn, searchType:'CT', optionId:String(info.optionId),
+    searchValue:info.searchValue, checkin:ci, checkout:co, crn:'1', adult:'2',
+    listFilters:'29~1*29*1~2*2', curr:'AED', locale:'en-XX', old:'1',
+  });
+  const dest = `https://www.trip.com/hotels/list?${params.toString()}`;
+  return `https://linksredirect.com/?cid=312013&source=linkkit&url=${encodeURIComponent(dest)}`;
+}
 const HOTEL_PROVIDERS = [
   {name:'Booking.com', color:'#003580',
     // 31 أغسطس 2026: رابط CJ ده Deep Linking:Yes فعليًا (مؤكد من لوحة CJ) — بنلف رابط بحث حقيقي
@@ -2907,7 +2931,12 @@ const HOTEL_PROVIDERS = [
       return base + encodeURIComponent('https://www.makemytrip.com/hotels');
     },
     commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
-  {name:'Trip.com', color:'#2a67f4', urlFn:()=>`https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`, commission:{real:true, label:'4.4%–7% (Trip.com Affiliate)'}},
+  {name:'Trip.com', color:'#2a67f4',
+    urlFn:(city,ci,co)=>{
+      const deepLink = _tripHotelUrl(city, ci, co);
+      return deepLink || `https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`;
+    },
+    commission:{real:true, label:'4.4%–7% (Trip.com Affiliate) — Deep Link متاح لدبي حاليًا عبر Cuelinks'}},
 ];
 
 function buildHotelDestSelect(){
