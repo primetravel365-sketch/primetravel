@@ -822,7 +822,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
-  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4" type="video/mp4">" type="video/mp4">
+  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4.mp4" type="video/mp4">
 </video>
 <script>
 // تشخيص فيديو الخلفية — الملف نفسه يصل بنجاح (video/mp4 صحيح)، فلو ما ظهر فالمتصفح
@@ -2855,7 +2855,7 @@ const HOTEL_NAME_SUFFIX = ['Hotel','Resort & Spa','Suites','Palace','Towers'];
 //    الأربعة التانيين. لما نخلص طلب Travelpayouts Hotels API (تحت المراجعة) هنقدر نضيف روابط بحث
 //    حقيقية معبّاة بالمدينة/التاريخ ومربوطة بعمولة فى نفس الوقت.
 const HOTEL_PROVIDERS = [
-  {name:'Booking.com', color:'#003580', urlFn:(city,ci,co)=>`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${ci}&checkout=${co}`, commission:{real:false}},
+  {name:'Booking.com', color:'#003580', urlFn:()=>`https://www.dpbolvw.net/click-101862803-17289006`, commission:{real:true, model:'percent', min:0.04, max:0.04, label:'4% من قيمة الإقامة المكتملة (CJ Affiliate)'}},
   {name:'Agoda', color:'#5392f9', urlFn:(city,ci,co)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${ci}&los=1&checkOut=${co}`, commission:{real:false}},
   {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`, commission:{real:false}},
   {name:'Hotels.com', color:'#d0021b', urlFn:(city,ci,co)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}&q-check-in=${ci}&q-check-out=${co}`, commission:{real:false}},
@@ -3607,11 +3607,8 @@ const PARTNERS = [
   {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', commission:{real:false}},
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
   {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', commission:{real:false}},
-  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.booking.com/flights', type:'ota', trust:98, color:'#003580', commission:{real:false},
-    urlFn:(fromIata,toIata,dep,ret)=>{
-      const p = ret ? `&type=ROUNDTRIP&return=${ret}` : `&type=ONEWAY`;
-      return `https://www.booking.com/flights/index.html?from=${fromIata}.AIRPORT&to=${toIata}.AIRPORT&depart=${dep}${p}&adults=1&cabinClass=ECONOMY`;
-    }},
+  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.kqzyfj.com/click-101862803-17289007', type:'ota', trust:98, color:'#003580', commission:{real:true, model:'flat', amount:2, currency:'USD', label:'من $2 لكل حجز طيران مكتمل (CJ Affiliate)'}},
+  {name:'Air India', logo:'https://logo.clearbit.com/airindia.com', site:'https://www.anrdoezrs.net/click-101862803-17098912', type:'ota', trust:90, color:'#d1032a', commission:{real:true, model:'percent', min:0.0075, max:0.0075, label:'0.75% من قيمة التذكرة (CJ Affiliate)'}},
   {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'}},
   {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false},
     urlFn:(fromIata,toIata,dep,ret)=>{
@@ -3686,7 +3683,14 @@ const AIRLINE_DIRECT_PARTNERS = AIRLINES.map(a=>({
   type:'airline_direct', trust:99, color:(AIRLINE_COLORS[a] && AIRLINE_COLORS[a]!=='#ffffff') ? AIRLINE_COLORS[a] : 'var(--blue)', commission:{real:false},
 }));
 function findCommissionSource(partnerName){
-  return PARTNERS.find(p=>p.name===partnerName) || AIRLINE_DIRECT_PARTNERS.find(p=>p.name===partnerName);
+  // ⚠️ 31 أغسطس 2026: كانت الدالة دي بتفحص PARTNERS وAIRLINE_DIRECT_PARTNERS بس — أي شريك موجود فقط فى
+  // HOTEL_PROVIDERS (زي Agoda/Expedia/Hotels.com) كان مستحيل يتسجله عمولة حتى لو commission.real بقت true.
+  // Booking.com موجود فى الاتنين (PARTNERS للطيران، HOTEL_PROVIDERS للفنادق) بنفس الاسم بالظبط — النقرة من
+  // ودجت الفنادق أو الطيران بتوصل لنفس trackClick(partnerName) بدون تمييز المصدر، فلسه بيتاخد نموذج
+  // العمولة بتاع PARTNERS (الطيران، $2 ثابت) حتى لو كانت نقرة فندق فعليًا. ده قيد معروف فى لوحة الأدمن
+  // (نفس البند المعلّق من 27 أغسطس بخصوص HOTEL_PROVIDERS) — يحتاج تمرير سياق (فندق/طيران) لـtrackClick
+  // نفسها عشان يتصلح بالكامل، مش بس هنا.
+  return PARTNERS.find(p=>p.name===partnerName) || AIRLINE_DIRECT_PARTNERS.find(p=>p.name===partnerName) || HOTEL_PROVIDERS.find(p=>p.name===partnerName);
 }
 const AIRCRAFT_TYPES = ['Airbus A320','Airbus A321','Boeing 737-800','Boeing 787-9','Airbus A350'];
 /* simple seeded pseudo-random generator so results feel different per route/date search,
@@ -5520,7 +5524,7 @@ function commOverviewHTML(){
       <div class="stat-card"><div class="lbl">الشركاء النشطون</div><div class="val">${PARTNERS.length+AIRLINE_DIRECT_PARTNERS.length}</div><div class="change">${linkedCount} مربوطة فعليًا برابط تتبع</div></div>
     </div>
     <p style="font-size:11px; color:var(--dim); margin-top:10px; background:var(--card2); border:1px dashed var(--border); border-radius:9px; padding:12px;">
-      "تقدير العمولة" أعلاه محسوب فقط للشركات الثلاث المربوطة فعليًا (Aviasales, Trip.com, MakeMyTrip)،
+      "تقدير العمولة" أعلاه محسوب فقط للشركات المربوطة فعليًا (Aviasales, Trip.com, MakeMyTrip, Booking.com, Air India)،
       باستخدام النسب الرسمية المعلنة من كل برنامج — وليس رقمًا وهميًا. باقي الشركات لا تُحتسب لها أي
       عمولة حتى يتم التسجيل الفعلي في برنامجها. الرقم المؤكد النهائي لكل حجز يبقى دائمًا في لوحة
       الشبكة نفسها مباشرة: <a href="https://www.cuelinks.com" target="_blank" style="color:var(--blue-l);">Cuelinks</a> ·
@@ -5573,9 +5577,11 @@ function commBookingsHTML(){
 function commCommissionsHTML(){
   const total = trackingCommissions.reduce((a,b)=>a+b.amount,0);
   const confirmed = trackingCommissions.filter(c=>c.status==='confirmed').reduce((a,b)=>a+b.amount,0);
+  // ديناميكي بدل رقم ثابت (كان "4 شركات" مكتوب يدوي وبقى غلط بمجرد ما Booking.com اتربط) — بيتحدث لوحده
+  const linkedCount = [...PARTNERS, ...AIRLINE_DIRECT_PARTNERS].filter(p=>p.commission && p.commission.real).length;
   return `
     <div class="stat-grid" style="margin-bottom:24px;">
-      <div class="stat-card"><div class="lbl">إجمالي التقدير (4 شركات مربوطة)</div><div class="val gold">AED ${total.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="lbl">إجمالي التقدير (${linkedCount} شركات مربوطة)</div><div class="val gold">AED ${total.toLocaleString()}</div></div>
       <div class="stat-card"><div class="lbl">مؤكدة</div><div class="val green">AED ${confirmed.toLocaleString()}</div></div>
       <div class="stat-card"><div class="lbl">معلقة</div><div class="val">AED ${(total-confirmed).toLocaleString()}</div></div>
     </div>
@@ -5586,7 +5592,9 @@ function commCommissionsHTML(){
       <li><b>Trip.com (فنادق):</b> 4.4%–7% من قيمة الحجز، ترتفع مع زيادة حجم الحجوزات الشهرية</li>
       <li><b>Trip.com (طيران):</b> 0.5%–3% فقط — نسبة منخفضة نسبيًا في هذا القطاع تحديدًا</li>
       <li><b>MakeMyTrip (فنادق فقط):</b> مبلغ ثابت حتى ₹112.50 هندية للحجز (رقم ظهر فعليًا في لوحتك، طيران متوقف حاليًا من طرفهم)</li>
-      <li>باقي الشركات (Booking.com, Skyscanner, Wego...) لا تُحتسب لها أي عمولة حتى يتم التسجيل الفعلي فيها</li>
+      <li><b>Booking.com (فنادق):</b> 4% من قيمة الإقامة المكتملة (CJ Affiliate) — <b>Booking.com (طيران):</b> يبدأ من $2 ثابتة للحجز المكتمل (CJ Affiliate)</li>
+      <li><b>Air India (طيران):</b> 0.75% من قيمة التذكرة (CJ Affiliate)</li>
+      <li>باقي الشركات (Agoda, Expedia, Hotels.com, Skyscanner, Wego...) لا تُحتسب لها أي عمولة حتى يتم التسجيل الفعلي فيها</li>
     </ul>
     <p style="font-size:11px; color:var(--dim); margin-top:14px; background:var(--card2); border:1px dashed var(--border); border-radius:9px; padding:12px;">
       الأرقام هنا تقدير محسوب محليًا بمنتصف النطاق الرسمي المعلن من كل برنامج — أدق بكثير من تقدير
