@@ -820,6 +820,9 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
   <button onclick="document.getElementById('siteMaintenanceBanner').style.display='none'" aria-label="إغلاق" style="position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#1a1a1a; font-size:16px; font-weight:900; cursor:pointer; line-height:1;">✕</button>
 </div>
 
+<!-- ⚠️ 31 أغسطس 2026: طلب صريح من أحمد — رابط الفيديو ده (sit-bg-video.mp4) ثابت ونهائي،
+     ممنوع لمسه أو تعديله في أي تحديث كود قادم مهما كان السبب. كان فيه خطأ امتداد مضاعف
+     (.mp4.mp4) اتصلح هنا؛ الصيغة الصحيحة دايمًا هي اللي تحت بالظبط. -->
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
   <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4" type="video/mp4">
@@ -2855,7 +2858,14 @@ const HOTEL_NAME_SUFFIX = ['Hotel','Resort & Spa','Suites','Palace','Towers'];
 //    الأربعة التانيين. لما نخلص طلب Travelpayouts Hotels API (تحت المراجعة) هنقدر نضيف روابط بحث
 //    حقيقية معبّاة بالمدينة/التاريخ ومربوطة بعمولة فى نفس الوقت.
 const HOTEL_PROVIDERS = [
-  {name:'Booking.com', color:'#003580', urlFn:()=>`https://www.dpbolvw.net/click-101862803-17289006`, commission:{real:true, model:'percent', min:0.04, max:0.04, label:'4% من قيمة الإقامة المكتملة (CJ Affiliate)'}},
+  {name:'Booking.com', color:'#003580',
+    // 31 أغسطس 2026: رابط CJ ده Deep Linking:Yes فعليًا (مؤكد من لوحة CJ) — بنلف رابط بحث حقيقي
+    // (بمدينة/تاريخ الزائر) جوه باراميتر ?url= بدل ما نوديه للصفحة الرئيسية العامة بس.
+    urlFn:(city,ci,co)=>{
+      const dest = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${ci}&checkout=${co}`;
+      return `https://www.dpbolvw.net/click-101862803-17289006?url=${encodeURIComponent(dest)}`;
+    },
+    commission:{real:true, model:'percent', min:0.04, max:0.04, label:'4% من قيمة الإقامة المكتملة (CJ Affiliate)'}},
   {name:'Agoda', color:'#5392f9', urlFn:(city,ci,co)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${ci}&los=1&checkOut=${co}`, commission:{real:false}},
   {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`, commission:{real:false}},
   {name:'Hotels.com', color:'#d0021b', urlFn:(city,ci,co)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}&q-check-in=${ci}&q-check-out=${co}`, commission:{real:false}},
@@ -3607,7 +3617,15 @@ const PARTNERS = [
   {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', commission:{real:false}},
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
   {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', commission:{real:false}},
-  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.kqzyfj.com/click-101862803-17289007', type:'ota', trust:98, color:'#003580', commission:{real:true, model:'flat', amount:2, currency:'USD', label:'من $2 لكل حجز طيران مكتمل (CJ Affiliate)'}},
+  {name:'Booking.com', logo:'https://logo.clearbit.com/booking.com', site:'https://www.kqzyfj.com/click-101862803-17289007', type:'ota', trust:98, color:'#003580',
+    // 31 أغسطس 2026: نفس فكرة الفنادق فوق — رابط CJ ده Deep Linking:Yes، فبنلف رابط بحث طيران حقيقي
+    // (من/إلى/تاريخ الزائر الفعلي) جوه ?url= بدل التوجيه لصفحة booking.com/flights العامة بس.
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      const p = ret ? `&type=ROUNDTRIP&return=${ret}` : `&type=ONEWAY`;
+      const dest = `https://www.booking.com/flights/index.html?from=${fromIata}.AIRPORT&to=${toIata}.AIRPORT&depart=${dep}${p}&adults=1&cabinClass=ECONOMY`;
+      return `https://www.kqzyfj.com/click-101862803-17289007?url=${encodeURIComponent(dest)}`;
+    },
+    commission:{real:true, model:'flat', amount:2, currency:'USD', label:'من $2 لكل حجز طيران مكتمل (CJ Affiliate)'}},
   {name:'Air India', logo:'https://logo.clearbit.com/airindia.com', site:'https://www.anrdoezrs.net/click-101862803-17098912', type:'ota', trust:90, color:'#d1032a', commission:{real:true, model:'percent', min:0.0075, max:0.0075, label:'0.75% من قيمة التذكرة (CJ Affiliate)'}},
   {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'}},
   {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false},
