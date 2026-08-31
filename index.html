@@ -2857,6 +2857,25 @@ const HOTEL_NAME_SUFFIX = ['Hotel','Resort & Spa','Suites','Palace','Towers'];
 //    بتاعتهم مش لنتيجة بحث جاهزة بالمدينة/التاريخ — بيتعوّض ده إن العمولة حقيقية فعلاً على عكس
 //    الأربعة التانيين. لما نخلص طلب Travelpayouts Hotels API (تحت المراجعة) هنقدر نضيف روابط بحث
 //    حقيقية معبّاة بالمدينة/التاريخ ومربوطة بعمولة فى نفس الوقت.
+// خريطة أكواد المدن الداخلية بتاعة MakeMyTrip (locusId/city) — بس المدن اللي اتأكدت فعليًا ببحث
+// حقيقي (31 أغسطس 2026، أداة Link Kit فى Cuelinks). أي مدينة تانية مش هنا بترجع تلقائيًا لصفحة
+// MakeMyTrip الفنادق العامة بدل تخمين كود غلط ممكن يوديك لصفحة فاضية. المفتاح بالعربي والإنجليزي
+// معًا لأن cityLabel بيتغيّر حسب لغة الواجهة الحالية (راجع استدعاء urlFn فى renderHotels).
+const MMT_CITY_CODES = {
+  'Dubai':{code:'CTDUB', country:'UNI', searchText:'Dubai'}, 'دبي':{code:'CTDUB', country:'UNI', searchText:'Dubai'},
+  'Abu Dhabi':{code:'CTABU', country:'UNI', searchText:'Abu Dhabi'}, 'أبوظبي':{code:'CTABU', country:'UNI', searchText:'Abu Dhabi'},
+  'Riyadh':{code:'CTRIYA', country:'SAU', searchText:'Riyadh'}, 'الرياض':{code:'CTRIYA', country:'SAU', searchText:'Riyadh'},
+  'Istanbul':{code:'CTISTAN', country:'TUR', searchText:'Istanbul'}, 'إسطنبول':{code:'CTISTAN', country:'TUR', searchText:'Istanbul'},
+};
+// ISO yyyy-mm-dd (صيغة حقول <input type=date> القياسية) -> MMDDYYYY (صيغة MakeMyTrip المؤكدة من
+// الروابط الحقيقية اللي اختبرها أحمد فعليًا).
+function _mmtDateFmt(iso){
+  if (!iso) return null;
+  const parts = iso.split('-');
+  if (parts.length !== 3) return null;
+  const [y,m,d] = parts;
+  return m + d + y;
+}
 const HOTEL_PROVIDERS = [
   {name:'Booking.com', color:'#003580',
     // 31 أغسطس 2026: رابط CJ ده Deep Linking:Yes فعليًا (مؤكد من لوحة CJ) — بنلف رابط بحث حقيقي
@@ -2870,10 +2889,24 @@ const HOTEL_PROVIDERS = [
   {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`, commission:{real:false}},
   {name:'Hotels.com', color:'#d0021b', urlFn:(city,ci,co)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}&q-check-in=${ci}&q-check-out=${co}`, commission:{real:false}},
   // 31 أغسطس 2026: أضيف cid=312013 (رقم حملة MakeMyTrip Hotels الصحيح داخل Cuelinks) — الرابط القديم
-  // كان من غيره، فمكنش مؤكد إنه بيتتبّع بدقة 100%. مؤكد بأداة "Link Kit" الرسمية فى لوحة Cuelinks نفسها
-  // (31 أغسطس 2026) إن الرابط ده بيقبل فعليًا روابط بحث حقيقية (مدينة/تاريخ) — لسه سايبينها صفحة عامة
-  // هنا لحد ما نجمع أكواد المدن الداخلية بتاعة MakeMyTrip (city=CTxxx) للمدن الأساسية عندنا.
-  {name:'MakeMyTrip', color:'#eb2026', urlFn:()=>`https://linksredirect.com/?cid=312013&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels`, commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
+  // كان من غيره. مؤكد بأداة "Link Kit" الرسمية فى لوحة Cuelinks (31 أغسطس) إن الرابط ده بيقبل فعليًا
+  // روابط بحث حقيقية (مدينة/تاريخ) — بنينا Deep Link حقيقي لأي مدينة معروف كودها الداخلي فى
+  // MMT_CITY_CODES تحت (4 مدن اتأكدت ببحث حقيقي فعلي)، وأي مدينة تانية بترجع تلقائيًا للصفحة
+  // العامة كـfallback آمن (مفيش تخمين لأكواد مدن مش مؤكدة).
+  {name:'MakeMyTrip', color:'#eb2026',
+    urlFn:(city,ci,co)=>{
+      const base = 'https://linksredirect.com/?cid=312013&source=linkkit&url=';
+      const info = MMT_CITY_CODES[city];
+      if (info) {
+        const ciFmt = _mmtDateFmt(ci), coFmt = _mmtDateFmt(co);
+        if (ciFmt && coFmt) {
+          const dest = `https://ae.makemytrip.global/hotels/hotel-listing/?checkin=${ciFmt}&checkout=${coFmt}&locusId=${info.code}&locusType=city&city=${info.code}&country=${info.country}&searchText=${encodeURIComponent(info.searchText)}&roomStayQualifier=2e0e&_uCurrency=AED&reference=hotel&type=city&rsc=1e2e0e`;
+          return base + encodeURIComponent(dest);
+        }
+      }
+      return base + encodeURIComponent('https://www.makemytrip.com/hotels');
+    },
+    commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
   {name:'Trip.com', color:'#2a67f4', urlFn:()=>`https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`, commission:{real:true, label:'4.4%–7% (Trip.com Affiliate)'}},
 ];
 
