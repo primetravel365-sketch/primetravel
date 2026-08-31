@@ -2900,6 +2900,20 @@ function _tripHotelUrl(city, ci, co){
   const dest = `https://www.trip.com/hotels/list?${params.toString()}`;
   return `https://linksredirect.com/?cid=312013&source=linkkit&url=${encodeURIComponent(dest)}`;
 }
+// بيبني رابط بحث طيران Trip.com حقيقي — عام لأي مسار (بعكس الفنادق فوق، مفيش كود مدينة داخلي هنا،
+// بس أكواد مطارات قياسية زي DXB/CAI، فمش محتاجين خريطة مدن). اتأكد فعليًا ببحث حقيقي (31 أغسطس 2026)
+// عن طريق نفس أداة "Generate Link" فى Cuelinks (cid=312013).
+function _tripFlightUrl(fromIata, toIata, dep, ret){
+  if (!fromIata || !toIata || !dep) return null;
+  const params = new URLSearchParams({
+    dcity: fromIata.toLowerCase(), acity: toIata.toLowerCase(), ddate: dep,
+    triptype: ret ? 'rt' : 'ow', class:'y', lowpricesource:'searchform', quantity:'1',
+    searchboxarg:'t', nonstoponly:'off', locale:'en-XX', curr:'AED',
+  });
+  if (ret) params.set('rdate', ret);
+  const dest = `https://www.trip.com/flights/showfarefirst?${params.toString()}`;
+  return `https://linksredirect.com/?cid=312013&source=linkkit&url=${encodeURIComponent(dest)}`;
+}
 const HOTEL_PROVIDERS = [
   {name:'Booking.com', color:'#003580',
     // 31 أغسطس 2026: رابط CJ ده Deep Linking:Yes فعليًا (مؤكد من لوحة CJ) — بنلف رابط بحث حقيقي
@@ -3679,7 +3693,12 @@ function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-
 const PARTNERS = [
   {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', commission:{real:false}, note:true},
   {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?cid=312013&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
-  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942', type:'ota', trust:95, color:'#2a67f4', commission:{real:true, model:'percent', min:0.044, max:0.07, label:'4.4%–7% فنادق · 0.5%–3% طيران'}},
+  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942', type:'ota', trust:95, color:'#2a67f4',
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      const deepLink = _tripFlightUrl(fromIata, toIata, dep, ret);
+      return deepLink || `https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`;
+    },
+    commission:{real:true, model:'percent', min:0.044, max:0.07, label:'4.4%–7% فنادق · 0.5%–3% طيران'}},
   {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', commission:{real:false}},
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
   {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', commission:{real:false}},
