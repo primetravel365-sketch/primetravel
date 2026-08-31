@@ -2869,7 +2869,11 @@ const HOTEL_PROVIDERS = [
   {name:'Agoda', color:'#5392f9', urlFn:(city,ci,co)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${ci}&los=1&checkOut=${co}`, commission:{real:false}},
   {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`, commission:{real:false}},
   {name:'Hotels.com', color:'#d0021b', urlFn:(city,ci,co)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}&q-check-in=${ci}&q-check-out=${co}`, commission:{real:false}},
-  {name:'MakeMyTrip', color:'#eb2026', urlFn:()=>`https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels`, commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
+  // 31 أغسطس 2026: أضيف cid=312013 (رقم حملة MakeMyTrip Hotels الصحيح داخل Cuelinks) — الرابط القديم
+  // كان من غيره، فمكنش مؤكد إنه بيتتبّع بدقة 100%. مؤكد بأداة "Link Kit" الرسمية فى لوحة Cuelinks نفسها
+  // (31 أغسطس 2026) إن الرابط ده بيقبل فعليًا روابط بحث حقيقية (مدينة/تاريخ) — لسه سايبينها صفحة عامة
+  // هنا لحد ما نجمع أكواد المدن الداخلية بتاعة MakeMyTrip (city=CTxxx) للمدن الأساسية عندنا.
+  {name:'MakeMyTrip', color:'#eb2026', urlFn:()=>`https://linksredirect.com/?cid=312013&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels`, commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
   {name:'Trip.com', color:'#2a67f4', urlFn:()=>`https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`, commission:{real:true, label:'4.4%–7% (Trip.com Affiliate)'}},
 ];
 
@@ -3612,7 +3616,7 @@ function airlineIata(airlineName){
 function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-'); return {y,m,d}; }
 const PARTNERS = [
   {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', commission:{real:false}, note:true},
-  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
+  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?cid=312013&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
   {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942', type:'ota', trust:95, color:'#2a67f4', commission:{real:true, model:'percent', min:0.044, max:0.07, label:'4.4%–7% فنادق · 0.5%–3% طيران'}},
   {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', commission:{real:false}},
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
@@ -3681,6 +3685,46 @@ function updateLivePriceRow(partnerName, priceUSD){
   const btn = row.querySelector('.choose-btn');
   if (priceEl) priceEl.innerHTML = fmtPrice(priceAED) + ` <span style="font-size:10px; color:var(--green);">${currentLang==='ar'?'(سعر حقيقي)':'(live price)'}</span>`;
   if (btn) btn.setAttribute('data-price', Math.round(priceAED));
+}
+/* ============================================================
+   31 أغسطس 2026 — حل جذري لمشكلة "التحويل مش لنفس الرحلة المختارة" (نفس فكرة Booking.com Deep
+   Linking، بس هنا عن طريق وسيط السيرفر api/tp-link.js بدل باراميتر ?url= مباشر، لأن رابط
+   Aviasales/Travelpayouts الحالي (aviasales.tpm.lv/Sbbqh9Uk) رابط مختصر ثابت مش بيقبل تعديل
+   مباشر زي روابط CJ). الآلية: نبني رابط بحث Aviasales حقيقي بالمسار/التاريخ الفعلي (صيغة
+   Aviasales/Jetradar الموثّقة: origin+DDMM+destination+[DDMM للعودة]+عدد المسافرين)، ثم نبعته
+   لـ/api/tp-link.js اللي بيلفّه برابط تتبع Travelpayouts حقيقي (trs=563031 المؤكد فعليًا من
+   دعم Travelpayouts لبرنامج Aviasales تحديدًا). لو أي خطوة فشلت (توكن ناقص فى Vercel، اتصال
+   فشل، إلخ) بيرجع null والزر بيفضل بالرابط الثابت الأصلي كـfallback — مفيش أي كسر لتجربة الزائر.
+   ⚠️ Kiwi.com مُتعمَّد استبعاده هنا: trs بتاعه مختلف عن Aviasales ومش مؤكد لسه من Travelpayouts —
+   لازم تأكيد trs الخاص بـKiwi.com الأول قبل ما نطبّق عليه نفس الآلية (تجنبًا لأي خطأ فى نسب
+   العمولة). راجع ملف claude/commission-status-summary لتفاصيل باقي الشركاء (Trip.com/MakeMyTrip).
+   ============================================================ */
+function _aviaSearchUrl(fromIata, toIata, depISO, retISO){
+  const d = _flightDateParts(depISO);
+  if (!d || !fromIata || !toIata) return null;
+  const depDDMM = d.d + d.m;
+  const r = retISO ? _flightDateParts(retISO) : null;
+  const retDDMM = r ? (r.d + r.m) : '';
+  return `https://www.aviasales.com/search/${fromIata}${depDDMM}${toIata}${retDDMM}1`;
+}
+async function fetchLiveFlightLink(destUrl){
+  if (!destUrl) return null;
+  try{
+    const res = await fetch('/api/tp-link?url=' + encodeURIComponent(destUrl));
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data && data.success && data.link) return data.link;
+  }catch(_liveLinkErr){ /* فشل الاتصال بالوسيط — نرجع null ونستمر بالرابط الثابت كـfallback */ }
+  return null;
+}
+/* يحدّث الرابط الفعلي اللي هيفتح عند "احجز الآن" لصف شريك معيّن — بدون إعادة رسم القائمة، تمامًا
+   زي updateLivePriceRow لكن للرابط بدل السعر. */
+function updateLiveLinkRow(partnerName, url){
+  if (!url) return;
+  const row = document.querySelector(`.price-row[data-partner-name="${CSS.escape(partnerName)}"]`);
+  if (!row) return;
+  const btn = row.querySelector('.choose-btn');
+  if (btn) btn.setAttribute('data-site', url);
 }
 /* Official site of the parent/operating airline itself — added as an extra "book directly with the airline"
    option alongside the OTA partners, so travelers who prefer the carrier's own site can pick it (and it
@@ -4240,6 +4284,8 @@ function openTripDetails(){
   let liveKiwiUSD = null, liveAviaUSD = null;
   fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveKiwiUSD = v; updateLivePriceRow('Kiwi.com', v); });
   fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveAviaUSD = v; updateLivePriceRow('Aviasales', v); });
+  // 31 أغسطس 2026: رابط Aviasales الحقيقي بالمسار/التاريخ الفعلي (راجع التعليق فوق fetchLiveFlightLink)
+  fetchLiveFlightLink(_aviaSearchUrl(fromAp.code, toAp.code, depVal, retVal)).then(url=>{ updateLiveLinkRow('Aviasales', url); });
   // تحديث 19 أغسطس 2026 (مُقيَّد اعتبارًا من 20 أغسطس 2026): محاولة جلب سعر أساس حقيقي فعلي من
   // Duffel (عبر وسيط /api/duffel-search) — لكن بس لو مفيش أصلًا سعر حقيقي جاهز من FlightAPI.io،
   // عشان Duffel (وضع تجريبي) ميستبدلش سعر حقيقي فعلي بسعر وهمي زي ما شرحنا فوق.
