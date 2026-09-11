@@ -251,19 +251,19 @@ button{font-family:inherit; cursor:pointer; border:none;}
 /* ---------- video panel: centered rectangle box under the search form, with the two cross-fading
    clips (plane takeoff / airport lounge) — reverted back to this boxed layout per request; the earlier
    "full-page video background" attempt is removed entirely (handled separately, outside this build). ---------- */
-.top-panels{display:flex; justify-content:center; margin:28px 0;}
+.top-panels{display:flex; justify-content:flex-start; margin:28px 0;}
 .video-panel{
   background:transparent; border:none;
   display:flex; align-items:center; justify-content:center; padding:0;
-  width:100%; max-width:760px;
+  width:100%; max-width:300px;
 }
 .video-circle{
-  width:100%; height:340px; border-radius:16px; overflow:hidden; position:relative;
+  width:100%; height:300px; border-radius:16px; overflow:hidden; position:relative;
   border:3px solid var(--blue); box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
 }
 .video-circle video{width:100%; height:100%; object-fit:cover;}
 .video-circle .dashed{position:absolute; inset:-6px; border:1.5px dashed rgba(216,165,49,.5); border-radius:18px;}
-@media(max-width:640px){.video-circle{height:220px;}}
+@media(max-width:640px){.video-panel{max-width:200px;} .video-circle{height:200px;}}
 .video-caption{text-align:center; margin-top:8px;}
 
 /* ============ Unified hero search box — white card, real functional forms (moved from lower
@@ -2857,63 +2857,6 @@ const HOTEL_NAME_SUFFIX = ['Hotel','Resort & Spa','Suites','Palace','Towers'];
 //    بتاعتهم مش لنتيجة بحث جاهزة بالمدينة/التاريخ — بيتعوّض ده إن العمولة حقيقية فعلاً على عكس
 //    الأربعة التانيين. لما نخلص طلب Travelpayouts Hotels API (تحت المراجعة) هنقدر نضيف روابط بحث
 //    حقيقية معبّاة بالمدينة/التاريخ ومربوطة بعمولة فى نفس الوقت.
-// خريطة أكواد المدن الداخلية بتاعة MakeMyTrip (locusId/city) — بس المدن اللي اتأكدت فعليًا ببحث
-// حقيقي (31 أغسطس 2026، أداة Link Kit فى Cuelinks). أي مدينة تانية مش هنا بترجع تلقائيًا لصفحة
-// MakeMyTrip الفنادق العامة بدل تخمين كود غلط ممكن يوديك لصفحة فاضية. المفتاح بالعربي والإنجليزي
-// معًا لأن cityLabel بيتغيّر حسب لغة الواجهة الحالية (راجع استدعاء urlFn فى renderHotels).
-const MMT_CITY_CODES = {
-  'Dubai':{code:'CTDUB', country:'UNI', searchText:'Dubai'}, 'دبي':{code:'CTDUB', country:'UNI', searchText:'Dubai'},
-  'Abu Dhabi':{code:'CTABU', country:'UNI', searchText:'Abu Dhabi'}, 'أبوظبي':{code:'CTABU', country:'UNI', searchText:'Abu Dhabi'},
-  'Riyadh':{code:'CTRIYA', country:'SAU', searchText:'Riyadh'}, 'الرياض':{code:'CTRIYA', country:'SAU', searchText:'Riyadh'},
-  'Istanbul':{code:'CTISTAN', country:'TUR', searchText:'Istanbul'}, 'إسطنبول':{code:'CTISTAN', country:'TUR', searchText:'Istanbul'},
-};
-// ISO yyyy-mm-dd (صيغة حقول <input type=date> القياسية) -> MMDDYYYY (صيغة MakeMyTrip المؤكدة من
-// الروابط الحقيقية اللي اختبرها أحمد فعليًا).
-function _mmtDateFmt(iso){
-  if (!iso) return null;
-  const parts = iso.split('-');
-  if (parts.length !== 3) return null;
-  const [y,m,d] = parts;
-  return m + d + y;
-}
-// خريطة أكواد Trip.com الداخلية للفنادق (cityId/provinceId/countryId/optionId/searchValue) — بس
-// المدن اللي اتأكدت فعليًا ببحث حقيقي (31 أغسطس 2026) عن طريق أداة "Generate Link" فى Cuelinks
-// (اللي أثبتت إنها بتدعم Deep Linking حقيقي لـTrip.com، منفصلة عن حساب Trip.com المباشر). أي مدينة
-// مش هنا بترجع تلقائيًا للرابط المباشر الثابت (fallback آمن، مفيش تخمين أكواد).
-const TRIP_CITY_CODES = {
-  'Dubai':{cityId:220, provinceId:10965, districtId:0, countryId:9, cityNameEn:'Dubai', destName:'Dubai, Emirate of Dubai, United Arab Emirates', optionId:220, searchValue:'19|220*19*220'},
-  'دبي':{cityId:220, provinceId:10965, districtId:0, countryId:9, cityNameEn:'Dubai', destName:'Dubai, Emirate of Dubai, United Arab Emirates', optionId:220, searchValue:'19|220*19*220'},
-};
-// بيبني رابط بحث فنادق Trip.com حقيقي (مدينة معروفة + تاريخ الزائر الفعلي)، ثم يلفه برابط تتبع
-// Cuelinks الحقيقي (cid=312013 نفسه المستخدم مع MakeMyTrip). لو المدينة مش معروفة، بيرجع null
-// عشان الكود اللي بينادي الدالة يستخدم الرابط المباشر الثابت كـfallback.
-function _tripHotelUrl(city, ci, co){
-  const info = TRIP_CITY_CODES[city];
-  if (!info || !ci || !co) return null;
-  const params = new URLSearchParams({
-    flexType:'1', fixedDate:'0', cityId:String(info.cityId), provinceId:String(info.provinceId),
-    districtId:String(info.districtId), countryId:String(info.countryId), cityName:info.cityNameEn,
-    destName:info.destName, searchWord:info.cityNameEn, searchType:'CT', optionId:String(info.optionId),
-    searchValue:info.searchValue, checkin:ci, checkout:co, crn:'1', adult:'2',
-    listFilters:'29~1*29*1~2*2', curr:'AED', locale:'en-XX', old:'1',
-  });
-  const dest = `https://www.trip.com/hotels/list?${params.toString()}`;
-  return `https://linksredirect.com/?cid=312013&source=linkkit&url=${encodeURIComponent(dest)}`;
-}
-// بيبني رابط بحث طيران Trip.com حقيقي — عام لأي مسار (بعكس الفنادق فوق، مفيش كود مدينة داخلي هنا،
-// بس أكواد مطارات قياسية زي DXB/CAI، فمش محتاجين خريطة مدن). اتأكد فعليًا ببحث حقيقي (31 أغسطس 2026)
-// عن طريق نفس أداة "Generate Link" فى Cuelinks (cid=312013).
-function _tripFlightUrl(fromIata, toIata, dep, ret){
-  if (!fromIata || !toIata || !dep) return null;
-  const params = new URLSearchParams({
-    dcity: fromIata.toLowerCase(), acity: toIata.toLowerCase(), ddate: dep,
-    triptype: ret ? 'rt' : 'ow', class:'y', lowpricesource:'searchform', quantity:'1',
-    searchboxarg:'t', nonstoponly:'off', locale:'en-XX', curr:'AED',
-  });
-  if (ret) params.set('rdate', ret);
-  const dest = `https://www.trip.com/flights/showfarefirst?${params.toString()}`;
-  return `https://linksredirect.com/?cid=312013&source=linkkit&url=${encodeURIComponent(dest)}`;
-}
 const HOTEL_PROVIDERS = [
   {name:'Booking.com', color:'#003580',
     // 31 أغسطس 2026: رابط CJ ده Deep Linking:Yes فعليًا (مؤكد من لوحة CJ) — بنلف رابط بحث حقيقي
@@ -2926,31 +2869,8 @@ const HOTEL_PROVIDERS = [
   {name:'Agoda', color:'#5392f9', urlFn:(city,ci,co)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${ci}&los=1&checkOut=${co}`, commission:{real:false}},
   {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`, commission:{real:false}},
   {name:'Hotels.com', color:'#d0021b', urlFn:(city,ci,co)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}&q-check-in=${ci}&q-check-out=${co}`, commission:{real:false}},
-  // 31 أغسطس 2026: أضيف cid=312013 (رقم حملة MakeMyTrip Hotels الصحيح داخل Cuelinks) — الرابط القديم
-  // كان من غيره. مؤكد بأداة "Link Kit" الرسمية فى لوحة Cuelinks (31 أغسطس) إن الرابط ده بيقبل فعليًا
-  // روابط بحث حقيقية (مدينة/تاريخ) — بنينا Deep Link حقيقي لأي مدينة معروف كودها الداخلي فى
-  // MMT_CITY_CODES تحت (4 مدن اتأكدت ببحث حقيقي فعلي)، وأي مدينة تانية بترجع تلقائيًا للصفحة
-  // العامة كـfallback آمن (مفيش تخمين لأكواد مدن مش مؤكدة).
-  {name:'MakeMyTrip', color:'#eb2026',
-    urlFn:(city,ci,co)=>{
-      const base = 'https://linksredirect.com/?cid=312013&source=linkkit&url=';
-      const info = MMT_CITY_CODES[city];
-      if (info) {
-        const ciFmt = _mmtDateFmt(ci), coFmt = _mmtDateFmt(co);
-        if (ciFmt && coFmt) {
-          const dest = `https://ae.makemytrip.global/hotels/hotel-listing/?checkin=${ciFmt}&checkout=${coFmt}&locusId=${info.code}&locusType=city&city=${info.code}&country=${info.country}&searchText=${encodeURIComponent(info.searchText)}&roomStayQualifier=2e0e&_uCurrency=AED&reference=hotel&type=city&rsc=1e2e0e`;
-          return base + encodeURIComponent(dest);
-        }
-      }
-      return base + encodeURIComponent('https://www.makemytrip.com/hotels');
-    },
-    commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
-  {name:'Trip.com', color:'#2a67f4',
-    urlFn:(city,ci,co)=>{
-      const deepLink = _tripHotelUrl(city, ci, co);
-      return deepLink || `https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`;
-    },
-    commission:{real:true, label:'4.4%–7% (Trip.com Affiliate) — Deep Link متاح لدبي حاليًا عبر Cuelinks'}},
+  {name:'MakeMyTrip', color:'#eb2026', urlFn:()=>`https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels`, commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
+  {name:'Trip.com', color:'#2a67f4', urlFn:()=>`https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`, commission:{real:true, label:'4.4%–7% (Trip.com Affiliate)'}},
 ];
 
 function buildHotelDestSelect(){
@@ -3692,13 +3612,8 @@ function airlineIata(airlineName){
 function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-'); return {y,m,d}; }
 const PARTNERS = [
   {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', commission:{real:false}, note:true},
-  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?cid=312013&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
-  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942', type:'ota', trust:95, color:'#2a67f4',
-    urlFn:(fromIata,toIata,dep,ret)=>{
-      const deepLink = _tripFlightUrl(fromIata, toIata, dep, ret);
-      return deepLink || `https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`;
-    },
-    commission:{real:true, model:'percent', min:0.044, max:0.07, label:'4.4%–7% فنادق · 0.5%–3% طيران'}},
+  {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
+  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942', type:'ota', trust:95, color:'#2a67f4', commission:{real:true, model:'percent', min:0.044, max:0.07, label:'4.4%–7% فنادق · 0.5%–3% طيران'}},
   {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', commission:{real:false}},
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
   {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', commission:{real:false}},
