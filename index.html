@@ -149,7 +149,7 @@ h1,h2,h3{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif; font-weight:800;
 img{max-width:100%; display:block;}
 a{color:inherit; text-decoration:none;}
 button{font-family:inherit; cursor:pointer; border:none;}
-.container{max-width:1320px; margin:0 auto; padding:0 24px; position:relative;}
+.container{max-width:1320px; margin:0 auto; padding:0 24px;}
 ::-webkit-scrollbar{height:8px; width:8px;}
 ::-webkit-scrollbar-thumb{background:var(--border); border-radius:8px;}
 
@@ -251,20 +251,21 @@ button{font-family:inherit; cursor:pointer; border:none;}
 /* ---------- video panel: centered rectangle box under the search form, with the two cross-fading
    clips (plane takeoff / airport lounge) — reverted back to this boxed layout per request; the earlier
    "full-page video background" attempt is removed entirely (handled separately, outside this build). ---------- */
-.top-panels{position:absolute; top:0; left:24px; z-index:3; margin:0;}
+.hero-top-row{display:flex; align-items:flex-start; gap:24px;}
+.hero-top-row .hero{flex:1; min-width:0;}
+.top-panels{flex:0 0 auto; margin:0; padding-top:4px;}
 .video-panel{
   background:transparent; border:none;
   display:flex; align-items:center; justify-content:center; padding:0;
-  width:100%; max-width:300px;
+  width:300px;
 }
 .video-circle{
-  width:100%; height:300px; border-radius:16px; overflow:hidden; position:relative;
+  width:300px; height:300px; border-radius:16px; overflow:hidden; position:relative;
   border:3px solid var(--blue); box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
 }
 .video-circle video{width:100%; height:100%; object-fit:cover;}
 .video-circle .dashed{position:absolute; inset:-6px; border:1.5px dashed rgba(216,165,49,.5); border-radius:18px;}
-@media(max-width:900px){.top-panels{position:static; display:flex; justify-content:center; margin:16px 0;}}
-@media(max-width:640px){.video-panel{max-width:200px;} .video-circle{height:200px;}}
+@media(max-width:900px){.hero-top-row{flex-direction:column; align-items:center; gap:16px;} .video-panel{width:200px;} .video-circle{width:200px; height:200px;}}
 .video-caption{text-align:center; margin-top:8px;}
 
 /* ============ Unified hero search box — white card, real functional forms (moved from lower
@@ -1004,11 +1005,28 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
 <div class="home-page" id="homePage">
 <div class="container">
 
-  <section class="hero">
-    <div class="eyebrow" data-i18n="eyebrow">المستشار الذكي لسفرك</div>
-    <h1><span data-i18n="brand">PrimeTravel365</span> <span data-i18n="hero_h1">اكتشف العالم معنا</span></h1>
-    <p data-i18n="hero_p">أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.</p>
-  </section>
+  <div class="hero-top-row">
+    <section class="hero">
+      <div class="eyebrow" data-i18n="eyebrow">المستشار الذكي لسفرك</div>
+      <h1><span data-i18n="brand">PrimeTravel365</span> <span data-i18n="hero_h1">اكتشف العالم معنا</span></h1>
+      <p data-i18n="hero_p">أفضل الأسعار على رحلات الطيران والفنادق، بمقارنة فورية من عشرات المصادر الموثوقة.</p>
+    </section>
+
+    <div class="top-panels">
+      <div class="video-panel">
+        <div class="video-circle">
+          <div class="dashed"></div>
+          <video id="vid1" autoplay muted playsinline poster="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=60">
+            <source src="" type="video/mp4">
+          </video>
+          <video id="vid2" muted playsinline poster="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&q=60" style="display:none; position:absolute; inset:0;">
+            <source src="" type="video/mp4">
+          </video>
+        </div>
+        <div class="video-caption" style="display:none;"><b data-i18n="vid_now">الآن يعرض:</b> <span id="vidLabel" data-i18n="vid1_label">إقلاع الطائرات</span></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ============ UNIFIED HERO SEARCH BOX — real, fully-functional forms (not a summary widget),
        reskinned white to match the professional reference. Flights/Hotels tab toggles between the
@@ -1125,21 +1143,6 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
           <button class="search-btn" id="hotelSearchBtn"><span>🏨</span><span data-i18n="hotel_search_btn">بحث عن فنادق</span></button>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="top-panels">
-    <div class="video-panel">
-      <div class="video-circle">
-        <div class="dashed"></div>
-        <video id="vid1" autoplay muted playsinline poster="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=60">
-          <source src="" type="video/mp4">
-        </video>
-        <video id="vid2" muted playsinline poster="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&q=60" style="display:none; position:absolute; inset:0;">
-          <source src="" type="video/mp4">
-        </video>
-      </div>
-      <div class="video-caption" style="display:none;"><b data-i18n="vid_now">الآن يعرض:</b> <span id="vidLabel" data-i18n="vid1_label">إقلاع الطائرات</span></div>
     </div>
   </div>
 
