@@ -149,7 +149,7 @@ h1,h2,h3{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif; font-weight:800;
 img{max-width:100%; display:block;}
 a{color:inherit; text-decoration:none;}
 button{font-family:inherit; cursor:pointer; border:none;}
-.container{max-width:1320px; margin:0 auto; padding:0 24px;}
+.container{max-width:1320px; margin:0 auto; padding:0 24px; position:relative;}
 ::-webkit-scrollbar{height:8px; width:8px;}
 ::-webkit-scrollbar-thumb{background:var(--border); border-radius:8px;}
 
@@ -251,7 +251,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 /* ---------- video panel: centered rectangle box under the search form, with the two cross-fading
    clips (plane takeoff / airport lounge) — reverted back to this boxed layout per request; the earlier
    "full-page video background" attempt is removed entirely (handled separately, outside this build). ---------- */
-.top-panels{display:flex; justify-content:flex-start; margin:28px 0;}
+.top-panels{position:absolute; top:0; left:24px; z-index:3; margin:0;}
 .video-panel{
   background:transparent; border:none;
   display:flex; align-items:center; justify-content:center; padding:0;
@@ -263,6 +263,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 }
 .video-circle video{width:100%; height:100%; object-fit:cover;}
 .video-circle .dashed{position:absolute; inset:-6px; border:1.5px dashed rgba(216,165,49,.5); border-radius:18px;}
+@media(max-width:900px){.top-panels{position:static; display:flex; justify-content:center; margin:16px 0;}}
 @media(max-width:640px){.video-panel{max-width:200px;} .video-circle{height:200px;}}
 .video-caption{text-align:center; margin-top:8px;}
 
