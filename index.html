@@ -265,7 +265,27 @@ button{font-family:inherit; cursor:pointer; border:none;}
 }
 .video-circle video{width:100%; height:100%; object-fit:cover;}
 .video-circle .dashed{position:absolute; inset:-6px; border:1.5px dashed rgba(216,165,49,.5); border-radius:18px;}
-@media(max-width:900px){.hero-top-row{flex-direction:column; align-items:center; gap:16px;} .video-panel{width:200px;} .video-circle{width:200px; height:200px;}}
+@media(max-width:900px){
+  .hero-top-row{
+    position:relative; align-items:stretch; gap:0; min-height:280px;
+    border-radius:16px; overflow:hidden; border:3px solid var(--blue);
+    box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
+  }
+  .hero-top-row::before{
+    content:''; position:absolute; inset:0; background:rgba(10,20,35,.38); z-index:1; pointer-events:none;
+  }
+  .hero-top-row .top-panels{
+    position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0; z-index:0;
+  }
+  .hero-top-row .video-panel{width:100%; height:100%;}
+  .hero-top-row .video-circle{
+    width:100%; height:100%; border:none; border-radius:0; box-shadow:none;
+  }
+  .hero-top-row .video-circle .dashed{display:none;}
+  .hero-top-row .hero{
+    position:relative; z-index:2; width:100%; padding:40px 20px;
+  }
+}
 .video-caption{text-align:center; margin-top:8px;}
 
 /* ============ Unified hero search box — white card, real functional forms (moved from lower
