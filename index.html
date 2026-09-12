@@ -827,7 +827,7 @@ footer{border-top:1px solid var(--border); margin-top:40px; padding:24px 0; text
      (.mp4.mp4) اتصلح هنا؛ الصيغة الصحيحة دايمًا هي اللي تحت بالظبط. -->
 <video id="bgVideo" autoplay muted loop playsinline preload="auto"
   poster="https://images.unsplash.com/photo-1745383792762-ccaeb8e972d0?fm=jpg&q=60&w=1600&auto=format&fit=crop">
-  <source src="https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/sit-bg-video.mp4" type="video/mp4">
+  <source src="/sit-bg-video.mp4" type="video/mp4">
 </video>
 <script>
 // تشخيص فيديو الخلفية — الملف نفسه يصل بنجاح (video/mp4 صحيح)، فلو ما ظهر فالمتصفح
@@ -4494,8 +4494,8 @@ function showToast(msg){
 /* ===== لينك حقيقي: نفس مصفوفة الوسائط (mediaData) التي تديرها لوحة التحكم في قسم "الصور والفيديوهات" =====
    أول عنصرين بمكان العرض "الفيديو الدائري - الرئيسية" يتحكمان مباشرة في تسمية/صورة الفيديو الدائري بالرئيسية */
 let mediaData = [
-  {url:'https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/115258-704333231_medium.mp4', type:'فيديو', place:'الفيديو الدائري - الرئيسية', desc:'إقلاع الطائرات', by:'Ahmed Arafa'},
-  {url:'https://pvspphmdonxvsgicmylp.supabase.co/storage/v1/object/public/Videos/265858_medium.mp4', type:'فيديو', place:'الفيديو الدائري - الرئيسية', desc:'صالات المطار', by:'Ahmed Arafa'},
+  {url:'/115258-704333231_medium.mp4', type:'فيديو', place:'الفيديو الدائري - الرئيسية', desc:'إقلاع الطائرات', by:'Ahmed Arafa'},
+  {url:'/265858_medium.mp4', type:'فيديو', place:'الفيديو الدائري - الرئيسية', desc:'صالات المطار', by:'Ahmed Arafa'},
   {url:'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&q=60', type:'صورة', place:'معرض صور دولة', desc:'برج خليفة - دبي', by:'عمر خالد'},
   {url:'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=100&q=60', type:'صورة', place:'بطاقة عرض مميز', desc:'آيا صوفيا - إسطنبول', by:'عمر خالد'},
 ];
