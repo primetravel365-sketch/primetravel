@@ -251,40 +251,35 @@ button{font-family:inherit; cursor:pointer; border:none;}
 /* ---------- video panel: centered rectangle box under the search form, with the two cross-fading
    clips (plane takeoff / airport lounge) — reverted back to this boxed layout per request; the earlier
    "full-page video background" attempt is removed entirely (handled separately, outside this build). ---------- */
-.hero-top-row{display:flex; align-items:flex-start; gap:24px;}
-.hero-top-row .hero{flex:1; min-width:0;}
+.hero-top-row{
+  position:relative; min-height:340px; margin-top:16px;
+  border-radius:16px; overflow:hidden; border:3px solid var(--blue);
+  box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
+}
+.hero-top-row::before{
+  content:''; position:absolute; inset:0; background:rgba(10,20,35,.38); z-index:1; pointer-events:none;
+}
+.hero-top-row .top-panels{
+  position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0; z-index:0;
+}
+.hero-top-row .hero{
+  position:relative; z-index:2; width:100%; padding:56px 20px;
+}
 .top-panels{flex:0 0 auto; margin:0; padding-top:4px;}
 .video-panel{
   background:transparent; border:none;
   display:flex; align-items:center; justify-content:center; padding:0;
-  width:300px;
+  width:100%; height:100%;
 }
 .video-circle{
-  width:300px; height:300px; border-radius:16px; overflow:hidden; position:relative;
-  border:3px solid var(--blue); box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
+  width:100%; height:100%; border-radius:0; overflow:hidden; position:relative;
+  border:none; box-shadow:none;
 }
 .video-circle video{width:100%; height:100%; object-fit:cover;}
-.video-circle .dashed{position:absolute; inset:-6px; border:1.5px dashed rgba(216,165,49,.5); border-radius:18px;}
+.video-circle .dashed{display:none;}
 @media(max-width:900px){
-  .hero-top-row{
-    position:relative; align-items:stretch; gap:0; min-height:280px; margin-top:16px;
-    border-radius:16px; overflow:hidden; border:3px solid var(--blue);
-    box-shadow:0 10px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(47,111,237,.12);
-  }
-  .hero-top-row::before{
-    content:''; position:absolute; inset:0; background:rgba(10,20,35,.38); z-index:1; pointer-events:none;
-  }
-  .hero-top-row .top-panels{
-    position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0; z-index:0;
-  }
-  .hero-top-row .video-panel{width:100%; height:100%;}
-  .hero-top-row .video-circle{
-    width:100%; height:100%; border:none; border-radius:0; box-shadow:none;
-  }
-  .hero-top-row .video-circle .dashed{display:none;}
-  .hero-top-row .hero{
-    position:relative; z-index:2; width:100%; padding:40px 20px;
-  }
+  .hero-top-row{min-height:280px; margin-top:16px;}
+  .hero-top-row .hero{padding:40px 20px;}
 }
 .video-caption{text-align:center; margin-top:8px;}
 
@@ -2881,6 +2876,44 @@ const HOTEL_NAME_SUFFIX = ['Hotel','Resort & Spa','Suites','Palace','Towers'];
 //    بتاعتهم مش لنتيجة بحث جاهزة بالمدينة/التاريخ — بيتعوّض ده إن العمولة حقيقية فعلاً على عكس
 //    الأربعة التانيين. لما نخلص طلب Travelpayouts Hotels API (تحت المراجعة) هنقدر نضيف روابط بحث
 //    حقيقية معبّاة بالمدينة/التاريخ ومربوطة بعمولة فى نفس الوقت.
+// 12 سبتمبر 2026: خريطة أكواد مدن MakeMyTrip الداخلية — اتأكدت من روابط بحث وهمية حقيقية بعتها أحمد
+// لكل مدينة (الأكواد دي مش لها نمط ثابت يُستنتج، لازم تتجمع مدينة مدينة بنفس الطريقة). 4 مدن مؤكدة
+// لحد دلوقتي؛ أي مدينة مش موجودة هنا بترجع للرابط العام (بدون تخصيص مدينة/تاريخ).
+const MMT_CITY_CODES = {
+  'Dubai':{city:'CTDUB', country:'UNI'}, 'دبي':{city:'CTDUB', country:'UNI'},
+  'Abu Dhabi':{city:'CTABU', country:'UNI'}, 'أبوظبي':{city:'CTABU', country:'UNI'},
+  'Istanbul':{city:'CTISTAN', country:'TUR'}, 'إسطنبول':{city:'CTISTAN', country:'TUR'},
+  'Riyadh':{city:'CTRIYA', country:'SAU'}, 'الرياض':{city:'CTRIYA', country:'SAU'},
+};
+function _mmtDateFmt(iso){ // YYYY-MM-DD -> MMDDYYYY (صيغة MakeMyTrip الموثّقة من الرابط الفعلي)
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${m}${d}${y}`;
+}
+// 12 سبتمبر 2026: خريطة أكواد مدن Trip.com للفنادق — اتأكدت من روابط بحث وهمية حقيقية. لاحظ إن مدن
+// الإمارات (دبي/أبوظبي/الشارقة) شكلها أبسط (بدون provinceId/searchValue)، بينما الرياض وإسطنبول
+// محتاجين حقول إضافية (provinceId/districtId/searchValue) — تم تأكيد الفرق فعليًا مش تخمين.
+const TRIP_CITY_CODES = {
+  'Dubai':{cityId:220, countryId:9}, 'دبي':{cityId:220, countryId:9},
+  'Abu Dhabi':{cityId:766, countryId:9}, 'أبوظبي':{cityId:766, countryId:9},
+  'Sharjah':{cityId:742, countryId:9}, 'الشارقة':{cityId:742, countryId:9},
+  'Riyadh':{cityId:789, countryId:82, provinceId:10838, districtId:0, searchValue:'19|789*19*789'},
+  'الرياض':{cityId:789, countryId:82, provinceId:10838, districtId:0, searchValue:'19|789*19*789'},
+  'Istanbul':{cityId:532, countryId:89, provinceId:100573, districtId:0, searchValue:'19|532*19*532'},
+  'إسطنبول':{cityId:532, countryId:89, provinceId:100573, districtId:0, searchValue:'19|532*19*532'},
+};
+function _tripHotelUrl(city, ci, co){
+  const c = TRIP_CITY_CODES[city];
+  if (!c) return `https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`;
+  const hasProvince = c.provinceId !== undefined;
+  let url = `https://ae.trip.com/hotels/list?flexType=1&fixedDate=0&cityId=${c.cityId}&countryId=${c.countryId}`;
+  url += `&cityName=${hasProvince ? encodeURIComponent(city) : ''}&destName=${encodeURIComponent(city)}&searchType=CT&optionId=${c.cityId}`;
+  if (hasProvince){
+    url += `&provinceId=${c.provinceId}&districtId=${c.districtId}&searchWord=${encodeURIComponent(city)}&searchValue=${encodeURIComponent(c.searchValue)}`;
+  }
+  url += `&checkin=${ci}&checkout=${co}&crn=1&adult=2&listFilters=29~1*29*1~2*2&curr=AED&locale=en-AE&old=1&Allianceid=10133460&SID=328745677`;
+  return url;
+}
 const HOTEL_PROVIDERS = [
   {name:'Booking.com', color:'#003580',
     // 31 أغسطس 2026: رابط CJ ده Deep Linking:Yes فعليًا (مؤكد من لوحة CJ) — بنلف رابط بحث حقيقي
@@ -2893,9 +2926,37 @@ const HOTEL_PROVIDERS = [
   {name:'Agoda', color:'#5392f9', urlFn:(city,ci,co)=>`https://www.agoda.com/search?city=${encodeURIComponent(city)}&checkIn=${ci}&los=1&checkOut=${co}`, commission:{real:false}},
   {name:'Expedia', color:'#fdc434', urlFn:(city,ci,co)=>`https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city)}&startDate=${ci}&endDate=${co}`, commission:{real:false}},
   {name:'Hotels.com', color:'#d0021b', urlFn:(city,ci,co)=>`https://www.hotels.com/search.do?destination=${encodeURIComponent(city)}&q-check-in=${ci}&q-check-out=${co}`, commission:{real:false}},
-  {name:'MakeMyTrip', color:'#eb2026', urlFn:()=>`https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels`, commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
-  {name:'Trip.com', color:'#2a67f4', urlFn:()=>`https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`, commission:{real:true, label:'4.4%–7% (Trip.com Affiliate)'}},
+  {name:'MakeMyTrip', color:'#eb2026',
+    // 12 سبتمبر 2026: رابط بحث حقيقي معبّى بالمدينة والتاريخ (لـ4 مدن مؤكدة فقط)، ملفوف جوه رابط
+    // Cuelinks الحقيقي (linksredirect.com) عشان العمولة تفضل متتبَّعة زي ما هي بالظبط.
+    urlFn:(city,ci,co)=>{
+      const c = MMT_CITY_CODES[city];
+      const dest = c
+        ? `https://ae.makemytrip.global/hotels/hotel-listing/?checkin=${_mmtDateFmt(ci)}&checkout=${_mmtDateFmt(co)}&locusId=${c.city}&locusType=city&city=${c.city}&country=${c.country}&searchText=${encodeURIComponent(city)}&roomStayQualifier=2e0e&reference=hotel&type=city&rsc=1e2e0e`
+        : 'https://www.makemytrip.com/hotels';
+      return `https://linksredirect.com/?&source=linkkit&url=${encodeURIComponent(dest)}`;
+    },
+    commission:{real:true, label:'حتى ₹112.50/حجز فندق (Cuelinks)'}},
+  {name:'Trip.com', color:'#2a67f4',
+    // 12 سبتمبر 2026: رابط بحث فندق حقيقي معبّى بالمدينة/التاريخ (لـ5 مدن مؤكدة: دبي، أبوظبي،
+    // الشارقة، الرياض، إسطنبول) — نفس معرّفات تتبع العمولة الأصلية (Allianceid/SID) مضافة على الرابط.
+    urlFn:_tripHotelUrl,
+    commission:{real:true, label:'4.4%–7% (Trip.com Affiliate)'}},
 ];
+/* 12 سبتمبر 2026 (بطلب أحمد): الشركات اللي عندها فعلًا Deep Link حقيقي (رابط بحث معبّى بمسار/تاريخ/
+   مدينة الزائر الفعلي، مش مجرد رابط تتبع ثابت) بتظهر أولًا فى قائمة "احجز الآن" — مرتبة بينها من
+   الأقل سعرًا للأعلى — وبعدين باقي الخيارات (بعمولة حقيقية بدون Deep Link، أو بدون عمولة خالص) تكمل
+   الترتيب من بعدهم زي ما هي. القائمة دي لازم تتحدّث يدويًا كل ما شريك جديد ياخد Deep Link حقيقي فعلي
+   (راجع تعليق كل شريك فى PARTNERS/HOTEL_PROVIDERS لمعرفة مين عنده Deep Link حقيقي دلوقتي). */
+const DEEP_LINK_PRIORITY_PARTNERS = new Set(['Booking.com', 'Aviasales']);
+function sortWithDeepLinkPriority(list){
+  return [...list].sort((a,b)=>{
+    const pa = DEEP_LINK_PRIORITY_PARTNERS.has(a.name) ? 0 : 1;
+    const pb = DEEP_LINK_PRIORITY_PARTNERS.has(b.name) ? 0 : 1;
+    if (pa !== pb) return pa - pb;
+    return a.price - b.price;
+  });
+}
 
 function buildHotelDestSelect(){
   const sel = document.getElementById('hotelDest');
@@ -3105,11 +3166,13 @@ function renderHotelResults(){
   const amenityLabel = {wifi: t('am_wifi'), pool: t('am_pool'), breakfast: t('am_breakfast'), gym: t('am_gym')};
 
   document.getElementById('hotelResultsList').innerHTML = list.map(h=>{
-    const providers = HOTEL_PROVIDERS.map((p,i)=>{
+    const rawProviders = HOTEL_PROVIDERS.map((p,i)=>{
       const r = seededRand(hashStr(h.id)+i*9.9);
       const price = Math.round(h.pricePerNight * (1 + (r-0.4)*0.18));
       return {...p, price};
-    }).sort((a,b)=>a.price-b.price);
+    });
+    const cheapestPrice = Math.min(...rawProviders.map(p=>p.price));
+    const providers = sortWithDeepLinkPriority(rawProviders);
     return `
     <div class="hotel-card">
       <img class="hotel-img" src="${h.img}" alt="" loading="lazy" style="cursor:pointer;" data-open-hotel="${h.id}">
@@ -3122,9 +3185,9 @@ function renderHotelResults(){
         <button class="hotel-compare-btn" style="margin-top:8px; width:auto; padding:7px 14px;" data-open-hotel="${h.id}">${currentLang==='ar'?'التفاصيل وأنواع الغرف':'Details & room types'}</button>
       </div>
       <div class="hotel-price-box">
-        <div class="per-night">${fmtPrice(providers[0].price)}</div>
+        <div class="per-night">${fmtPrice(cheapestPrice)}</div>
         <span>${currentLang==='ar'?'لليلة الواحدة':'per night'}</span>
-        <span class="total">${fmtPrice(providers[0].price*nights)} × ${nights} ${currentLang==='ar'?'ليالي':'nights'}</span>
+        <span class="total">${fmtPrice(cheapestPrice*nights)} × ${nights} ${currentLang==='ar'?'ليالي':'nights'}</span>
         <button class="hotel-compare-btn" data-toggle-hotel="${h.id}">${currentLang==='ar'?'قارن '+HOTEL_PROVIDERS.length+' مواقع':'Compare '+HOTEL_PROVIDERS.length+' sites'}</button>
       </div>
       <div class="hotel-providers" id="hp-${h.id}">
@@ -3165,11 +3228,11 @@ function openHotelProviders(hotelId, roomPrice){
   const cityLabel = currentLang==='ar' ? dest.cityAr : dest.cityEn;
   const checkin = document.getElementById('hotelCheckin').value;
   const checkout = document.getElementById('hotelCheckout').value;
-  const providers = HOTEL_PROVIDERS.map((p,i)=>{
+  const providers = sortWithDeepLinkPriority(HOTEL_PROVIDERS.map((p,i)=>{
     const r = seededRand(hashStr(hotelId)+i*9.9);
     const price = Math.round(roomPrice * (1 + (r-0.4)*0.18));
     return {...p, price};
-  }).sort((a,b)=>a.price-b.price);
+  }));
   panel.innerHTML = providers.map(p=>`
     <div class="hotel-provider-row">
       <div class="hp-name" style="color:${p.color};">${p.name}</div>
@@ -3462,7 +3525,7 @@ function buildDeals(){
   document.getElementById('dealsCount').textContent = live.length + (currentLang==='ar'?' وجهة مميزة':' featured destinations');
 }
 
-const AIRLINES = ['Emirates','flydubai','Saudia','Turkish Airlines','EgyptAir','Etihad Airways','Air Arabia','Royal Jordanian'];
+const AIRLINES = ['Emirates','flydubai','Saudia','Turkish Airlines','EgyptAir','Etihad Airways','Air Arabia','Royal Jordanian','Qatar Airways'];
 /* المحطة (hub) الرئيسية الحقيقية لكل شركة طيران — تُستخدم لعرض تفاصيل رحلة الترانزيت (مطار
    التوقف الفعلي) بدل الاكتفاء بعدد التوقفات فقط. نفس بيانات المطارات الموجودة في COUNTRIES
    بالضبط (نفس الأكواد والأسماء) لضمان التطابق. */
@@ -3495,7 +3558,7 @@ const AIRLINE_LOGOS = {
 const AIRLINE_COLORS = {
   'Emirates':'#d71921', 'flydubai':'#e6640c', 'Saudia':'#00693c',
   'Turkish Airlines':'#c50a2a', 'EgyptAir':'#ffffff', 'Etihad Airways':'#bd8b13', 'Air Arabia':'#e2231a',
-  'Royal Jordanian':'#ffffff',
+  'Royal Jordanian':'#ffffff', 'Qatar Airways':'#5c0632',
 };
 /* A few airlines get a hand-drawn SVG glyph that echoes their real logo shape (eagle, crown...) — this is
    what makes them instantly recognizable like in the Wego reference, rather than just text initials. */
@@ -3561,6 +3624,7 @@ const AIRLINE_IATA = {
   'Etihad Airways':{iata:'EY', country:'ae'},
   'Air Arabia':{iata:'G9', country:'ae'},
   'Royal Jordanian':{iata:'RJ', country:'jo'},
+  'Qatar Airways':{iata:'QR', country:'qa'},
 };
 /* Real published baggage allowances per airline (economy class, standard fare) — sourced from each
    airline's official baggage policy pages as of mid-2026. Low-cost carriers (flydubai, Air Arabia) are
@@ -3637,7 +3701,16 @@ function _flightDateParts(iso){ if(!iso) return null; const [y,m,d]=iso.split('-
 const PARTNERS = [
   {name:'Wingie', logo:'https://logo.clearbit.com/wingie.com', site:'https://www.wingie.com', type:'ota', trust:88, color:'#7c3aed', commission:{real:false}, note:true},
   {name:'MakeMyTrip', logo:'https://logo.clearbit.com/makemytrip.com', site:'https://linksredirect.com/?&source=linkkit&url=https%3A%2F%2Fwww.makemytrip.com%2Fhotels', type:'ota', trust:93, color:'#eb2026', commission:{real:true, model:'flat', amount:4.95, currency:'AED', label:'حتى ₹112.50/حجز فندق (Cuelinks) — طيران متوقف حاليًا'}},
-  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942', type:'ota', trust:95, color:'#2a67f4', commission:{real:true, model:'percent', min:0.044, max:0.07, label:'4.4%–7% فنادق · 0.5%–3% طيران'}},
+  {name:'Trip.com', logo:'https://logo.clearbit.com/trip.com', site:'https://www.trip.com/?Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942', type:'ota', trust:95, color:'#2a67f4',
+    // 12 سبتمبر 2026: رابط بحث طيران حقيقي (اتأكد من بحث وهمي فعلي بعته أحمد) — بيستخدم أكواد IATA
+    // عادية زي ما هي عندنا بالفعل، بدون أي خريطة مدن مطلوبة. نفس معرّفات تتبع العمولة الأصلية
+    // (Allianceid/SID/trip_sub1/trip_sub3) مضافة على نفس الرابط عشان العمولة تفضل متتبَّعة.
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      const triptype = ret ? 'rt' : 'ow';
+      const retParam = ret ? `&rdate=${ret}` : '';
+      return `https://ae.trip.com/flights/showfarefirst?dcity=${fromIata.toLowerCase()}&acity=${toIata.toLowerCase()}&ddate=${dep}${retParam}&triptype=${triptype}&class=y&lowpricesource=searchform&quantity=1&searchboxarg=t&nonstoponly=off&locale=en-AE&curr=AED&Allianceid=10133460&SID=328745677&trip_sub1=&trip_sub3=D19301942`;
+    },
+    commission:{real:true, model:'percent', min:0.044, max:0.07, label:'4.4%–7% فنادق · 0.5%–3% طيران'}},
   {name:'Turna.com', logo:'https://logo.clearbit.com/turna.com', site:'https://www.turna.com', type:'ota', trust:85, color:'#f2994a', commission:{real:false}},
   {name:'Flight Network', logo:'https://logo.clearbit.com/flightnetwork.com', site:'https://www.flightnetwork.com', type:'ota', trust:87, color:'#0aa1a3', commission:{real:false}},
   {name:'MyTrip', logo:'https://logo.clearbit.com/mytrip.com', site:'https://www.mytrip.com', type:'ota', trust:86, color:'#2ecc71', commission:{real:false}},
@@ -3652,6 +3725,21 @@ const PARTNERS = [
     commission:{real:true, model:'flat', amount:2, currency:'USD', label:'من $2 لكل حجز طيران مكتمل (CJ Affiliate)'}},
   {name:'Air India', logo:'https://logo.clearbit.com/airindia.com', site:'https://www.anrdoezrs.net/click-101862803-17098912', type:'ota', trust:90, color:'#d1032a', commission:{real:true, model:'percent', min:0.0075, max:0.0075, label:'0.75% من قيمة التذكرة (CJ Affiliate)'}},
   {name:'Kiwi.com', logo:'https://logo.clearbit.com/kiwi.com', site:'https://kiwi.tpm.lv/vEmIrA1K', type:'ota', trust:90, color:'#e5384d', commission:{real:true, model:'percent', min:0.03, max:0.03, label:'3% من قيمة التذكرة (Travelpayouts)'}},
+  /* ⏸️ 12 سبتمبر 2026: Almosafer اتشال مؤقتًا من نتائج البحث بطلب أحمد — حملة Almosafer على DCM
+     Network حالتها "Paused" حاليًا من الشركة نفسها (زي Wego بالظبط)، يعني مفيش عمولة ممكنة أصلًا
+     دلوقتي. الكود جاهز وموثّق تحت — لما الحملة ترجع Active على DCM Network، شيل التعليق ده وحطه
+     مكانه تاني في المصفوفة عادي.
+  {name:'Almosafer', logo:'https://logo.clearbit.com/almosafer.com', site:'https://ae.almosafer.com/en/flights', type:'ota', trust:88, color:'#00a19a',
+    // 12 سبتمبر 2026: رابط بحث حقيقي (اتأكد الشكل من رابط بحث وهمي بعته أحمد فعليًا) — بمسار وتاريخ
+    // الزائر الفعلي، لكن بدون عمولة لحد ما يتم التسجيل والموافقة فى DCM Network (Almosafer).
+    // لما توافق DCM Network، هنلف نفس الرابط ده جوه رابط التتبع بتاعهم زي باقي الشركاء.
+    urlFn:(fromIata,toIata,dep,ret)=>{
+      return ret
+        ? `https://ae.almosafer.com/en/flights/${fromIata}-${toIata}/${dep}/${ret}/Economy/1Adult`
+        : `https://ae.almosafer.com/en/flights/${fromIata}-${toIata}/${dep}/Economy/1Adult`;
+    },
+    commission:{real:false}},
+  */
   {name:'Skyscanner', logo:'https://logo.clearbit.com/skyscanner.net', site:'https://www.skyscanner.net', type:'meta', trust:96, color:'#0764d4', commission:{real:false},
     urlFn:(fromIata,toIata,dep,ret)=>{
       const d = _flightDateParts(dep), r = _flightDateParts(ret);
@@ -3660,7 +3748,6 @@ const PARTNERS = [
       return `https://www.skyscanner.net/transport/flights/${fromIata.toLowerCase()}/${toIata.toLowerCase()}/${dStr}/${rStr}`;
     }},
   {name:'Wego', logo:'https://logo.clearbit.com/wego.com', site:'https://www.wego.com', type:'meta', trust:92, color:'#44b50c', commission:{real:false}},
-  {name:'المسافر (Almosafer)', logo:'https://logo.clearbit.com/almosafer.com', site:'https://www.almosafer.com', type:'ota', trust:94, color:'#1c9c6b', commission:{real:false}},
   {name:'Aviasales', logo:'https://logo.clearbit.com/aviasales.com', site:'https://aviasales.tpm.lv/Sbbqh9Uk', type:'ota', trust:91, color:'#ff6b35', commission:{real:true, model:'percent', min:0.011, max:0.013, label:'1.1%–1.3% من قيمة التذكرة (Travelpayouts)'}},
   /* ============================================================
      أُضيفت 26 أغسطس 2026 — 3 برامج كانت أصلاً مقبولة وجاهزة على حساب Travelpayouts (نفس حساب
@@ -3759,9 +3846,41 @@ const AIRLINE_SITES = {
   'Etihad Airways':'https://www.etihad.com',
   'Air Arabia':'https://www.airarabia.com',
   'Royal Jordanian':'https://www.rj.com',
+  'Qatar Airways':'https://www.qatarairways.com',
+};
+// 12 سبتمبر 2026: صيغ روابط بحث حقيقية لشركات الطيران المباشرة (اتأكدت من بحث وهمي فعلي بعته أحمد) —
+// كل شركة ليها urlFn منفصل هنا. الشركات اللي مش موجودة هنا (لسه) أو اللي مواقعها SPA (مؤكد إنه
+// مستحيل تقنيًا، زي EgyptAir/مصر للطيران وEtihad/الاتحاد) بيرجعوا لرابط الصفحة الرئيسية العامة بس (fallback).
+function _airArabiaDateFmt(iso){ // YYYY-MM-DD -> DD-MM-YYYY
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}-${m}-${y}`;
+}
+function _flydubaiDateFmt(iso){ // YYYY-MM-DD -> YYYYMMDD
+  return iso ? iso.replace(/-/g,'') : '';
+}
+const AIRLINE_URL_FNS = {
+  'Air Arabia':(fromIata,toIata,dep,ret)=>{
+    const d = _airArabiaDateFmt(dep);
+    const r = ret ? _airArabiaDateFmt(ret) : 'N';
+    return `https://www.airarabia.com/ar/booking/select-flight#/fare/AED/AE/${fromIata}/${toIata}/${d}/${r}/1/0/0/Y/N/N`;
+  },
+  'Qatar Airways':(fromIata,toIata,dep,ret)=>{
+    const base = `https://www.qatarairways.com/app/booking/flight-selection?widget=QR&searchType=F&addTaxToFare=Y&minPurTime=0&selLang=ar&fromStation=${fromIata}&toStation=${toIata}&departing=${dep}&bookingClass=E&adults=1&children=0&infants=0&ofw=0&teenager=0&flexibleDate=off&allowRedemption=N`;
+    return ret ? `${base}&tripType=R&returning=${ret}` : `${base}&tripType=O`;
+  },
+  'flydubai':(fromIata,toIata,dep,ret)=>{
+    const triptype = ret ? 'rt' : 'ow';
+    const dates = ret ? `${_flydubaiDateFmt(dep)}_${_flydubaiDateFmt(ret)}` : _flydubaiDateFmt(dep);
+    return `https://flights2.flydubai.com/en/results/${triptype}/a1c0i0/${fromIata}_${toIata}/${dates}?cabinClass=Economy&isOriginMetro=false&isDestMetro=false&pm=cash`;
+  },
+  // مصر للطيران (EgyptAir) والاتحاد (Etihad Airways) والإماراتية (Emirates): مواقعهم SPA بالكامل
+  // (بيانات البحث فى حالة التطبيق مش فى الرابط) — تأكدنا إنه مستحيل تقنيًا عمل Deep Link ليهم، نفس
+  // فئة Air India/Flight Network/MyTrip.
 };
 const AIRLINE_DIRECT_PARTNERS = AIRLINES.map(a=>({
   name: a+' — حجز مباشر', airlineName:a, logo:null, site: AIRLINE_SITES[a] || '#',
+  urlFn: AIRLINE_URL_FNS[a],
   type:'airline_direct', trust:99, color:(AIRLINE_COLORS[a] && AIRLINE_COLORS[a]!=='#ffffff') ? AIRLINE_COLORS[a] : 'var(--blue)', commission:{real:false},
 }));
 function findCommissionSource(partnerName){
@@ -4337,9 +4456,11 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
   const uniqueAirlines = [...new Set([fOut.airline, fIn ? fIn.airline : null].filter(Boolean))];
   const airlineOptions = uniqueAirlines.map(a=>{
     const base = AIRLINE_DIRECT_PARTNERS.find(p=>p.airlineName===a) || {name:a+' — حجز مباشر', site:'#', color:'var(--blue)'};
-    return {...base, price: basePrice, isAirlineDirect:true};
+    let liveUrl = base.site;
+    if (base.urlFn) { try{ liveUrl = base.urlFn(fromAp.code, toAp.code, depVal, retVal) || base.site; }catch(_e){ liveUrl = base.site; } }
+    return {...base, site: liveUrl, price: basePrice, isAirlineDirect:true};
   });
-  const options = [...otaOptions, ...airlineOptions].sort((a,b)=>a.price-b.price);
+  const options = sortWithDeepLinkPriority([...otaOptions, ...airlineOptions]);
   document.getElementById('priceOptNum').textContent = options.length;
   document.getElementById('priceOptionsList').innerHTML = options.map(o=>`
     <div class="price-row" data-partner-name="${o.name}">
