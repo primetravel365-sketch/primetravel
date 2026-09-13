@@ -198,6 +198,26 @@ module.exports = async function handler(req, res) {
     // للبيانات الكاملة)، بنرجع بالـid نفسه كنص بدل ما نكسر الاستجابة.
     const carriersMap = {};
     (Array.isArray(json.carriers) ? json.carriers : []).forEach(c => { carriersMap[c.id] = c.name || c.id; });
+    // ⚠️ إضافة 12 سبتمبر 2026: خريطة الوكلاء (agents) — كل itinerary فى رد FlightAPI.io بيرجع معاه
+    // "pricing_options" متعددة، كل واحد منها بسعر حقيقي مختلف + رابط حجز حقيقي (Deep Link) لموقع
+    // حجز فعلي (وكيل/agent) مختلف. ده غير مُستخدم خالص فى الكود القديم — كان بيتاخد بس أرخص سعر
+    // (cheapest_price) ويتجاهل باقي البيانات دي بالكامل، بما فيها روابط الحجز الحقيقية.
+    const agentsMap = {};
+    (Array.isArray(json.agents) ? json.agents : []).forEach(a => { agentsMap[a.id] = a.name || a.id; });
+    // الروابط اللي بترجع من FlightAPI.io بتبدأ بمسار Skyscanner النسبي (زي "/transport_deeplink/4.0/...")
+    // من غير الدومين — لازم نضيف الدومين الرسمي قبله عشان يبقى رابط شغال فعليًا.
+    const SKYSCANNER_BASE = 'https://www.skyscanner.net';
+    const extractBookingOptions = (it) => {
+      return (Array.isArray(it.pricing_options) ? it.pricing_options : []).map(po => {
+        const priceAmt = po.price && po.price.amount;
+        const agentId = Array.isArray(po.agent_ids) ? po.agent_ids[0] : null;
+        const item = Array.isArray(po.items) ? po.items[0] : null;
+        const path = item && item.url;
+        if (priceAmt == null || !path) return null;
+        const url = /^https?:\/\//i.test(path) ? path : `${SKYSCANNER_BASE}${path}`;
+        return { agent: agentsMap[agentId] || agentId || 'Unknown', price: parseFloat(priceAmt), url };
+      }).filter(Boolean).sort((a, b) => a.price - b.price);
+    };
     // اتأكد من شكل بيانات places الحقيقي باختبار مباشر: كود المطار/المدينة موجود جوه
     // حقل "display_code" (مش iata_code زي ما كان متوقع افتراضيًا)، مثال حقيقي:
     // { id:13445, name:"Larnaca", type:"Airport", display_code:"LCA" }
@@ -257,6 +277,11 @@ module.exports = async function handler(req, res) {
         currency: cur,
         airline: segments[0].airline,
         segments,
+        // ⚠️ إضافة 12 سبتمبر 2026: خيارات حجز حقيقية متعددة (سعر + رابط حجز فعلي مختلف لكل موقع)
+        // مستخرجة من نفس رد FlightAPI.io — بديل حقيقي للأسعار المُلفَّقة اللي كانت بتتحسب بمعادلة
+        // markup ثابتة لكل شريك فى renderPriceOptionsList. لو الرحلة دي مصدرها مش FlightAPI (Duffel
+        // أو بيانات تقديرية)، هتفضل المصفوفة دي فاضية والواجهة هترجع تلقائيًا للطريقة القديمة.
+        bookingOptions: extractBookingOptions(it),
       };
     }).filter(Boolean).sort((a, b) => a.price - b.price);
 
