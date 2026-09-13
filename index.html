@@ -2950,9 +2950,11 @@ const HOTEL_PROVIDERS = [
    (راجع تعليق كل شريك فى PARTNERS/HOTEL_PROVIDERS لمعرفة مين عنده Deep Link حقيقي دلوقتي). */
 const DEEP_LINK_PRIORITY_PARTNERS = new Set(['Booking.com', 'Aviasales']);
 function sortWithDeepLinkPriority(list){
+  // isRealAgent: خيارات حقيقية 100% (سعر + رابط) جايه مباشرة من FlightAPI.io — نفس أولوية
+  // DEEP_LINK_PRIORITY_PARTNERS بالظبط، من غير ما نحتاج نضيف أسماء الوكلاء (متغيّرة) للقائمة الثابتة.
   return [...list].sort((a,b)=>{
-    const pa = DEEP_LINK_PRIORITY_PARTNERS.has(a.name) ? 0 : 1;
-    const pb = DEEP_LINK_PRIORITY_PARTNERS.has(b.name) ? 0 : 1;
+    const pa = (a.isRealAgent || DEEP_LINK_PRIORITY_PARTNERS.has(a.name)) ? 0 : 1;
+    const pb = (b.isRealAgent || DEEP_LINK_PRIORITY_PARTNERS.has(b.name)) ? 0 : 1;
     if (pa !== pb) return pa - pb;
     return a.price - b.price;
   });
@@ -4460,12 +4462,24 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
     if (base.urlFn) { try{ liveUrl = base.urlFn(fromAp.code, toAp.code, depVal, retVal) || base.site; }catch(_e){ liveUrl = base.site; } }
     return {...base, site: liveUrl, price: basePrice, isAirlineDirect:true};
   });
-  const options = sortWithDeepLinkPriority([...otaOptions, ...airlineOptions]);
+  // ⚠️ إضافة 12 سبتمبر 2026: لو رحلة الذهاب مصدرها FlightAPI.io فعليًا (source==='flightapi') وفيها
+  // خيارات حجز حقيقية (bookingOptions من رد FlightAPI.io نفسه، سعر + رابط حجز فعلي مختلف لكل موقع)،
+  // ونوع الرحلة اتجاه واحد بس (لسه معندناش طريقة لدمج خيارات الذهاب والعودة الحقيقية مع بعض بدقة) —
+  // بنضيفها كخيارات حقيقية 100% في أول القائمة، بدل الاعتماد بس على معادلة markup تقديرية.
+  const realAgentOptions = (!fIn && realInfo && realInfo.source === 'flightapi' && Array.isArray(fOut.bookingOptions))
+    ? fOut.bookingOptions.map(bo => ({
+        name: bo.agent, logo: null, site: bo.url, color: 'var(--blue)',
+        price: Math.round(bo.price), isRealAgent: true, commission: { real: false },
+      }))
+    : [];
+  const options = sortWithDeepLinkPriority([...realAgentOptions, ...otaOptions, ...airlineOptions]);
   document.getElementById('priceOptNum').textContent = options.length;
   document.getElementById('priceOptionsList').innerHTML = options.map(o=>`
     <div class="price-row" data-partner-name="${o.name}">
       <div class="partner">${o.isAirlineDirect
         ? `${airlineBadge(o.airlineName,26)}<b>${currentLang==='ar'?o.airlineName+' — حجز مباشر':o.airlineName+' — Direct Booking'}</b><span class="partner-note" style="background:rgba(47,111,237,.15); color:var(--blue-l);">${currentLang==='ar'?'الناقل الأصلي':'Operating airline'}</span>`
+        : o.isRealAgent
+        ? `${partnerBadge(o,26)}<b>${o.name}</b><span class="partner-note" style="background:rgba(39,174,96,.15); color:var(--green);">${currentLang==='ar'?'سعر ورابط حجز حقيقي':'Real price & booking link'}</span>`
         : `${partnerBadge(o,26)}<b>${o.name}</b> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}`}</div>
       <div class="p-price">${fmtPrice(o.price)}</div>
       <button class="choose-btn" data-partner="${o.name}" data-price="${o.price}" data-site="${o.site}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
@@ -4546,6 +4560,12 @@ function mapCarrierFlights(data, source, idTag){
       aircraft: seg0.aircraft || '—',
       dep,
       source, // 'duffel' (وضع تجريبي حاليًا) أو 'flightapi' (حقيقي فعليًا) — مستخدم فى openTripDetails
+      // ⚠️ إضافة 12 سبتمبر 2026: خيارات حجز حقيقية (سعر + رابط فعلي) لكل وكيل/موقع حجز، جايه من
+      // FlightAPI.io مباشرة — بنحوّل كل سعر لنفس العملة المعروضة فى الموقع (rate) هنا مرة واحدة
+      // عشان renderPriceOptionsList يستخدمها زي ما هي من غير أي تحويل إضافي.
+      bookingOptions: Array.isArray(f.bookingOptions)
+        ? f.bookingOptions.map(bo => ({ agent: bo.agent, price: bo.price / rate, url: bo.url }))
+        : [],
     };
   }).filter(f=>f && f.price>0);
 }
