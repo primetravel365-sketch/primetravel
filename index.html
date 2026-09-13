@@ -4423,9 +4423,12 @@ function openTripDetails(){
   // كان renderPriceOptionsList بيمسح كل صفوف القائمة ويبنيها من جديد ويشيل تحديث Kiwi/Aviasales
   // بالكامل من غير ما حد يلاحظ (نفس السعر بيرجع تقديري تاني بصمت). الحل: نخزّن أي سعر حقيقي جبناه
   // في متغيّرين، ونعيد تطبيقه تاني بعد أي إعادة رسم لاحقة من Duffel.
-  let liveKiwiUSD = null, liveAviaUSD = null, liveAviaLink = null;
-  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveKiwiUSD = v; updateLivePriceRow('Kiwi.com', v); });
-  fetchLiveFlightPrice(fromAp.code, toAp.code, depVal).then(v=>{ liveAviaUSD = v; updateLivePriceRow('Aviasales', v); });
+  // ⚠️ إصلاح 13 سبتمبر 2026: شيلنا بادچ "سعر حقيقي" من Aviasales كمان (زي Kiwi.com بالظبط) —
+  // أحمد لاحظ فارق حقيقي (837 د.إ المعروض مقابل 984-1137 د.إ فعليًا فى نتائج الحجز الحية) لأن
+  // /api/tp-price بيرجّع سعر "آخر ملاحظ/مؤرشف" مش سعر لحظي حي فعليًا، ومينفعش نوصمه "حقيقي".
+  // الرابط العميق لـAviasales يفضل حقيقي 100% وشغال زي ما هو (ده منفصل تمامًا عن دقة رقم السعر
+  // المعروض قبل ما الزائر يدخل) — بس رقم السعر نفسه يرجع تقديري عادي بمعادلة زي باقي الشركاء.
+  let liveAviaLink = null;
   // 31 أغسطس 2026: رابط Aviasales الحقيقي بالمسار/التاريخ الفعلي (راجع التعليق فوق fetchLiveFlightLink)
   fetchLiveFlightLink(_aviaSearchUrl(fromAp.code, toAp.code, depVal, retVal)).then(url=>{ liveAviaLink = url; updateLiveLinkRow('Aviasales', url); });
   // تحديث 19 أغسطس 2026 (مُقيَّد اعتبارًا من 20 أغسطس 2026): محاولة جلب سعر أساس حقيقي فعلي من
@@ -4435,11 +4438,7 @@ function openTripDetails(){
     fetchDuffelBasePrice(fromAp.code, toAp.code, depVal, retVal).then(real=>{
       if (!real || !real.priceAED) return;
       renderPriceOptionsList(real.priceAED, fOut, fIn, fromAp, toAp, depVal, retVal, true, { ...real, source: 'duffel' });
-      // نعيد تطبيق أي سعر ورابط حقيقي كنا جبناهم من Kiwi/Aviasales قبل كده، عشان الرسم الجديد ده
-      // ميمسحوش — ⚠️ إصلاح 13 سبتمبر 2026: كان بيتم استعادة السعر بس من غير الرابط، فرابط
-      // Aviasales الحقيقي كان بيترجع للرابط الثابت العام صامتًا لو Duffel رجّع رد بعد Aviasales.
-      if (liveKiwiUSD != null) updateLivePriceRow('Kiwi.com', liveKiwiUSD);
-      if (liveAviaUSD != null) updateLivePriceRow('Aviasales', liveAviaUSD);
+      // نعيد تطبيق رابط Aviasales الحقيقي كنا جبناه قبل كده، عشان الرسم الجديد ده ميمسحوش
       if (liveAviaLink != null) updateLiveLinkRow('Aviasales', liveAviaLink);
     });
   }
