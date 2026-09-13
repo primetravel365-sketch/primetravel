@@ -4462,16 +4462,31 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
     if (base.urlFn) { try{ liveUrl = base.urlFn(fromAp.code, toAp.code, depVal, retVal) || base.site; }catch(_e){ liveUrl = base.site; } }
     return {...base, site: liveUrl, price: basePrice, isAirlineDirect:true};
   });
-  // ⚠️ إضافة 12 سبتمبر 2026: لو رحلة الذهاب مصدرها FlightAPI.io فعليًا (source==='flightapi') وفيها
-  // خيارات حجز حقيقية (bookingOptions من رد FlightAPI.io نفسه، سعر + رابط حجز فعلي مختلف لكل موقع)،
-  // ونوع الرحلة اتجاه واحد بس (لسه معندناش طريقة لدمج خيارات الذهاب والعودة الحقيقية مع بعض بدقة) —
-  // بنضيفها كخيارات حقيقية 100% في أول القائمة، بدل الاعتماد بس على معادلة markup تقديرية.
-  const realAgentOptions = (!fIn && realInfo && realInfo.source === 'flightapi' && Array.isArray(fOut.bookingOptions))
-    ? fOut.bookingOptions.map(bo => ({
+  // ⚠️ إضافة 12 سبتمبر 2026: خيارات حجز حقيقية 100% (سعر + رابط) جايه مباشرة من FlightAPI.io.
+  // - رحلة ذهاب فقط: بنستخدم bookingOptions بتاعة fOut زي ما هي.
+  // - رحلة ذهاب وعودة: كل اتجاه بييجي من نداء منفصل لـFlightAPI.io (fOut وfIn كل واحد بمصفوفة
+  //   bookingOptions خاصة بيه لوحده). مفيش رابط واحد "يحجز الاتنين مع بعض" — فبنطابق نفس اسم
+  //   الوكيل (Agent) الموجود فى الاتجاهين، ونجمع سعريهم، ونحتفظ بالرابطين (site للذهاب،
+  //   secondarySite للعودة) — الزائر بيدوس زرار واحد وبيتفتحله تبويبين (رحلة الذهاب ثم العودة)
+  //   بنفس الموقع، بدل ما نلفّق رابط واحد وهمي أو نخلط بين وكلاء مختلفين من غير ما يبان للزائر.
+  //   لو مفيش وكيل مشترك بين الاتجاهين، القائمة بترجع فاضية وبتفضل القائمة التقديرية القديمة زي ما هي.
+  const realAgentOptions = (!realInfo || realInfo.source !== 'flightapi') ? [] : (!fIn
+    ? (Array.isArray(fOut.bookingOptions) ? fOut.bookingOptions.map(bo => ({
         name: bo.agent, logo: null, site: bo.url, color: 'var(--blue)',
         price: Math.round(bo.price), isRealAgent: true, commission: { real: false },
-      }))
-    : [];
+      })) : [])
+    : (() => {
+        if (!Array.isArray(fOut.bookingOptions) || !Array.isArray(fIn.bookingOptions)) return [];
+        const inByAgent = {};
+        fIn.bookingOptions.forEach(bo => { if (!inByAgent[bo.agent]) inByAgent[bo.agent] = bo; });
+        return fOut.bookingOptions.filter(bo => inByAgent[bo.agent]).map(bo => {
+          const inBo = inByAgent[bo.agent];
+          return {
+            name: bo.agent, logo: null, site: bo.url, secondarySite: inBo.url, color: 'var(--blue)',
+            price: Math.round(bo.price + inBo.price), isRealAgent: true, isRoundTripReal: true, commission: { real: false },
+          };
+        });
+      })());
   const options = sortWithDeepLinkPriority([...realAgentOptions, ...otaOptions, ...airlineOptions]);
   document.getElementById('priceOptNum').textContent = options.length;
   document.getElementById('priceOptionsList').innerHTML = options.map(o=>`
@@ -4479,19 +4494,21 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
       <div class="partner">${o.isAirlineDirect
         ? `${airlineBadge(o.airlineName,26)}<b>${currentLang==='ar'?o.airlineName+' — حجز مباشر':o.airlineName+' — Direct Booking'}</b><span class="partner-note" style="background:rgba(47,111,237,.15); color:var(--blue-l);">${currentLang==='ar'?'الناقل الأصلي':'Operating airline'}</span>`
         : o.isRealAgent
-        ? `${partnerBadge(o,26)}<b>${o.name}</b><span class="partner-note" style="background:rgba(39,174,96,.15); color:var(--green);">${currentLang==='ar'?'سعر ورابط حجز حقيقي':'Real price & booking link'}</span>`
+        ? `${partnerBadge(o,26)}<b>${o.name}</b><span class="partner-note" style="background:rgba(39,174,96,.15); color:var(--green);">${o.isRoundTripReal ? (currentLang==='ar'?'سعر حقيقي — تبويبين (ذهاب+عودة)':'Real price — 2 tabs (there & back)') : (currentLang==='ar'?'سعر ورابط حجز حقيقي':'Real price & booking link')}</span>`
         : `${partnerBadge(o,26)}<b>${o.name}</b> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}`}</div>
       <div class="p-price">${fmtPrice(o.price)}</div>
-      <button class="choose-btn" data-partner="${o.name}" data-price="${o.price}" data-site="${o.site}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
+      <button class="choose-btn" data-partner="${o.name}" data-price="${o.price}" data-site="${o.site}" data-secondary-site="${o.secondarySite||''}">${currentLang==='ar'?'احجز الآن':'Book now'}</button>
     </div>`).join('');
   document.querySelectorAll('.choose-btn').forEach(btn=>{
     btn.onclick = ()=>{
       const partnerName = btn.getAttribute('data-partner');
       const priceAED = parseFloat(btn.getAttribute('data-price'));
       const site = btn.getAttribute('data-site');
+      const secondarySite = btn.getAttribute('data-secondary-site');
       trackClick(partnerName, priceAED); // logs the click + estimated commission into the admin dashboard
-      showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking'));
-      window.open(site, '_blank', 'noopener'); // opens the provider's own official site
+      showToast((currentLang==='ar'?'جارٍ تحويلك إلى ':'Opening ')+partnerName+(secondarySite ? (currentLang==='ar'?' في تبويبين لإتمام حجز الذهاب والعودة':' in two tabs to complete the outbound and return booking') : (currentLang==='ar'?' في تبويب جديد لإتمام الحجز':' in a new tab to complete booking')));
+      window.open(site, '_blank', 'noopener'); // opens the provider's own official site (outbound leg for round-trip real matches)
+      if (secondarySite) window.open(secondarySite, '_blank', 'noopener'); // return leg, only present for matched round-trip real agent options
     };
   });
   // تحديث السطر التوضيحي: لو السعر الأساسي بقى حقيقي فعلاً (من FlightAPI.io أو Duffel)، نستبدل
