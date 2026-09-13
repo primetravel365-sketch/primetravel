@@ -4454,15 +4454,31 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
     if (p.urlFn) { try{ liveUrl = p.urlFn(fromAp.code, toAp.code, depVal, retVal) || p.site; }catch(_e){ liveUrl = p.site; } }
     return {...p, site: liveUrl, price: Math.round(basePrice * (1 + i*0.012 + (i%3)*0.004))};
   });
-  // one option per operating airline on this itinerary (usually one, occasionally two if outbound/return differ) —
-  // priced at the base fare with no OTA markup, since it's the direct-from-carrier price
-  const uniqueAirlines = [...new Set([fOut.airline, fIn ? fIn.airline : null].filter(Boolean))];
-  const airlineOptions = uniqueAirlines.map(a=>{
-    const base = AIRLINE_DIRECT_PARTNERS.find(p=>p.airlineName===a) || {name:a+' — حجز مباشر', site:'#', color:'var(--blue)'};
-    let liveUrl = base.site;
-    if (base.urlFn) { try{ liveUrl = base.urlFn(fromAp.code, toAp.code, depVal, retVal) || base.site; }catch(_e){ liveUrl = base.site; } }
-    return {...base, site: liveUrl, price: basePrice, isAirlineDirect:true};
-  });
+  // ⚠️ إصلاح 13 سبتمبر 2026: لو رحلة الذهاب والعودة بشركتين مختلفتين (مثلاً الاتحاد ذهاب + العربية
+  // عودة)، كان الكود القديم بيبني رابط "رحلة ذهاب وعودة كاملة" لكل شركة لوحدها — يعني بيفتح "رحلة
+  // الاتحاد ذهاب وعودة" كاملة رغم إن الاتحاد بيطير اتجاه واحد بس فعليًا فى اختيار الزائر. دلوقتي:
+  // لو الشركتين مختلفتين، كل شركة بتاخد رابط اتجاه واحد بس (بتاريخ رحلتها هي بالظبط، من غير تاريخ
+  // عودة)، وبنوضّح فى البادچ إنه "ذهاب فقط"/"عودة فقط". لو نفس الشركة فى الاتجاهين (أو رحلة ذهاب
+  // فقط)، الرابط يفضل زي ما كان بالظبط (رحلة كاملة برابط واحد).
+  const airlineOptions = [];
+  if (fIn && fOut.airline !== fIn.airline){
+    const buildLeg = (airlineName, legFromCode, legToCode, legDate, legPrice, legTag) => {
+      const base = AIRLINE_DIRECT_PARTNERS.find(p=>p.airlineName===airlineName) || {name:airlineName+' — حجز مباشر', site:'#', color:'var(--blue)'};
+      let liveUrl = base.site;
+      if (base.urlFn) { try{ liveUrl = base.urlFn(legFromCode, legToCode, legDate, null) || base.site; }catch(_e){ liveUrl = base.site; } }
+      airlineOptions.push({...base, site: liveUrl, price: legPrice, isAirlineDirect:true, legTag});
+    };
+    buildLeg(fOut.airline, fromAp.code, toAp.code, depVal, fOut.price, 'outbound');
+    buildLeg(fIn.airline, toAp.code, fromAp.code, retVal, fIn.price, 'return');
+  } else {
+    const uniqueAirlines = [...new Set([fOut.airline, fIn ? fIn.airline : null].filter(Boolean))];
+    uniqueAirlines.forEach(a=>{
+      const base = AIRLINE_DIRECT_PARTNERS.find(p=>p.airlineName===a) || {name:a+' — حجز مباشر', site:'#', color:'var(--blue)'};
+      let liveUrl = base.site;
+      if (base.urlFn) { try{ liveUrl = base.urlFn(fromAp.code, toAp.code, depVal, retVal) || base.site; }catch(_e){ liveUrl = base.site; } }
+      airlineOptions.push({...base, site: liveUrl, price: basePrice, isAirlineDirect:true});
+    });
+  }
   // ⚠️ إضافة 12 سبتمبر 2026: خيارات حجز حقيقية 100% (سعر + رابط) جايه مباشرة من FlightAPI.io.
   // - رحلة ذهاب فقط: بنستخدم bookingOptions بتاعة fOut زي ما هي.
   // - رحلة ذهاب وعودة: كل اتجاه بييجي من نداء منفصل لـFlightAPI.io (fOut وfIn كل واحد بمصفوفة
@@ -4493,7 +4509,7 @@ function renderPriceOptionsList(basePrice, fOut, fIn, fromAp, toAp, depVal, retV
   document.getElementById('priceOptionsList').innerHTML = options.map(o=>`
     <div class="price-row" data-partner-name="${o.name}">
       <div class="partner">${o.isAirlineDirect
-        ? `${airlineBadge(o.airlineName,26)}<b>${currentLang==='ar'?o.airlineName+' — حجز مباشر':o.airlineName+' — Direct Booking'}</b><span class="partner-note" style="background:rgba(47,111,237,.15); color:var(--blue-l);">${currentLang==='ar'?'الناقل الأصلي':'Operating airline'}</span>`
+        ? `${airlineBadge(o.airlineName,26)}<b>${currentLang==='ar'?o.airlineName+' — حجز مباشر':o.airlineName+' — Direct Booking'}</b><span class="partner-note" style="background:rgba(47,111,237,.15); color:var(--blue-l);">${o.legTag==='outbound'?(currentLang==='ar'?'ذهاب فقط':'Outbound only'):o.legTag==='return'?(currentLang==='ar'?'عودة فقط':'Return only'):(currentLang==='ar'?'الناقل الأصلي':'Operating airline')}</span>`
         : o.isRealAgent
         ? `${partnerBadge(o,26)}<b>${o.name}</b><span class="partner-note" style="background:rgba(39,174,96,.15); color:var(--green);">${o.isRoundTripReal ? (currentLang==='ar'?'سعر حقيقي — تبويبين (ذهاب+عودة)':'Real price — 2 tabs (there & back)') : (currentLang==='ar'?'سعر ورابط حجز حقيقي':'Real price & booking link')}</span>`
         : `${partnerBadge(o,26)}<b>${o.name}</b> ${o.note?`<span class="partner-note">${currentLang==='ar'?'دفع بالتقسيط':'Pay later'}</span>`:''}`}</div>
